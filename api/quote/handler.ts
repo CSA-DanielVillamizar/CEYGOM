@@ -78,7 +78,8 @@ export async function handleQuote(
       await deps.postLead(env.value.LEADS_WEBHOOK_URL, lead, env.value.LEADS_WEBHOOK_SECRET);
       webhookDelivered = true;
     } catch (e) {
-      ctx.error(`Lead ${lead.reference}: webhook failed: ${(e as Error).message}`);
+      // `e` can be anything (a thrown string or null included); never let logging break the response.
+      ctx.error(`Lead ${lead.reference}: webhook failed: ${e instanceof Error ? e.message : "unknown error"}`);
     }
   }
 

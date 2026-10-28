@@ -77,6 +77,14 @@ describe("POST /api/quote", () => {
     expect((res.jsonBody as { webhookDelivered: boolean }).webhookDelivered).toBe(false);
   });
 
+  it.each([null, undefined, "boom", { code: 500 }])("keeps the wa.me link when the webhook throws %j", async (thrown) => {
+    const res = await call(validBody, { postLead: vi.fn().mockRejectedValue(thrown) });
+    expect(res.status).toBe(200);
+    const body = res.jsonBody as { whatsappUrl: string; webhookDelivered: boolean };
+    expect(body.webhookDelivered).toBe(false);
+    expect(body.whatsappUrl.startsWith("https://wa.me/573000000000?text=")).toBe(true);
+  });
+
   it("works without a webhook configured", async () => {
     const res = await call(validBody, { env: { WHATSAPP_NUMBER: "573000000000" } });
     expect(res.status).toBe(200);
