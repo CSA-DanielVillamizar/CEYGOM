@@ -21,5 +21,6 @@ Estados posibles: `Propuesta`, `Aceptada`, `Aceptada con revisión pendiente`, `
 | [0013](0013-catalogo-generado-desde-manifiesto.md) | Catálogo generado desde un manifiesto, con fichas y fotos optimizadas | Aceptada |
 | [0014](0014-lista-de-cotizacion-y-buscador-en-el-navegador.md) | Lista de cotización y buscador del catálogo en el navegador, sin servidor | Aceptada |
 | [0015](0015-acuse-de-recibo-al-cliente-por-correo.md) | Acuse de recibo por correo al cliente, enviado desde el receptor | Aceptada |
+| [0016](0016-anexo-tecnico-impreso-y-modo-sin-conexion.md) | Anexo técnico en la lista impresa y modo sin conexión | Aceptada |
 
 Para proponer una decisión nueva, abre un issue con la plantilla "Propuesta de ADR" y luego un PR que añada el archivo.
