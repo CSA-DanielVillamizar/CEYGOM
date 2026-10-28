@@ -11,10 +11,13 @@ export function normalizeWhatsappNumber(raw: string): string {
 }
 
 type MessageInput = Pick<QuoteRequest, "items" | "project"> & {
-  contact: Pick<QuoteRequest["contact"], "fullName" | "company">;
+  contact: Pick<QuoteRequest["contact"], "fullName" | "businessName">;
 };
 
-/** Message text without personal contact data (email/phone stay in the lead record, not in the URL). */
+/**
+ * Message text without personal contact or tax data. Email, phone, NIT/cédula, CIIU, fiscal
+ * responsibilities and the RUT file stay in the lead record, never in the URL.
+ */
 export function buildWhatsappMessage(reference: string | undefined, req: MessageInput): string {
   const lines: string[] = [];
   lines.push(reference ? `Hola, quiero cotizar (ref. ${reference}):` : "Hola, quiero cotizar:");
@@ -29,7 +32,7 @@ export function buildWhatsappMessage(reference: string | undefined, req: Message
 
   lines.push(`Ciudad: ${req.project.city}`);
   if (req.project.neededBy) lines.push(`Fecha requerida: ${req.project.neededBy}`);
-  lines.push(`Soy ${req.contact.fullName}${req.contact.company ? ` (${req.contact.company})` : ""}.`);
+  lines.push(`Soy ${req.contact.fullName}${req.contact.businessName ? ` (${req.contact.businessName})` : ""}.`);
 
   let text = lines.join("\n");
   if (text.length > MAX_MESSAGE_LENGTH) text = `${text.slice(0, MAX_MESSAGE_LENGTH - 1)}…`;

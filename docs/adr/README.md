@@ -16,5 +16,7 @@ Estados posibles: `Propuesta`, `Aceptada`, `Aceptada con revisión pendiente`, `
 | [0008](0008-configuracion-y-secretos.md) | Configuración y secretos en Application settings | Aceptada |
 | [0009](0009-cotizador-sin-precios-y-proteccion-de-datos.md) | Cotizador sin precios y tratamiento mínimo de datos personales | Aceptada |
 | [0010](0010-csp-con-unsafe-inline-temporal.md) | Content-Security-Policy con `unsafe-inline` temporal | Aceptada con revisión pendiente |
+| [0011](0011-identificacion-tributaria-obligatoria-en-el-cotizador.md) | NIT o cédula (RUT) obligatorio en el cotizador | Aceptada; ampliada por ADR-0012 |
+| [0012](0012-datos-fiscales-y-adjunto-del-rut.md) | Datos fiscales del RUT y adjunto opcional del documento | Aceptada |
 
 Para proponer una decisión nueva, abre un issue con la plantilla "Propuesta de ADR" y luego un PR que añada el archivo.

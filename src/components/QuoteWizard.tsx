@@ -4,13 +4,18 @@ import { CATEGORIES, PRODUCTS, productBySlug, type CategoryId } from "@shared/ca
 import {
   ENVIRONMENTS,
   FINISHES,
+  FISCAL_RESPONSIBILITIES,
   MAX_ITEMS,
+  PERSON_TYPES,
   QuoteContactSchema,
   QuoteItemSchema,
   QuoteProjectSchema,
   QuoteRequestSchema,
+  RUT_MAX_BYTES,
+  RutFileSchema,
   type QuoteRequest,
   type QuoteResponse,
+  type RutFile,
 } from "@shared/quote.schema";
 import { buildWhatsappMessage, buildWhatsappUrl } from "@shared/whatsapp";
 
@@ -20,6 +25,19 @@ const FINISH_LABELS: Record<(typeof FINISHES)[number], string> = {
   inoxidable: "Acero inoxidable",
   otro: "Otro",
 };
+
+const PERSON_LABELS: Record<(typeof PERSON_TYPES)[number], string> = { natural: "Persona natural", juridica: "Persona jurídica" };
+
+const FISCAL_LABELS: Record<(typeof FISCAL_RESPONSIBILITIES)[number], string> = {
+  "responsable-iva": "Responsable de IVA",
+  "no-responsable-iva": "No responsable de IVA",
+  "gran-contribuyente": "Gran contribuyente",
+  autorretenedor: "Autorretenedor",
+  "regimen-simple": "Régimen Simple de Tributación",
+  otra: "Otra (la confirmamos con tu RUT)",
+};
+
+type FiscalResponsibility = (typeof FISCAL_RESPONSIBILITIES)[number];
 
 // ---- Draft state (inputs are strings; they are converted and validated with the shared Zod schemas) ----
 
@@ -34,13 +52,27 @@ interface ItemDraft {
   notes: string;
 }
 interface ProjectDraft { city: string; neededBy: string; environment: string; notes: string }
-interface ContactDraft { fullName: string; company: string; email: string; phone: string; acceptsDataPolicy: boolean }
+interface ContactDraft {
+  personType: "" | (typeof PERSON_TYPES)[number];
+  fullName: string;
+  businessName: string;
+  taxId: string;
+  taxIdCheckDigit: string;
+  ciiuCode: string;
+  fiscalResponsibilities: FiscalResponsibility[];
+  email: string;
+  phone: string;
+  acceptsDataPolicy: boolean;
+}
 
 interface State {
   step: number;
   items: ItemDraft[];
   project: ProjectDraft;
   contact: ContactDraft;
+  // The attachment lives only in memory: it is never written to sessionStorage.
+  rutFile: RutFile | null;
+  rutError: string;
   honeypot: string;
 }
 
@@ -52,6 +84,7 @@ type Action =
   | { type: "removeItem"; index: number }
   | { type: "project"; patch: Partial<ProjectDraft> }
   | { type: "contact"; patch: Partial<ContactDraft> }
+  | { type: "rut"; file: RutFile | null; error: string }
   | { type: "honeypot"; value: string };
 
 const emptyItem = (): ItemDraft => ({ category: "", productSlug: "", quantity: "1", widthMm: "", heightMm: "", depthMm: "", finish: "", notes: "" });
@@ -60,14 +93,27 @@ const initial: State = {
   step: 0,
   items: [emptyItem()],
   project: { city: "", neededBy: "", environment: "", notes: "" },
-  contact: { fullName: "", company: "", email: "", phone: "", acceptsDataPolicy: false },
+  contact: {
+    personType: "",
+    fullName: "",
+    businessName: "",
+    taxId: "",
+    taxIdCheckDigit: "",
+    ciiuCode: "",
+    fiscalResponsibilities: [],
+    email: "",
+    phone: "",
+    acceptsDataPolicy: false,
+  },
+  rutFile: null,
+  rutError: "",
   honeypot: "",
 };
 
 function reducer(state: State, a: Action): State {
   switch (a.type) {
     case "hydrate":
-      return { ...state, ...a.state };
+      return { ...state, ...a.state, contact: { ...state.contact, ...a.state.contact } };
     case "step":
       return { ...state, step: a.step };
     case "item":
@@ -80,6 +126,8 @@ function reducer(state: State, a: Action): State {
       return { ...state, project: { ...state.project, ...a.patch } };
     case "contact":
       return { ...state, contact: { ...state.contact, ...a.patch } };
+    case "rut":
+      return { ...state, rutFile: a.file, rutError: a.error };
     case "honeypot":
       return { ...state, honeypot: a.value };
   }
@@ -101,13 +149,51 @@ const itemPayload = (d: ItemDraft) => ({
   notes: text(d.notes),
 });
 const projectPayload = (d: ProjectDraft) => ({ city: d.city, neededBy: text(d.neededBy), environment: text(d.environment), notes: text(d.notes) });
-const contactPayload = (d: ContactDraft) => ({ fullName: d.fullName, company: text(d.company), email: d.email, phone: d.phone, acceptsDataPolicy: d.acceptsDataPolicy });
+// `??` guards: progress saved by an older version of the form may lack the newer fields.
+const contactPayload = (d: ContactDraft) => ({
+  personType: d.personType || undefined,
+  fullName: d.fullName,
+  businessName: text(d.businessName ?? ""),
+  taxId: d.taxId ?? "",
+  taxIdCheckDigit: text(d.taxIdCheckDigit ?? ""),
+  ciiuCode: d.ciiuCode ?? "",
+  fiscalResponsibilities: d.fiscalResponsibilities ?? [],
+  email: d.email,
+  phone: d.phone,
+  acceptsDataPolicy: d.acceptsDataPolicy,
+});
 const requestPayload = (s: State) => ({
   items: s.items.map(itemPayload),
   project: projectPayload(s.project),
   contact: contactPayload(s.contact),
+  rutFile: s.rutFile ?? undefined,
   website: s.honeypot,
 });
+
+/** Reads the chosen file as Base64 (without the data URL prefix) and validates type, size and signature. */
+function readRutFile(file: File): Promise<{ file: RutFile | null; error: string }> {
+  if (file.size > RUT_MAX_BYTES) return Promise.resolve({ file: null, error: "El archivo supera los 5 MB." });
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onerror = () => resolve({ file: null, error: "No pudimos leer el archivo. Intenta con otro." });
+    reader.onload = () => {
+      const result = typeof reader.result === "string" ? reader.result : "";
+      const parsed = RutFileSchema.safeParse({
+        fileName: file.name,
+        mimeType: file.type,
+        sizeBytes: file.size,
+        contentBase64: result.slice(result.indexOf(",") + 1),
+      });
+      resolve(parsed.success ? { file: parsed.data, error: "" } : { file: null, error: parsed.error.issues[0]?.message ?? "Archivo no válido." });
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+const formatSize = (bytes: number) => (bytes >= 1024 * 1024 ? `${(bytes / (1024 * 1024)).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`);
+
+/** Wizard step that holds the field behind a server-side validation path. */
+const stepForPath = (path: string) => (path.startsWith("items") ? 0 : path.startsWith("project") ? 1 : 2);
 
 type Errors = Record<string, string>;
 
@@ -147,7 +233,10 @@ const WHATSAPP_NUMBER = (import.meta.env.PUBLIC_WHATSAPP_NUMBER as string | unde
 
 const saveProgress = (s: State) => {
   try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ ...s, step: Math.min(s.step, 2), honeypot: "", contact: { ...s.contact, acceptsDataPolicy: false } }));
+    sessionStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ ...s, step: Math.min(s.step, 2), honeypot: "", rutFile: null, rutError: "", contact: { ...s.contact, acceptsDataPolicy: false } }),
+    );
   } catch {
     /* storage can be unavailable (private mode); the wizard works without it */
   }
@@ -198,6 +287,7 @@ export default function QuoteWizard() {
   const [hydrated, setHydrated] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const rutInputRef = useRef<HTMLInputElement>(null);
 
   // Restore progress and prefill from /cotizador/?producto=<slug>.
   useEffect(() => {
@@ -251,9 +341,10 @@ export default function QuoteWizard() {
       }
       if (res.status === 400) {
         const body = (await res.json().catch(() => null)) as { issues?: { path: string; message: string }[] } | null;
-        setErrors(Object.fromEntries((body?.issues ?? []).map((i) => [i.path, i.message])));
+        const issues = body?.issues ?? [];
+        setErrors(Object.fromEntries(issues.map((i) => [i.path, i.message])));
         setSubmit({ kind: "idle" });
-        go(0);
+        dispatch({ type: "step", step: Math.min(...issues.map((i) => stepForPath(i.path)), 3) });
         return;
       }
       setSubmit({ kind: "error", message: "No pudimos registrar tu solicitud en este momento.", fallbackUrl });
@@ -274,6 +365,9 @@ export default function QuoteWizard() {
         <p className="mt-2 text-steel-600">
           {submit.result.webhookDelivered ? "Un asesor revisará tu solicitud." : "Para agilizar, escríbenos ahora por WhatsApp."}
         </p>
+        {!submit.result.webhookDelivered && state.rutFile && (
+          <p className="mt-2 text-steel-600">No pudimos guardar el RUT que adjuntaste. Envíalo por WhatsApp junto con tu referencia para completar la facturación.</p>
+        )}
         <a href={submit.result.whatsappUrl} target="_blank" rel="noopener noreferrer" className="mt-4 inline-block rounded bg-green-600 px-5 py-3 font-bold text-white hover:bg-green-700">
           Enviar resumen por WhatsApp
         </a>
@@ -283,6 +377,20 @@ export default function QuoteWizard() {
 
   const e = (k: string) => errors[k];
   const preview = QuoteRequestSchema.safeParse(requestPayload(state));
+  const c = state.contact;
+  const juridica = c.personType === "juridica";
+  const toggleResponsibility = (value: FiscalResponsibility, on: boolean) => {
+    const current = c.fiscalResponsibilities ?? [];
+    const next = on ? [...current.filter((v) => v !== value), value] : current.filter((v) => v !== value);
+    dispatch({ type: "contact", patch: { fiscalResponsibilities: next } });
+  };
+  const onRutChange = async (input: HTMLInputElement) => {
+    const file = input.files?.[0];
+    if (!file) return dispatch({ type: "rut", file: null, error: "" });
+    const result = await readRutFile(file);
+    if (result.error) input.value = "";
+    dispatch({ type: "rut", file: result.file, error: result.error });
+  };
 
   return (
     <form
@@ -396,13 +504,77 @@ export default function QuoteWizard() {
       {/* Step 3: contact */}
       {state.step === 2 && (
         <div className="grid gap-3 sm:grid-cols-2">
-          <Field id={f("name")} label="Nombre completo" error={e("contact.fullName")}>
-            <input id={f("name")} className={inputCls} autoComplete="name" value={state.contact.fullName} aria-invalid={!!e("contact.fullName")} aria-describedby={describedBy(f("name"), !!e("contact.fullName"))}
+          <fieldset className="sm:col-span-2">
+            <legend className="text-sm font-semibold">Tipo de persona</legend>
+            <div className="mt-1 flex flex-wrap gap-4">
+              {PERSON_TYPES.map((t, i) => (
+                <label key={t} className="flex items-center gap-2">
+                  <input type="radio" name={f("personType")} value={t} className="h-4 w-4" checked={c.personType === t}
+                    aria-invalid={i === 0 && !!e("contact.personType")} aria-describedby={e("contact.personType") ? f("personType-err") : undefined}
+                    onChange={() => dispatch({ type: "contact", patch: { personType: t } })} />
+                  {PERSON_LABELS[t]}
+                </label>
+              ))}
+            </div>
+            {e("contact.personType") && <p id={f("personType-err")} className="mt-1 text-sm text-brand-700">{e("contact.personType")}</p>}
+          </fieldset>
+          {juridica && (
+            <div className="sm:col-span-2">
+              <Field id={f("businessName")} label="Razón social o nombre comercial" error={e("contact.businessName")}>
+                <input id={f("businessName")} className={inputCls} autoComplete="organization" value={c.businessName ?? ""} aria-invalid={!!e("contact.businessName")} aria-describedby={describedBy(f("businessName"), !!e("contact.businessName"))}
+                  onChange={(ev) => dispatch({ type: "contact", patch: { businessName: ev.target.value } })} />
+              </Field>
+            </div>
+          )}
+          <Field id={f("name")} label={juridica ? "Nombre de la persona de contacto" : "Nombre completo"} error={e("contact.fullName")}>
+            <input id={f("name")} className={inputCls} autoComplete="name" value={c.fullName} aria-invalid={!!e("contact.fullName")} aria-describedby={describedBy(f("name"), !!e("contact.fullName"))}
               onChange={(ev) => dispatch({ type: "contact", patch: { fullName: ev.target.value } })} />
           </Field>
-          <Field id={f("company")} label="Empresa (opcional)">
-            <input id={f("company")} className={inputCls} autoComplete="organization" value={state.contact.company} onChange={(ev) => dispatch({ type: "contact", patch: { company: ev.target.value } })} />
+          <Field id={f("taxId")} label={juridica ? "NIT (sin dígito de verificación)" : "Cédula"} error={e("contact.taxId")} hint={juridica ? "Solo el número, sin puntos. Ej.: 900123456" : "Solo el número, sin puntos. Ej.: 1020304050"}>
+            <input id={f("taxId")} inputMode="numeric" className={inputCls} autoComplete="off" value={c.taxId ?? ""} aria-invalid={!!e("contact.taxId")} aria-describedby={describedBy(f("taxId"), !!e("contact.taxId"), true)}
+              onChange={(ev) => dispatch({ type: "contact", patch: { taxId: ev.target.value } })} />
           </Field>
+          {juridica && (
+            <Field id={f("dv")} label="Dígito de verificación (DV)" error={e("contact.taxIdCheckDigit")} hint="El número que va después del guion del NIT. Ej.: 8">
+              <input id={f("dv")} inputMode="numeric" maxLength={1} className={inputCls} autoComplete="off" value={c.taxIdCheckDigit ?? ""} aria-invalid={!!e("contact.taxIdCheckDigit")} aria-describedby={describedBy(f("dv"), !!e("contact.taxIdCheckDigit"), true)}
+                onChange={(ev) => dispatch({ type: "contact", patch: { taxIdCheckDigit: ev.target.value } })} />
+            </Field>
+          )}
+          <Field id={f("ciiu")} label="Actividad económica (código CIIU)" error={e("contact.ciiuCode")} hint="4 dígitos; aparece en la sección de actividad económica de tu RUT. Ej.: 2599">
+            <input id={f("ciiu")} inputMode="numeric" maxLength={4} className={inputCls} autoComplete="off" value={c.ciiuCode ?? ""} aria-invalid={!!e("contact.ciiuCode")} aria-describedby={describedBy(f("ciiu"), !!e("contact.ciiuCode"), true)}
+              onChange={(ev) => dispatch({ type: "contact", patch: { ciiuCode: ev.target.value } })} />
+          </Field>
+          <fieldset className="sm:col-span-2">
+            <legend className="text-sm font-semibold">Responsabilidades fiscales (según tu RUT)</legend>
+            <div className="mt-1 grid gap-1 sm:grid-cols-2">
+              {FISCAL_RESPONSIBILITIES.map((v, i) => (
+                <label key={v} className="flex items-center gap-2">
+                  <input type="checkbox" className="h-4 w-4" checked={(c.fiscalResponsibilities ?? []).includes(v)}
+                    aria-invalid={i === 0 && !!e("contact.fiscalResponsibilities")} aria-describedby={e("contact.fiscalResponsibilities") ? f("fiscal-err") : undefined}
+                    onChange={(ev) => toggleResponsibility(v, ev.target.checked)} />
+                  {FISCAL_LABELS[v]}
+                </label>
+              ))}
+            </div>
+            {e("contact.fiscalResponsibilities") && <p id={f("fiscal-err")} className="mt-1 text-sm text-brand-700">{e("contact.fiscalResponsibilities")}</p>}
+          </fieldset>
+          <div className="sm:col-span-2">
+            <label htmlFor={f("rut")} className="block text-sm font-semibold">Adjuntar RUT (opcional)</label>
+            <input id={f("rut")} ref={rutInputRef} type="file" accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png" className="mt-1 block w-full text-sm"
+              aria-invalid={!!state.rutError} aria-describedby={state.rutError ? f("rut-err") : f("rut-hint")}
+              onChange={(ev) => void onRutChange(ev.currentTarget)} />
+            {state.rutFile && (
+              <p className="mt-1 text-sm">
+                Adjunto: <strong>{state.rutFile.fileName}</strong> ({formatSize(state.rutFile.sizeBytes)}){" "}
+                <button type="button" className="font-semibold text-brand-700 underline" onClick={() => { if (rutInputRef.current) rutInputRef.current.value = ""; dispatch({ type: "rut", file: null, error: "" }); }}>Quitar</button>
+              </p>
+            )}
+            {state.rutError ? (
+              <p id={f("rut-err")} role="alert" className="mt-1 text-sm text-brand-700">{state.rutError}</p>
+            ) : (
+              <p id={f("rut-hint")} className="mt-1 text-xs text-steel-600">PDF, JPG o PNG, hasta 5 MB. Se usa solo para facturar y crear tu registro como cliente.</p>
+            )}
+          </div>
           <Field id={f("email")} label="Correo" error={e("contact.email")}>
             <input id={f("email")} type="email" className={inputCls} autoComplete="email" value={state.contact.email} aria-invalid={!!e("contact.email")} aria-describedby={describedBy(f("email"), !!e("contact.email"))}
               onChange={(ev) => dispatch({ type: "contact", patch: { email: ev.target.value } })} />
@@ -415,8 +587,11 @@ export default function QuoteWizard() {
             <label className="flex items-start gap-2 text-sm">
               <input type="checkbox" className="mt-1 h-4 w-4" checked={state.contact.acceptsDataPolicy} aria-invalid={!!e("contact.acceptsDataPolicy")} aria-describedby={e("contact.acceptsDataPolicy") ? f("consent-err") : undefined}
                 onChange={(ev) => dispatch({ type: "contact", patch: { acceptsDataPolicy: ev.target.checked } })} />
-              {/* TODO(negocio): replace with the reviewed Habeas Data (Ley 1581 de 2012) policy text and link. */}
-              <span>Autorizo el tratamiento de mis datos personales para gestionar esta cotización.</span>
+              <span>
+                He leído la{" "}
+                <a href="/privacidad/" target="_blank" rel="noopener noreferrer" className="text-brand-700 underline">política de tratamiento de datos personales</a>{" "}
+                y autorizo el tratamiento de mis datos para gestionar esta cotización.
+              </span>
             </label>
             {e("contact.acceptsDataPolicy") && <p id={f("consent-err")} className="mt-1 text-sm text-brand-700">{e("contact.acceptsDataPolicy")}</p>}
           </div>
@@ -439,10 +614,14 @@ export default function QuoteWizard() {
             ))}
           </ul>
           <p>Entrega en <strong>{state.project.city}</strong>{state.project.neededBy ? ` para el ${state.project.neededBy}` : ""}.</p>
-          <p>Contacto: {state.contact.fullName} · {state.contact.email}</p>
+          <p>
+            {c.personType ? PERSON_LABELS[c.personType] : ""}: {juridica && c.businessName ? `${c.businessName} · ` : ""}{c.fullName} · {juridica ? `NIT ${c.taxId}${c.taxIdCheckDigit ? `-${c.taxIdCheckDigit}` : ""}` : `CC ${c.taxId}`} · {c.email}
+          </p>
+          <p>CIIU {c.ciiuCode} · {(c.fiscalResponsibilities ?? []).map((v) => FISCAL_LABELS[v]).join(", ")}</p>
+          <p>{state.rutFile ? `RUT adjunto: ${state.rutFile.fileName} (${formatSize(state.rutFile.sizeBytes)})` : "Sin RUT adjunto."}</p>
           <details>
             <summary className="cursor-pointer text-sm font-semibold">Ver resumen en JSON</summary>
-            <pre className="mt-2 max-h-72 overflow-auto rounded bg-steel-50 p-3 text-xs">{preview.success ? JSON.stringify({ ...preview.data, website: undefined }, null, 2) : "Hay campos por corregir en pasos anteriores."}</pre>
+            <pre className="mt-2 max-h-72 overflow-auto rounded bg-steel-50 p-3 text-xs">{preview.success ? JSON.stringify({ ...preview.data, website: undefined, rutFile: preview.data.rutFile ? { ...preview.data.rutFile, contentBase64: "[omitido en esta vista]" } : undefined }, null, 2) : "Hay campos por corregir en pasos anteriores."}</pre>
           </details>
           {submit.kind === "error" && (
             <div role="alert" className="rounded bg-brand-50 p-3 text-sm text-brand-700">

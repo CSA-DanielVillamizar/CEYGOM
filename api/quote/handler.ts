@@ -1,6 +1,7 @@
 import type { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import {
   QuoteRequestSchema,
+  RUT_MAX_BASE64_CHARS,
   type LeadRecord,
   type QuoteErrorBody,
   type QuoteResponse,
@@ -10,7 +11,9 @@ import { loadEnv } from "./env";
 import { newReference } from "./reference";
 import { postLead } from "./webhook";
 
-const MAX_BODY_CHARS = 20_000;
+// 20 000 characters for the form data plus the largest allowed RUT file in Base64 (~7 MB, well under
+// the 30 MB request limit of Static Web Apps).
+const MAX_BODY_CHARS = 20_000 + RUT_MAX_BASE64_CHARS;
 const HEADERS = { "cache-control": "no-store" };
 
 export interface Deps {
@@ -78,12 +81,13 @@ export async function handleQuote(
       await deps.postLead(env.value.LEADS_WEBHOOK_URL, lead, env.value.LEADS_WEBHOOK_SECRET);
       webhookDelivered = true;
     } catch (e) {
-      ctx.error(`Lead ${lead.reference}: webhook failed: ${(e as Error).message}`);
+      // `e` can be anything (a thrown string or null included); never let logging break the response.
+      ctx.error(`Lead ${lead.reference}: webhook failed: ${e instanceof Error ? e.message : "unknown error"}`);
     }
   }
 
-  // No personal data in logs.
-  ctx.log(`Quote ${lead.reference} processed (items=${request.items.length}, webhook=${webhookDelivered})`);
+  // No personal or tax data in logs, and never the attached file.
+  ctx.log(`Quote ${lead.reference} processed (items=${request.items.length}, rut=${request.rutFile ? "attached" : "none"}, webhook=${webhookDelivered})`);
 
   const body: QuoteResponse = {
     reference: lead.reference,
