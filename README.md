@@ -66,6 +66,8 @@ Verified in production: Oryx builds `api/` with the esbuild step and the functio
 
 ## Not verified yet
 
-The `wa.me` link and the quote wizard on real iOS and Android devices, the wizard in a browser against production, and the lead webhook against the real Apps Script web app (`LEADS_WEBHOOK_URL` is not configured yet, so requests are not stored anywhere). Google does not document a size limit for requests received by a web app: test with a 5 MB RUT first (see the guide).
+The `wa.me` link and the quote wizard on real iOS and Android devices, the wizard in a browser against production, and the behaviour of the webhook when Google is slow with large files (see below).
+
+Lead storage is live: `LEADS_WEBHOOK_URL` points to the Apps Script web app of the company Google account. Verified in production with a 5 MB PDF: the API answered 200 with `webhookDelivered: true` in about 16 s (the limit with a file is 25 s), the full row reached the `Leads` sheet and the file reached its quote subfolder in the `RUTs` Drive folder. Google does not document a size limit for requests received by a web app; 5 MB worked.
 
 Verified locally (SWA CLI 2.1.0 emulator, Functions Core Tools 4.12.1 on Node 24): the full wizard flow in a browser (validation per step, `?producto=` prefill, submit, success screen with the wa.me link), the API (200, 400 for missing consent, 403 for a foreign origin, honeypot decoy, `GET /api/quote` is 404), webhook delivery with a valid HMAC signature, 301 redirects and the real 404 from `staticwebapp.config.json`. The emulator does not reproduce the cloud exactly.

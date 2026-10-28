@@ -68,4 +68,5 @@ La configuración se aplica sin volver a desplegar. Después envía una solicitu
 
 - Pruebas automáticas (`api/quote`): la API responde 200 con enlace de WhatsApp cuando el webhook falla, se agota el tiempo, rechaza con `ok:false` o lanza cualquier valor; registra una advertencia con la referencia y sin datos personales; no envía leads por HTTP plano; lee el destino de `LEADS_WEBHOOK_URL`; elige 8 o 25 s según haya archivo; y firma el cuerpo con HMAC-SHA256.
 - Probado en local con un receptor de prueba: un PDF de 5 MB llegó íntegro con firma válida.
-- **No probado:** la entrega real a Google Apps Script (incluido el tamaño máximo de petición, que Google no documenta) ni a Make. Falta crear el despliegue en la cuenta de la empresa (HU-03, #10).
+- Probado en producción con Google Apps Script (octubre de 2026): una solicitud con un PDF de 5 MB respondió 200 con `webhookDelivered: true` en unos 16 s; la fila completa llegó a la hoja y el archivo a su subcarpeta de Drive. El tiempo máximo con archivo es 25 s, así que el margen es limitado.
+- **No probado:** la entrega a Make, y el comportamiento cuando Google tarda más de 25 s (el cliente vería el aviso de enviar el RUT por WhatsApp).

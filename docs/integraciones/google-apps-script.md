@@ -75,7 +75,7 @@ az staticwebapp appsettings set -n swa-ceygom-prd -g rg-ceygom-prd --setting-nam
    - existe `COT-AAAA-XXXXXX/COT-AAAA-XXXXXX-RUT.pdf` en la carpeta de Drive y el enlace de la última columna abre el archivo.
 3. Borra de la hoja y de Drive los datos de las pruebas.
 
-Google no documenta un límite de tamaño para las peticiones que recibe una aplicación web, por lo que la prueba con 5 MB es obligatoria antes de dar por buena la integración. Los límites oficiales que sí conocemos: 6 minutos por ejecución y 30 ejecuciones simultáneas por usuario ([cuotas de Apps Script](https://developers.google.com/apps-script/guides/services/quotas)). Si 5 MB resultara demasiado, la alternativa es la subida directa a un almacenamiento propio (ADR-0012, alternativa 2).
+Google no documenta un límite de tamaño para las peticiones que recibe una aplicación web, por lo que la prueba con 5 MB es obligatoria antes de dar por buena la integración. En la instalación de producción (octubre de 2026) un PDF de 5 MB se guardó correctamente y la respuesta tardó unos 16 s, frente a un máximo de 25 s con archivo. Los límites oficiales que sí conocemos: 6 minutos por ejecución y 30 ejecuciones simultáneas por usuario ([cuotas de Apps Script](https://developers.google.com/apps-script/guides/services/quotas)). Si 5 MB resultara demasiado, la alternativa es la subida directa a un almacenamiento propio (ADR-0012, alternativa 2).
 
 ## Qué pasa ante un fallo
 
