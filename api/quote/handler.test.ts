@@ -66,6 +66,19 @@ describe("POST /api/quote", () => {
     expect(post).not.toHaveBeenCalled();
   });
 
+  it("forwards each item's product reference to the webhook, normalized, and rejects a malformed one", async () => {
+    const post = vi.fn().mockResolvedValue(undefined);
+    const items = [{ category: "bandejas-portacables", productSlug: "bandeja-porta-cables", quantity: 10, reference: " bp0101 " }, { category: "canaletas", quantity: 2 }];
+    expect((await call({ ...validBody, items }, { postLead: post })).status).toBe(200);
+    const sent = post.mock.calls[0]![1].request.items;
+    expect(sent[0].reference).toBe("BP0101");
+    expect(sent[1].reference).toBeUndefined();
+
+    const bad = await call({ ...validBody, items: [{ ...items[0], reference: "no valida" }] }, { postLead: post });
+    expect(bad.status).toBe(400);
+    expect((bad.jsonBody as { issues: { path: string }[] }).issues.map((i) => i.path)).toContain("items.0.reference");
+  });
+
   it("400 without the NIT or cédula, and the webhook receives it normalized otherwise", async () => {
     const post = vi.fn().mockResolvedValue(undefined);
     const missing = await call({ ...validBody, contact: { ...validBody.contact, taxId: undefined } }, { postLead: post });
