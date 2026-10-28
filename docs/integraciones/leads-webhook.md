@@ -5,7 +5,7 @@ La función `POST /api/quote` envía cada solicitud válida a `LEADS_WEBHOOK_URL
 ## Contrato
 
 - Método: `POST`, `content-type: application/json`, solo por HTTPS (HTTP únicamente hacia `localhost`). Tiempo máximo de espera: 8 s, o 25 s si el lead lleva el RUT.
-- Fallo: cualquier respuesta distinta de 2xx, un tiempo agotado, un error de red o una respuesta JSON con `"ok": false`. Una respuesta 2xx de texto plano (`Accepted`, vacía) cuenta como entregada.
+- Fallo: cualquier respuesta distinta de 2xx, un tiempo agotado, un error de red, una respuesta JSON con `"ok": false`, o `"rutSaved": false` cuando el lead llevaba el RUT (el destino guardó la solicitud pero no el archivo). Una respuesta 2xx de texto plano (`Accepted`, vacía) cuenta como entregada.
 - Cabecera `x-ceygom-signature: sha256=<hex>` solo si hay `LEADS_WEBHOOK_SECRET`. Es el HMAC-SHA256 del cuerpo exacto, calculado con ese secreto.
 - Cuerpo (`LeadRecordSchema` en `packages/shared/quote.schema.ts`):
 

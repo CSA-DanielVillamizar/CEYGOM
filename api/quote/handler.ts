@@ -38,8 +38,10 @@ export async function handleQuote(
     return fail(500, { error: "SERVER_MISCONFIGURED" });
   }
 
+  // Browsers always send Origin on a POST. When ALLOWED_ORIGIN is set, a missing or different Origin is
+  // refused: it keeps casual scripts and other sites out (it is not a substitute for a CAPTCHA).
   const origin = req.headers.get("origin");
-  if (env.value.ALLOWED_ORIGIN && origin && origin !== env.value.ALLOWED_ORIGIN) {
+  if (env.value.ALLOWED_ORIGIN && origin !== env.value.ALLOWED_ORIGIN) {
     return fail(403, { error: "FORBIDDEN_ORIGIN" });
   }
 

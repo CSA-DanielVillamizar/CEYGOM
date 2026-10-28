@@ -9,7 +9,8 @@
 ## Alcance
 
 - Reemplazar `'unsafe-inline'` de la CSP por hashes (ADR-0010).
-- Evaluar una verificación anti-spam adicional (por ejemplo Cloudflare Turnstile) y limitación de tasa, que Static Web Apps Free no ofrece de forma nativa.
+- Hecho: la API exige que `Origin` coincida con `ALLOWED_ORIGIN`, y el receptor limita los archivos RUT por día (`MAX_RUT_PER_DAY`). Son defensas baratas que frenan scripts casuales; un atacante decidido puede falsificar `Origin`.
+- Pendiente: evaluar una verificación anti-spam adicional (por ejemplo Cloudflare Turnstile, gratuita pero requiere una cuenta de Cloudflare) y limitación de tasa por origen, que Static Web Apps Free no ofrece de forma nativa. Activarla si se observa abuso real.
 - Revisar dependencias con `npm audit` y definir una política de actualización.
 
 ## Criterios de aceptación

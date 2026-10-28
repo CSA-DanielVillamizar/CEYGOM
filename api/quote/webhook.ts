@@ -54,8 +54,12 @@ export async function postLead(
       const code = (parsed as { error?: unknown }).error;
       throw new Error(`Webhook rejected the lead${typeof code === "string" && /^[a-z_]{1,40}$/.test(code) ? `: ${code}` : ""}`);
     }
+    // The destination kept the lead but could not store the attached RUT (for example its daily file limit).
+    if (lead.request?.rutFile && typeof parsed === "object" && parsed !== null && (parsed as { rutSaved?: unknown }).rutSaved === false) {
+      throw new Error("Webhook did not store the RUT file");
+    }
   } catch (e) {
-    // Plain-text or HTML answers ("Accepted", an empty body...) count as delivered; only a JSON rejection fails.
-    if (e instanceof Error && e.message.startsWith("Webhook rejected")) throw e;
+    // Plain-text or HTML answers ("Accepted", an empty body...) count as delivered; only these failures throw.
+    if (e instanceof Error && (e.message.startsWith("Webhook rejected") || e.message.startsWith("Webhook did not store"))) throw e;
   }
 }
