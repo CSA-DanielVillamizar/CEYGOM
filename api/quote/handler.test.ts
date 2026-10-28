@@ -8,7 +8,7 @@ import { postLead } from "./webhook";
 const validBody = {
   items: [{ category: "canaletas", quantity: 10, productSlug: "canaleta" }],
   project: { city: "Medellín" },
-  contact: { fullName: "Ana Pérez", email: "ana@ejemplo.com", phone: "3001234567", acceptsDataPolicy: true },
+  contact: { fullName: "Ana Pérez", taxId: "9001234567", email: "ana@ejemplo.com", phone: "3001234567", acceptsDataPolicy: true },
 };
 
 const baseEnv = { WHATSAPP_NUMBER: "573000000000", LEADS_WEBHOOK_URL: "https://hooks.example/lead" };
@@ -48,6 +48,17 @@ describe("POST /api/quote", () => {
     expect(res.status).toBe(400);
     expect((res.jsonBody as { issues: { path: string }[] }).issues.map((i) => i.path)).toContain("contact.email");
     expect(post).not.toHaveBeenCalled();
+  });
+
+  it("400 without the NIT or cédula, and the webhook receives it normalized otherwise", async () => {
+    const post = vi.fn().mockResolvedValue(undefined);
+    const missing = await call({ ...validBody, contact: { ...validBody.contact, taxId: undefined } }, { postLead: post });
+    expect(missing.status).toBe(400);
+    expect((missing.jsonBody as { issues: { path: string }[] }).issues.map((i) => i.path)).toContain("contact.taxId");
+    expect(post).not.toHaveBeenCalled();
+
+    await call({ ...validBody, contact: { ...validBody.contact, taxId: "900.123.456-7" } }, { postLead: post });
+    expect(post.mock.calls[0]![1].request.contact.taxId).toBe("9001234567");
   });
 
   it("400 when consent is missing", async () => {

@@ -34,7 +34,7 @@ interface ItemDraft {
   notes: string;
 }
 interface ProjectDraft { city: string; neededBy: string; environment: string; notes: string }
-interface ContactDraft { fullName: string; company: string; email: string; phone: string; acceptsDataPolicy: boolean }
+interface ContactDraft { fullName: string; company: string; taxId: string; email: string; phone: string; acceptsDataPolicy: boolean }
 
 interface State {
   step: number;
@@ -60,7 +60,7 @@ const initial: State = {
   step: 0,
   items: [emptyItem()],
   project: { city: "", neededBy: "", environment: "", notes: "" },
-  contact: { fullName: "", company: "", email: "", phone: "", acceptsDataPolicy: false },
+  contact: { fullName: "", company: "", taxId: "", email: "", phone: "", acceptsDataPolicy: false },
   honeypot: "",
 };
 
@@ -101,7 +101,7 @@ const itemPayload = (d: ItemDraft) => ({
   notes: text(d.notes),
 });
 const projectPayload = (d: ProjectDraft) => ({ city: d.city, neededBy: text(d.neededBy), environment: text(d.environment), notes: text(d.notes) });
-const contactPayload = (d: ContactDraft) => ({ fullName: d.fullName, company: text(d.company), email: d.email, phone: d.phone, acceptsDataPolicy: d.acceptsDataPolicy });
+const contactPayload = (d: ContactDraft) => ({ fullName: d.fullName, company: text(d.company), taxId: d.taxId ?? "", email: d.email, phone: d.phone, acceptsDataPolicy: d.acceptsDataPolicy });
 const requestPayload = (s: State) => ({
   items: s.items.map(itemPayload),
   project: projectPayload(s.project),
@@ -403,6 +403,10 @@ export default function QuoteWizard() {
           <Field id={f("company")} label="Empresa (opcional)">
             <input id={f("company")} className={inputCls} autoComplete="organization" value={state.contact.company} onChange={(ev) => dispatch({ type: "contact", patch: { company: ev.target.value } })} />
           </Field>
+          <Field id={f("taxId")} label="NIT o cédula (según el RUT)" error={e("contact.taxId")} hint="Solo el número; para facturar y crear tu registro como cliente. Ej.: 900123456 o 1020304050">
+            <input id={f("taxId")} inputMode="numeric" className={inputCls} autoComplete="off" value={state.contact.taxId ?? ""} aria-invalid={!!e("contact.taxId")} aria-describedby={describedBy(f("taxId"), !!e("contact.taxId"), true)}
+              onChange={(ev) => dispatch({ type: "contact", patch: { taxId: ev.target.value } })} />
+          </Field>
           <Field id={f("email")} label="Correo" error={e("contact.email")}>
             <input id={f("email")} type="email" className={inputCls} autoComplete="email" value={state.contact.email} aria-invalid={!!e("contact.email")} aria-describedby={describedBy(f("email"), !!e("contact.email"))}
               onChange={(ev) => dispatch({ type: "contact", patch: { email: ev.target.value } })} />
@@ -442,7 +446,7 @@ export default function QuoteWizard() {
             ))}
           </ul>
           <p>Entrega en <strong>{state.project.city}</strong>{state.project.neededBy ? ` para el ${state.project.neededBy}` : ""}.</p>
-          <p>Contacto: {state.contact.fullName} · {state.contact.email}</p>
+          <p>Contacto: {state.contact.fullName} · NIT/CC {state.contact.taxId} · {state.contact.email}</p>
           <details>
             <summary className="cursor-pointer text-sm font-semibold">Ver resumen en JSON</summary>
             <pre className="mt-2 max-h-72 overflow-auto rounded bg-steel-50 p-3 text-xs">{preview.success ? JSON.stringify({ ...preview.data, website: undefined }, null, 2) : "Hay campos por corregir en pasos anteriores."}</pre>

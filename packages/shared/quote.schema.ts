@@ -51,6 +51,14 @@ export const QuoteContactSchema = z.object({
   fullName: z.string().trim().min(2, "Ingresa tu nombre").max(120),
   company: optionalText(120),
   email: z.string().trim().toLowerCase().email("Correo inválido").max(160),
+  // NIT or cédula as it appears in the RUT, required to create the customer and invoice. Digits only
+  // (dots, hyphens and spaces are dropped); the verification digit, if typed, is kept as part of the number.
+  taxId: z
+    .string({ required_error: "Ingresa el NIT o la cédula" })
+    .trim()
+    .min(1, "Ingresa el NIT o la cédula")
+    .transform((v) => v.replace(/\D/g, ""))
+    .pipe(z.string().min(6, "NIT o cédula inválido").max(15, "NIT o cédula inválido")),
   // Keep digits only; WhatsApp and the CRM both want a normalized number.
   phone: z
     .string()

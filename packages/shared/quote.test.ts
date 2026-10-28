@@ -5,7 +5,7 @@ import { buildWhatsappMessage, buildWhatsappUrl, MAX_MESSAGE_LENGTH } from "./wh
 const valid = (): QuoteRequest => ({
   items: [{ category: "racks-comunicaciones", productSlug: "rack-cerrado-abatible", quantity: 2, widthMm: 600, heightMm: 2100, depthMm: 600 }],
   project: { city: "Medellín", notes: "Puerta con chapa & ventilación" },
-  contact: { fullName: "Ana Pérez", email: "ANA@Ejemplo.com", phone: "+57 300 123 4567", acceptsDataPolicy: true },
+  contact: { fullName: "Ana Pérez", taxId: "900.123.456-7", email: "ANA@Ejemplo.com", phone: "+57 300 123 4567", acceptsDataPolicy: true },
 });
 
 describe("QuoteRequestSchema", () => {
@@ -24,6 +24,19 @@ describe("QuoteRequestSchema", () => {
     const r = QuoteRequestSchema.safeParse(bad);
     expect(r.success).toBe(false);
     if (!r.success) expect(r.error.issues.map((i) => i.path.join("."))).toContain("contact.email");
+  });
+
+  it("keeps only the digits of the NIT or cédula", () => {
+    const r = QuoteRequestSchema.safeParse(valid());
+    expect(r.success && r.data.contact.taxId).toBe("9001234567");
+  });
+
+  it.each([undefined, "", "   ", "12345", "abc", "1".repeat(16)])("rejects the NIT or cédula %j", (taxId) => {
+    const bad = valid() as unknown as { contact: Record<string, unknown> };
+    bad.contact.taxId = taxId;
+    const r = QuoteRequestSchema.safeParse(bad);
+    expect(r.success).toBe(false);
+    if (!r.success) expect(r.error.issues.map((i) => i.path.join("."))).toContain("contact.taxId");
   });
 
   it("requires consent", () => {
@@ -56,6 +69,7 @@ describe("WhatsApp link", () => {
     expect(decoded).toContain("Medellín");
     expect(decoded).not.toContain("ana@ejemplo.com");
     expect(decoded).not.toContain("573001234567");
+    expect(decoded).not.toContain("9001234567");
     expect(decoded.length).toBeLessThanOrEqual(MAX_MESSAGE_LENGTH);
   });
 
