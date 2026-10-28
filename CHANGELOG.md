@@ -30,6 +30,8 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). E
 - Lista de cotización ("Mi cotización"): agregar productos y referencias específicas con cantidad desde el catálogo y continuar al cotizador con todo precargado. Campo opcional `reference` por ítem en la solicitud, el webhook, WhatsApp y el aviso por correo (HU-12, ADR-0014).
 - El control de presupuesto del CI ahora también limita el JavaScript del inicio, del catálogo y de la lista, y el tamaño del índice del buscador.
 
+- Razón social (Electro Metálicas Ceygom S.A.S.) y NIT (900456873-5) en la política de datos, el pie de página y los datos estructurados del inicio, con una prueba que valida el dígito de verificación.
+
 ### Desplegado
 
 - Receptor de Google Apps Script en la cuenta de la empresa y `LEADS_WEBHOOK_URL` configurada en producción. Verificado con un PDF de 5 MB: fila completa en la hoja y archivo en su subcarpeta de Drive.

@@ -49,4 +49,4 @@ Característica: Identidad y SEO local
 
 ## Pendiente con la empresa
 
-Logo vectorial o en alta resolución (hoy es un recorte de 186×146 px de su banner), fotos reales, correo y horario para completar los datos del negocio, y confirmar la razón social: el banner dice "S.A.S.", pero no se publicó hasta que la confirmen.
+Logo vectorial o en alta resolución (hoy es un recorte de 186×146 px de su banner), fotos reales, correo y horario para completar los datos del negocio. La razón social y el NIT ya están cargados.
