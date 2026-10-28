@@ -10,6 +10,9 @@
  *   NOTIFY_EMAIL    (opcional) Correo que recibe un aviso por cada cotización. Si falta, no se envía aviso.
  *   MAX_RUT_PER_DAY (opcional, 100 por defecto) Tope diario de archivos RUT guardados en Drive. Pasado el
  *                   tope la solicitud se registra igualmente, pero sin archivo.
+ *   CUSTOMER_ACK    (opcional) "off" desactiva el correo de confirmación al cliente. Por defecto está activo.
+ *   MAX_ACK_PER_DAY (opcional, 50 por defecto) Tope diario de confirmaciones enviadas a clientes.
+ *   SITE_URL        (opcional) Dirección del sitio, para enlazar la política de datos en la confirmación.
  * El script debe estar vinculado a la hoja de cálculo (Extensiones > Apps Script desde la hoja).
  *
  * Apps Script no permite fijar el código HTTP de la respuesta, así que todo resultado se informa en el cuerpo
@@ -19,6 +22,12 @@
  */
 var SHEET_NAME = 'Leads';
 var DEFAULT_MAX_RUT_PER_DAY = 100;
+// Confirmación al cliente: una cuenta gratuita de Gmail solo permite 100 destinatarios por día, así que los avisos
+// al equipo van primero. La confirmación solo se envía mientras queden más de estos envíos disponibles...
+var ACK_QUOTA_RESERVE = 10;
+// ...y tiene un tope diario total y por dirección, porque el formulario es público y la dirección la escribe el visitante.
+var DEFAULT_MAX_ACK_PER_DAY = 50;
+var MAX_ACK_PER_ADDRESS_PER_DAY = 3;
 var HEADERS = [
   'Referencia', 'Fecha (UTC)', 'Productos', 'Ciudad', 'Fecha requerida', 'Entorno',
   'Notas del proyecto', 'Tipo de persona', 'Razón social', 'Nombre', 'NIT / cédula', 'DV',
@@ -91,6 +100,7 @@ function doPost(e) {
     }
     // Fuera del candado: enviar el correo es lento y un fallo suyo nunca debe perder el lead.
     notify_(lead, rutUrl, rutSaved);
+    acknowledge_(lead, rutSaved);
     return json_({ ok: true, rutSaved: rutSaved });
   } catch (err) {
     // Solo la referencia y el mensaje del error: nunca datos del cliente.
@@ -174,6 +184,88 @@ function notify_(lead, rutUrl, rutSaved) {
   } catch (err) {
     // Solo la referencia y el mensaje del error: nunca datos del cliente.
     console.error('Lead ' + lead.reference + ': notification failed: ' + (err && err.message));
+  }
+}
+
+// Confirmación enviada al correo del propio cliente. Nunca incluye datos fiscales ni el enlace al RUT, y nunca hace
+// fallar el lead. "Responder a" es el correo del equipo (NOTIFY_EMAIL), para que la respuesta llegue a la empresa.
+function acknowledge_(lead, rutSaved) {
+  try {
+    var props = PropertiesService.getScriptProperties();
+    if (props.getProperty('CUSTOMER_ACK') === 'off') return;
+    var r = lead.request;
+    var c = r.contact;
+    if (!c.email) return;
+    if (MailApp.getRemainingDailyQuota() <= ACK_QUOTA_RESERVE) {
+      console.error('Lead ' + lead.reference + ': email quota low, no customer acknowledgement sent');
+      return;
+    }
+    if (!claimAck_(c.email)) {
+      console.error('Lead ' + lead.reference + ': daily acknowledgement limit reached, none sent');
+      return;
+    }
+
+    var items = (r.items || []).map(function (it) {
+      var label = String(it.productSlug || it.category).replace(/-/g, ' ');
+      label = label.charAt(0).toUpperCase() + label.slice(1);
+      return '- ' + it.quantity + ' x ' + label + (it.reference ? ' (' + it.reference + ')' : '');
+    }).join('\n');
+    var rutLine = !r.rutFile ? '' : rutSaved ? 'Recibimos tu RUT.\n' : 'No pudimos guardar tu RUT: envíalo por WhatsApp indicando tu referencia.\n';
+    var site = props.getProperty('SITE_URL');
+    var body = [
+      'Hola ' + c.fullName + ',',
+      '',
+      'Recibimos tu solicitud de cotización. Tu referencia es ' + lead.reference + ': guárdala para cualquier consulta.',
+      '',
+      'Esto fue lo que pediste:',
+      items,
+      'Ciudad: ' + r.project.city,
+      rutLine,
+      'Un asesor revisará tu solicitud y te responderá con una cotización formal. Este mensaje solo confirma la recepción: no es una cotización ni un compromiso de precio.',
+      '',
+      'Si necesitas algo, responde este correo o llámanos al (574) 444 6733. Calle 28 nro 57-13, Unidad Industrial de Belén, Medellín.',
+      '',
+      'Usamos tus datos únicamente para atender tu solicitud, según nuestra política de tratamiento de datos personales' + (site ? ': ' + site.replace(/\/+$/, '') + '/privacidad/' : '.'),
+      '',
+      'Electro Metálicas Ceygom S.A.S. - NIT 900456873-5'
+    ].join('\n');
+
+    var options = {
+      to: c.email,
+      name: 'Electro Metálicas Ceygom',
+      subject: 'Recibimos tu solicitud de cotización ' + lead.reference,
+      body: body
+    };
+    var replyTo = props.getProperty('NOTIFY_EMAIL');
+    if (replyTo) options.replyTo = replyTo;
+    MailApp.sendEmail(options);
+  } catch (err) {
+    // Solo la referencia y el mensaje del error: nunca datos del cliente.
+    console.error('Lead ' + lead.reference + ': acknowledgement failed: ' + (err && err.message));
+  }
+}
+
+// Reserva una confirmación para esta dirección dentro de los topes diarios. Los contadores viven en una propiedad del script.
+function claimAck_(email) {
+  var props = PropertiesService.getScriptProperties();
+  var today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  var max = parseInt(props.getProperty('MAX_ACK_PER_DAY'), 10);
+  max = max > 0 ? max : DEFAULT_MAX_ACK_PER_DAY;
+  var key = String(email).trim().toLowerCase();
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(5000);
+  try {
+    var raw = props.getProperty('ACK_LOG');
+    var log = raw ? JSON.parse(raw) : null;
+    if (!log || log.date !== today) log = { date: today, total: 0, byAddress: {} };
+    if (log.total >= max || (log.byAddress[key] || 0) >= MAX_ACK_PER_ADDRESS_PER_DAY) return false;
+    log.total += 1;
+    log.byAddress[key] = (log.byAddress[key] || 0) + 1;
+    props.setProperty('ACK_LOG', JSON.stringify(log));
+    return true;
+  } finally {
+    lock.releaseLock();
   }
 }
 

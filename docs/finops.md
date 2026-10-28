@@ -46,7 +46,7 @@ Cada pull request crea un entorno de vista previa con una copia completa del sit
 | Abuso del endpoint (archivos de 5 MB repetidos) llena los 15 GB de Drive | `Origin` obligatorio, tope diario de archivos en el receptor (`MAX_RUT_PER_DAY`) | Activar Turnstile (HU-10); limpiar archivos de prueba |
 | Tráfico por encima de 100 GB al mes | Sitio de 7 MB y caché; el plan Free **no** permite excedentes | Pasar a Standard (cobra excedentes y ofrece SLA) |
 | Crecimiento del catálogo (fotos reales) | `npm run budget` en cada PR | Optimizar con `npm run catalog:import` (WebP a 800 px) |
-| Cuota diaria de correo de la cuenta | Un aviso por cotización; se registra si se agota | Cambiar a una cuenta de Google Workspace |
+| Cuota diaria de correo de la cuenta (100 destinatarios en Gmail gratuito) | Un aviso al equipo y una confirmación al cliente por cotización (2 destinatarios); la confirmación exige 10 envíos libres, tiene tope diario (`MAX_ACK_PER_DAY`) y de 3 por dirección, y se apaga con `CUSTOMER_ACK=off` | Cambiar a Google Workspace (1.500) o a un servicio de correo con dominio propio |
 | Vista previa por PR olvidada | Se eliminan al cerrar el PR (workflow `close_pull_request`) | Revisar los 3 entornos del plan |
 
 ## Cuándo reconsiderar el plan

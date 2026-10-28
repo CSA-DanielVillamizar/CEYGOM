@@ -393,6 +393,11 @@ export default function QuoteWizard() {
         <p className="mt-2 text-steel-600">
           {submit.result.webhookDelivered ? "Un asesor revisará tu solicitud." : "Para agilizar, escríbenos ahora por WhatsApp."}
         </p>
+        {submit.result.webhookDelivered && (
+          <p className="mt-2 text-steel-600">
+            Te enviaremos una confirmación con esta referencia a <strong>{state.contact.email}</strong>. Si no la ves en unos minutos, revisa la carpeta de correo no deseado y guarda la referencia.
+          </p>
+        )}
         {!submit.result.webhookDelivered && state.rutFile && (
           <p className="mt-2 text-steel-600">No pudimos guardar el RUT que adjuntaste. Envíalo por WhatsApp junto con tu referencia para completar la facturación.</p>
         )}
