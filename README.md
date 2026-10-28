@@ -31,6 +31,15 @@ npm run dev                            # site on :4321
 npx swa start http://localhost:4321 --api-devserver-url http://localhost:7071 --swa-config-location public   # emulator on :4280
 ```
 
+## Catalog
+
+49 products with their data sheets (PDF), photos and references are generated from `scripts/catalog/manifest.json` (see [`scripts/catalog/README.md`](scripts/catalog/README.md) and ADR-0013): one page per product at `/productos/<category>/<slug>/`, a sitemap and structured data. What the company still has to provide or confirm is listed in [`docs/catalogo/pendientes.md`](docs/catalogo/pendientes.md). Photos that do not show the exact product are marked "Imagen ilustrativa".
+
+```bash
+npm run catalog:import -- <download-folder>   # regenerate after editing the manifest
+npm run budget                                # size and JavaScript budget (runs in CI; see docs/finops.md)
+```
+
 ## Configuration
 
 | Where | Variable | Notes |

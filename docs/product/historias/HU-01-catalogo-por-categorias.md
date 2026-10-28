@@ -8,7 +8,7 @@
 
 ## Alcance
 
-- Página `/productos/` con las categorías de `packages/shared/catalog.ts` y sus productos.
+- Página `/productos/` con las categorías de `packages/shared/catalog.ts` y sus productos (tarjeta con foto, número de referencias, enlace a la página del producto y a cotizar; el detalle está en HU-07).
 - Cada producto enlaza a `/cotizador/?producto=<slug>`.
 - El contenido proviene de una única fuente (`catalog.ts`), compartida con el cotizador.
 

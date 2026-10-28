@@ -20,6 +20,9 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). E
 - Página `/privacidad/` con la política de tratamiento de datos personales (Ley 1581 de 2012), enlazada desde el cotizador y el pie de página.
 - Documentación del webhook de leads y receptor de Google Apps Script para registrar solicitudes en una hoja de cálculo.
 
+- Catálogo con 49 productos (ADR-0013): una página por producto con foto, referencias leídas de la ficha técnica, ficha en PDF y datos estructurados; mapa del sitio y `robots.txt` generados. Fotos que no son del producto exacto marcadas como "Imagen ilustrativa". Lista de datos pendientes por producto en `docs/catalogo/pendientes.md`.
+- Control de presupuesto (`npm run budget`, en el CI) y documento de costos (`docs/finops.md`).
+
 ### Desplegado
 
 - Receptor de Google Apps Script en la cuenta de la empresa y `LEADS_WEBHOOK_URL` configurada en producción. Verificado con un PDF de 5 MB: fila completa en la hoja y archivo en su subcarpeta de Drive.
