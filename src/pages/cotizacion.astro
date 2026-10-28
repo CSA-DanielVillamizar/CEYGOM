@@ -45,10 +45,12 @@ import { LEGAL } from "../data/legal";
       <div class="mt-6 flex flex-wrap items-center gap-3 print:hidden">
         <a href="/cotizador/?lista=1" class="rounded bg-brand-600 px-6 py-3 font-semibold text-white hover:bg-brand-700">Continuar con la solicitud</a>
         <a href="/productos/" class="rounded border border-steel-200 bg-white px-6 py-3 font-semibold hover:border-brand-600">Agregar más productos</a>
-        <button id="cart-print" type="button" class="rounded border border-steel-200 bg-white px-6 py-3 font-semibold hover:border-brand-600">Descargar lista en PDF</button>
+        <button id="cart-print" type="button" class="rounded border border-steel-200 bg-white px-6 py-3 font-semibold hover:border-brand-600">Descargar lista en PDF (con anexo técnico)</button>
         <button id="cart-clear" type="button" class="ml-auto text-sm font-semibold text-brand-700 underline">Vaciar lista</button>
       </div>
     </div>
+
+    <section id="cart-annex" aria-labelledby="annex-title" class="hidden print:mt-8 print:block"></section>
 
     <p id="cart-live" role="status" aria-live="polite" class="sr-only"></p>
   </div>

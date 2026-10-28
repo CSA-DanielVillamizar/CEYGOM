@@ -14,7 +14,7 @@ export default defineConfig({
   output: "static",
   trailingSlash: "always",
   build: { format: "directory" },
-  integrations: [react(), sitemap({ filter: (page) => !page.endsWith("/404/") && !page.endsWith("/cotizacion/") })],
+  integrations: [react(), sitemap({ filter: (page) => !page.endsWith("/404/") && !page.endsWith("/cotizacion/") && !page.endsWith("/sin-conexion/") })],
   vite: {
     plugins: [tailwindcss()],
     resolve: {

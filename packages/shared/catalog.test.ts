@@ -120,3 +120,44 @@ describe("technical facts read from the data sheets", () => {
     expect(tray.colors).toContainEqual({ code: "01", name: "Blanco" });
   });
 });
+
+import { annexFor, buildAnnexIndex } from "./annex";
+
+describe("technical annex of the quote list", () => {
+  const index = buildAnnexIndex(PRODUCTS, PRODUCT_DETAILS);
+
+  it("covers every product with a data sheet and stays small enough to fetch on demand", () => {
+    expect(Object.keys(index.products)).toHaveLength(Object.keys(PRODUCT_DETAILS).length);
+    expect(JSON.stringify(index).length).toBeLessThan(60_000);
+  });
+
+  it("gives the material, finishes, colors, sheet code and the dimensions of a requested reference", () => {
+    const [tray] = annexFor(index, [{ slug: "bandeja-porta-cables", ref: "BP1201" }]);
+    expect(tray!.name).toBe("Bandejas porta cables");
+    expect(tray!.ficha).toEqual({ code: "FT-MYV-01", path: "/fichas/bandejas-portacables/bandeja-porta-cables.pdf" });
+    expect(tray!.finishes).toEqual(["Galvanizado", "Pintura electrostática en polvo"]);
+    expect(tray!.colors).toContain("01 Blanco");
+    expect(tray!.refs).toEqual([
+      { code: "BP1201", text: expect.stringContaining("reforzada"), specs: [["Altura total (mm)", "85"], ["Ancho (mm)", "300"], ["Longitud (mm)", "2400"], ["Altura (mm)", "72"], ["Capacidad de carga (kg/m)", "149"]] },
+    ]);
+  });
+
+  it("lists each product once, keeps list order, and leaves out unknown products and references", () => {
+    const entries = annexFor(index, [
+      { slug: "rack-de-piso" },
+      { slug: "bandeja-porta-cables", ref: "BP0101" },
+      { slug: "bandeja-porta-cables", ref: "BP0201" },
+      { slug: "bandeja-porta-cables", ref: "ZZ9999" },
+      { slug: "no-existe" },
+    ]);
+    expect(entries.map((e) => e.name)).toEqual(["Racks de piso", "Bandejas porta cables"]);
+    expect(entries[0]!.refs).toEqual([]);
+    expect(entries[1]!.refs.map((r) => r.code)).toEqual(["BP0101", "BP0201"]);
+  });
+
+  it("gives a reference without dimensions only its description when the sheet table is not read", () => {
+    const [rack] = annexFor(index, [{ slug: "rack-de-piso", ref: "RA1301" }]);
+    expect(rack!.refs[0]!.specs).toEqual([]);
+    expect(rack!.refs[0]!.text).toContain("120");
+  });
+});
