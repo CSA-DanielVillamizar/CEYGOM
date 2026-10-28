@@ -15,7 +15,7 @@ Estructura: **épicas** (objetivos de negocio) contienen **historias de usuario*
 | | [HU-09 Medición de conversión](historias/HU-09-medicion-de-conversion.md) | Pendiente | Media |
 | [EP-05 Plataforma y calidad](epicas/EP-05-plataforma-y-calidad.md) | [HU-05 Despliegue continuo](historias/HU-05-despliegue-continuo.md) | En curso | Alta |
 | | [HU-10 Endurecimiento de seguridad](historias/HU-10-endurecimiento-de-seguridad.md) | Pendiente | Baja |
-| [EP-06 Cumplimiento](epicas/EP-06-cumplimiento-y-datos-personales.md) | [HU-06 Consentimiento y Habeas Data](historias/HU-06-consentimiento-habeas-data.md) | Parcial | Alta |
+| [EP-06 Cumplimiento](epicas/EP-06-cumplimiento-y-datos-personales.md) | [HU-06 Consentimiento y Habeas Data](historias/HU-06-consentimiento-habeas-data.md) | En revisión | Alta |
 
 "Hecha" significa implementada y verificada en local; no implica despliegue en producción.
 
