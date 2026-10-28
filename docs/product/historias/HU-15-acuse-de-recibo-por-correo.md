@@ -1,7 +1,7 @@
 # HU-15: Acuse de recibo por correo al cliente
 
 - **Épica:** [EP-03](../epicas/EP-03-leads-y-whatsapp.md)
-- **Estado:** En revisión (implementada; falta desplegar el script nuevo en la cuenta de la empresa)
+- **Estado:** Hecha (verificada en producción el 2026-10-28: script v4 desplegado y acuse recibido con la referencia, sin datos fiscales; falta la revisión legal del texto de la política)
 - **Prioridad:** Alta
 
 **Como** cliente, **quiero** recibir por correo la referencia de mi solicitud, **para** no perderla si cierro la pestaña y tener constancia de que la empresa la recibió.
