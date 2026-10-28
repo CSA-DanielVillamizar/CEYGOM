@@ -62,7 +62,7 @@ const path = Astro.url.pathname;
   <body class="min-h-screen font-sans antialiased flex flex-col">
     <a href="#contenido" class="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:bg-white focus:px-3 focus:py-2">Saltar al contenido</a>
 
-    <header class="bg-steel-900 text-white">
+    <header class="bg-steel-900 text-white print:hidden">
       <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
         <a href="/" class="flex items-center gap-3 text-lg font-bold tracking-tight">
           <Image src={logo} alt="" width={64} class="h-10 w-auto rounded-sm" loading="eager" />
@@ -98,7 +98,7 @@ const path = Astro.url.pathname;
       <slot />
     </main>
 
-    <footer class="bg-steel-900 text-sm text-white/80">
+    <footer class="bg-steel-900 text-sm text-white/80 print:hidden">
       <!-- Bottom padding keeps the last lines above the floating WhatsApp button at every screen size. -->
       <div class="mx-auto grid max-w-6xl gap-4 px-4 pt-8 pb-24 sm:grid-cols-2">
         <div>
@@ -118,14 +118,14 @@ const path = Astro.url.pathname;
       href={floatingHref}
       target={whatsappNumber ? "_blank" : undefined}
       rel={whatsappNumber ? "noopener noreferrer" : undefined}
-      class="fixed bottom-4 right-4 z-40 rounded-full bg-green-600 px-5 py-3 text-sm font-bold text-white shadow-lg hover:bg-green-700"
+      class="fixed bottom-4 right-4 z-40 print:hidden rounded-full bg-green-600 px-5 py-3 text-sm font-bold text-white shadow-lg hover:bg-green-700"
       aria-label={whatsappNumber ? "Escribir por WhatsApp" : "Solicitar cotización"}
     >
       {whatsappNumber ? "WhatsApp" : "Cotizar"}
     </a>
 
     <!-- Confirmation shown when something is added to the quote list (also announced to screen readers). -->
-    <div id="cart-toast" role="status" aria-live="polite" hidden class="fixed bottom-4 left-4 z-50 max-w-[calc(100vw-9rem)] rounded-lg bg-steel-900 px-4 py-3 text-sm text-white shadow-lg sm:max-w-sm">
+    <div id="cart-toast" role="status" aria-live="polite" hidden class="fixed bottom-4 left-4 z-50 print:hidden max-w-[calc(100vw-9rem)] rounded-lg bg-steel-900 px-4 py-3 text-sm text-white shadow-lg sm:max-w-sm">
       <span data-toast-text></span>
       <a href="/cotizacion/" class="ml-2 font-semibold underline">Ver mi cotización</a>
     </div>

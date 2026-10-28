@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { LEGAL } from "../data/legal";
 ---
 
 <Layout
@@ -8,6 +9,11 @@ import Layout from "../layouts/Layout.astro";
   noindex
 >
   <div class="mx-auto max-w-4xl px-4 py-10">
+    <div class="hidden print:mb-6 print:block print:border-b print:border-steel-200 print:pb-3">
+      <p class="font-bold">{LEGAL.legalName ?? LEGAL.tradeName}{LEGAL.nit ? ` · NIT ${LEGAL.nit}` : ""}</p>
+      <p class="text-sm">{LEGAL.address} · PBX {LEGAL.phoneLabel}</p>
+      <p class="text-sm">Lista de requerimientos generada el <span id="print-date"></span>. No es una cotización ni incluye precios.</p>
+    </div>
     <h1 class="text-3xl font-bold">Mi cotización</h1>
     <p class="mt-2 max-w-2xl text-steel-600">
       Reúne los productos y referencias que necesitas y envía una sola solicitud. La lista se guarda en este navegador, no contiene datos personales y puedes editarla cuando quieras.
@@ -26,7 +32,7 @@ import Layout from "../layouts/Layout.astro";
               <th scope="col" class="px-4 py-2 font-semibold">Producto</th>
               <th scope="col" class="px-4 py-2 font-semibold">Referencia</th>
               <th scope="col" class="px-4 py-2 font-semibold">Cantidad</th>
-              <th scope="col" class="px-4 py-2 font-semibold"><span class="sr-only">Acciones</span></th>
+              <th scope="col" class="px-4 py-2 font-semibold print:hidden"><span class="sr-only">Acciones</span></th>
             </tr>
           </thead>
           <tbody id="cart-rows"></tbody>
@@ -34,10 +40,12 @@ import Layout from "../layouts/Layout.astro";
       </div>
 
       <p id="cart-summary" class="mt-3 text-sm text-steel-600"></p>
+      <p class="mt-1 text-xs text-steel-600 print:hidden">El botón abre el diálogo de impresión: elige "Guardar como PDF" para tener la lista con el membrete de la empresa y compartirla con tu área de compras.</p>
 
-      <div class="mt-6 flex flex-wrap items-center gap-3">
+      <div class="mt-6 flex flex-wrap items-center gap-3 print:hidden">
         <a href="/cotizador/?lista=1" class="rounded bg-brand-600 px-6 py-3 font-semibold text-white hover:bg-brand-700">Continuar con la solicitud</a>
         <a href="/productos/" class="rounded border border-steel-200 bg-white px-6 py-3 font-semibold hover:border-brand-600">Agregar más productos</a>
+        <button id="cart-print" type="button" class="rounded border border-steel-200 bg-white px-6 py-3 font-semibold hover:border-brand-600">Descargar lista en PDF</button>
         <button id="cart-clear" type="button" class="ml-auto text-sm font-semibold text-brand-700 underline">Vaciar lista</button>
       </div>
     </div>

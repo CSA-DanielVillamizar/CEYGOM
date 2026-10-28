@@ -4,6 +4,7 @@ import Layout from "../../../layouts/Layout.astro";
 import { PRODUCTS, categoryLabel, type Product } from "@shared/catalog";
 import { PRODUCT_DETAILS } from "@shared/catalog-details";
 import { productImage } from "../../../lib/productImages";
+import { buildWhatsappProductUrl } from "@shared/whatsapp";
 
 export function getStaticPaths() {
   return PRODUCTS.filter((p) => p.category !== "a-medida" && PRODUCT_DETAILS[p.slug]).map((p) => ({
@@ -19,6 +20,7 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? "https://electrometalicasceyg
 const url = new URL(Astro.url.pathname, siteUrl).toString();
 const brand = "Electro Metálicas Ceygom";
 
+const whatsappNumber = import.meta.env.PUBLIC_WHATSAPP_NUMBER as string | undefined;
 const refs = d.references;
 const lead =
   refs.length > 0
@@ -93,6 +95,11 @@ const illustrative = d.images.every((i) => i.illustrative);
         <div class="flex flex-wrap gap-3">
           <button type="button" data-cart-add data-slug={product.slug} data-name={product.name} data-cat={product.category} class="rounded bg-brand-600 px-6 py-3 font-semibold text-white hover:bg-brand-700">Agregar a mi cotización</button>
           <a href={`/cotizador/?producto=${product.slug}`} class="rounded border border-steel-200 bg-white px-6 py-3 font-semibold hover:border-brand-600">Cotizar solo este producto</a>
+          {whatsappNumber && (
+            <a href={buildWhatsappProductUrl(whatsappNumber, product.name)} target="_blank" rel="noopener noreferrer" class="rounded border border-green-600 bg-white px-6 py-3 font-semibold text-green-700 hover:bg-green-50">
+              Consultar disponibilidad por WhatsApp
+            </a>
+          )}
           {d.ficha && (
             <a href={d.ficha.path} target="_blank" rel="noopener noreferrer" type="application/pdf" class="rounded border border-steel-200 bg-white px-6 py-3 font-semibold hover:border-brand-600">
               Ficha técnica (PDF, {d.ficha.sizeKb} KB)
@@ -112,20 +119,23 @@ const illustrative = d.images.every((i) => i.illustrative);
       <section class="mt-10" aria-labelledby="referencias">
         <h2 id="referencias" class="text-xl font-bold">Referencias</h2>
         <div class="mt-3 overflow-x-auto rounded-lg border border-steel-200 bg-white">
-          <table class="w-full text-left text-sm">
+          <table class="w-full min-w-[34rem] text-left text-sm">
             <caption class="sr-only">Referencias de {product.name} según su ficha técnica</caption>
             <thead class="bg-steel-50 text-steel-600">
-              <tr><th scope="col" class="px-4 py-2 font-semibold">Código</th><th scope="col" class="px-4 py-2 font-semibold">Descripción</th><th scope="col" class="px-4 py-2 font-semibold">Cotizar</th></tr>
+              <tr><th scope="col" class="sticky left-0 bg-steel-50 px-4 py-2 font-semibold">Código</th><th scope="col" class="px-4 py-2 font-semibold">Descripción</th><th scope="col" class="px-4 py-2 font-semibold">Cotizar</th></tr>
             </thead>
             <tbody>
               {refs.map((r) => (
                 <tr class="border-t border-steel-200" data-cart-row>
-                  <td class="px-4 py-2 font-mono">{r.code}</td>
+                  <td class="sticky left-0 border-r border-steel-200 bg-white px-4 py-2 font-mono font-semibold tabular-nums">
+                    <span class="flex items-center gap-2">{r.code}<button type="button" data-copy={r.code} class="rounded border border-steel-200 px-2 py-1 font-sans text-xs font-normal text-steel-600 hover:border-brand-600" aria-label={`Copiar la referencia ${r.code}`}>Copiar</button></span>
+                  </td>
                   <td class="px-4 py-2">{r.text}</td>
                   <td class="px-4 py-2">
                     <span class="flex items-center gap-2">
-                      <input type="number" min="1" value="1" data-cart-qty aria-label={`Cantidad de ${r.code}`} class="w-16 rounded border border-steel-200 px-2 py-1" />
-                      <button type="button" data-cart-add data-slug={product.slug} data-ref={r.code} data-name={product.name} data-cat={product.category} class="rounded border border-steel-200 bg-white px-3 py-1.5 text-sm font-semibold hover:border-brand-600">Agregar</button>
+                      <input type="number" min="1" value="1" data-cart-qty aria-label={`Cantidad de ${r.code}`} class="h-11 w-16 rounded border border-steel-200 px-2 py-1" />
+                      <button type="button" data-cart-add data-slug={product.slug} data-ref={r.code} data-name={product.name} data-cat={product.category} class="h-11 rounded border border-steel-200 bg-white px-3 text-sm font-semibold hover:border-brand-600">Agregar</button>
+                      {whatsappNumber && <a href={buildWhatsappProductUrl(whatsappNumber, product.name, r.code)} target="_blank" rel="noopener noreferrer" class="inline-flex h-11 items-center rounded border border-green-600 px-3 text-sm font-semibold text-green-700 hover:bg-green-50" aria-label={`Consultar disponibilidad de ${r.code} por WhatsApp`}>WhatsApp</a>}
                     </span>
                   </td>
                 </tr>

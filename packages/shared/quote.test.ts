@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { nitCheckDigit } from "./fiscal";
 import { QuoteContactSchema, QuoteRequestSchema, RUT_MAX_BYTES, RutFileSchema } from "./quote.schema";
-import { buildWhatsappMessage, buildWhatsappUrl, MAX_MESSAGE_LENGTH } from "./whatsapp";
+import { buildWhatsappMessage, buildWhatsappProductUrl, buildWhatsappUrl, MAX_MESSAGE_LENGTH } from "./whatsapp";
 
 export const rutFixture = (kind: "pdf" | "jpeg" | "png" = "pdf", extra = 0) => {
   const head = {
@@ -209,5 +209,21 @@ describe("WhatsApp link", () => {
 
   it("strips non-digits from the number", () => {
     expect(buildWhatsappUrl("+57 (300) 111-2222", "hola")).toBe("https://wa.me/573001112222?text=hola");
+  });
+});
+
+describe("WhatsApp product enquiry", () => {
+  it("names the product and the exact reference, with a digits-only number and no personal data", () => {
+    const url = new URL(buildWhatsappProductUrl("+57 310 512 7314", "Bandeja ranurada", "BP0101"));
+    expect(url.origin + url.pathname).toBe("https://wa.me/573105127314");
+    const text = url.searchParams.get("text")!;
+    expect(text).toContain("Bandeja ranurada (ref. BP0101)");
+    expect(text).toContain("disponibilidad");
+  });
+
+  it("works without a reference", () => {
+    const text = new URL(buildWhatsappProductUrl("573105127314", "Rack de piso")).searchParams.get("text")!;
+    expect(text).toContain("Rack de piso.");
+    expect(text).not.toContain("ref.");
   });
 });

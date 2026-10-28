@@ -47,3 +47,9 @@ export function buildWhatsappUrl(number: string, text: string): string {
 export function buildWhatsappChatUrl(number: string, text = "Hola, quiero información sobre sus productos."): string {
   return buildWhatsappUrl(number, text);
 }
+
+/** Availability enquiry from a product page: the product and, when given, the exact reference. No personal data. */
+export function buildWhatsappProductUrl(number: string, productName: string, reference?: string): string {
+  const what = reference ? `${productName} (ref. ${reference})` : productName;
+  return buildWhatsappUrl(number, `Hola, quiero consultar disponibilidad y tiempos de entrega de: ${what}.`);
+}
