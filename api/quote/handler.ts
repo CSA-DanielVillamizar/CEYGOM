@@ -9,7 +9,7 @@ import {
 import { buildWhatsappMessage, buildWhatsappUrl } from "../../packages/shared/whatsapp";
 import { loadEnv } from "./env";
 import { newReference } from "./reference";
-import { postLead } from "./webhook";
+import { isSafeWebhookUrl, postLead } from "./webhook";
 
 // 20 000 characters for the form data plus the largest allowed RUT file in Base64 (~7 MB, well under
 // the 30 MB request limit of Static Web Apps).
@@ -73,16 +73,19 @@ export async function handleQuote(
   const { website: _website, ...request } = parsed.data;
   const lead: LeadRecord = { reference: newReference(now), createdAt: now.toISOString(), request };
 
-  // The webhook is optional. If it fails we still answer 200 so the customer can reach sales on WhatsApp;
-  // the response says whether the lead was stored.
+  // The webhook is optional. If it fails or times out we still answer 200 so the customer can reach sales on
+  // WhatsApp; the response says whether the lead was stored, and the log keeps a warning with the reference.
   let webhookDelivered = false;
-  if (env.value.LEADS_WEBHOOK_URL) {
+  const webhookUrl = env.value.LEADS_WEBHOOK_URL;
+  if (webhookUrl && !isSafeWebhookUrl(webhookUrl)) {
+    ctx.warn(`Lead ${lead.reference}: LEADS_WEBHOOK_URL must use https; the lead was not forwarded`);
+  } else if (webhookUrl) {
     try {
-      await deps.postLead(env.value.LEADS_WEBHOOK_URL, lead, env.value.LEADS_WEBHOOK_SECRET);
+      await deps.postLead(webhookUrl, lead, env.value.LEADS_WEBHOOK_SECRET);
       webhookDelivered = true;
     } catch (e) {
       // `e` can be anything (a thrown string or null included); never let logging break the response.
-      ctx.error(`Lead ${lead.reference}: webhook failed: ${e instanceof Error ? e.message : "unknown error"}`);
+      ctx.warn(`Lead ${lead.reference}: webhook not delivered: ${e instanceof Error ? e.message : "unknown error"}`);
     }
   }
 
