@@ -415,8 +415,11 @@ export default function QuoteWizard() {
             <label className="flex items-start gap-2 text-sm">
               <input type="checkbox" className="mt-1 h-4 w-4" checked={state.contact.acceptsDataPolicy} aria-invalid={!!e("contact.acceptsDataPolicy")} aria-describedby={e("contact.acceptsDataPolicy") ? f("consent-err") : undefined}
                 onChange={(ev) => dispatch({ type: "contact", patch: { acceptsDataPolicy: ev.target.checked } })} />
-              {/* TODO(negocio): replace with the reviewed Habeas Data (Ley 1581 de 2012) policy text and link. */}
-              <span>Autorizo el tratamiento de mis datos personales para gestionar esta cotización.</span>
+              <span>
+                He leído la{" "}
+                <a href="/privacidad/" target="_blank" rel="noopener noreferrer" className="text-brand-700 underline">política de tratamiento de datos personales</a>{" "}
+                y autorizo el tratamiento de mis datos para gestionar esta cotización.
+              </span>
             </label>
             {e("contact.acceptsDataPolicy") && <p id={f("consent-err")} className="mt-1 text-sm text-brand-700">{e("contact.acceptsDataPolicy")}</p>}
           </div>
