@@ -1,0 +1,139 @@
+---
+import { Image, getImage } from "astro:assets";
+import Layout from "../../../layouts/Layout.astro";
+import { PRODUCTS, categoryLabel, type Product } from "@shared/catalog";
+import { PRODUCT_DETAILS } from "@shared/catalog-details";
+import { productImage } from "../../../lib/productImages";
+
+export function getStaticPaths() {
+  return PRODUCTS.filter((p) => p.category !== "a-medida" && PRODUCT_DETAILS[p.slug]).map((p) => ({
+    params: { categoria: p.category, slug: p.slug },
+    props: { product: p },
+  }));
+}
+
+const { product } = Astro.props as { product: Product };
+const d = PRODUCT_DETAILS[product.slug]!;
+const category = categoryLabel(product.category);
+const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? "https://electrometalicasceygom.com";
+const url = new URL(Astro.url.pathname, siteUrl).toString();
+const brand = "Electro Metálicas Ceygom";
+
+const refs = d.references;
+const lead =
+  refs.length > 0
+    ? `${refs.length} referencia${refs.length === 1 ? "" : "s"} (${refs[0]!.code}${refs.length > 1 ? ` a ${refs.at(-1)!.code}` : ""})${d.ficha ? " y ficha técnica en PDF" : ""}.`
+    : d.ficha
+      ? "Consulta las referencias, medidas y acabados en la ficha técnica en PDF."
+      : "Ficha técnica en preparación. Solicita la información de este producto con un asesor.";
+// Search engines cut the description around 160 characters: drop the closing sentence, then trim.
+const fullDescription = `${product.name} (${category}) de ${brand}: ${lead} Cotízalo en línea.`;
+const shortDescription = `${product.name} (${category}) de ${brand}: ${lead}`;
+const description =
+  fullDescription.length <= 160 ? fullDescription : shortDescription.length <= 160 ? shortDescription : `${shortDescription.slice(0, 157).trimEnd()}...`;
+
+// The photo is only offered for sharing and structured data when it really shows this product.
+const real = d.images.find((i) => !i.illustrative);
+const shareImage = real ? new URL((await getImage({ src: productImage(real.file), width: 1200, format: "webp" })).src, siteUrl).toString() : undefined;
+
+const related = PRODUCTS.filter((p) => p.category === product.category && p.slug !== product.slug && PRODUCT_DETAILS[p.slug]).slice(0, 4);
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description,
+    category,
+    brand: { "@type": "Brand", name: brand },
+    url,
+    ...(shareImage ? { image: shareImage } : {}),
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Inicio", item: new URL("/", siteUrl).toString() },
+      { "@type": "ListItem", position: 2, name: "Productos", item: new URL("/productos/", siteUrl).toString() },
+      { "@type": "ListItem", position: 3, name: category, item: new URL(`/productos/#${product.category}`, siteUrl).toString() },
+      { "@type": "ListItem", position: 4, name: product.name, item: url },
+    ],
+  },
+];
+const illustrative = d.images.every((i) => i.illustrative);
+---
+
+<Layout title={`${product.name} - ${category}`} description={description} image={shareImage} jsonLd={jsonLd}>
+  <div class="mx-auto max-w-5xl px-4 py-10">
+    <nav aria-label="Ruta de navegación" class="text-sm text-steel-600">
+      <ol class="flex flex-wrap gap-1">
+        <li><a class="hover:underline" href="/">Inicio</a> /</li>
+        <li><a class="hover:underline" href="/productos/">Productos</a> /</li>
+        <li><a class="hover:underline" href={`/productos/#${product.category}`}>{category}</a> /</li>
+        <li aria-current="page" class="font-semibold text-steel-900">{product.name}</li>
+      </ol>
+    </nav>
+
+    <h1 class="mt-4 text-3xl font-bold">{product.name}</h1>
+    <p class="mt-2 max-w-2xl text-steel-600">{lead}</p>
+
+    <div class="mt-8 grid gap-8 md:grid-cols-2">
+      <div>
+        <ul class={`grid gap-3 ${d.images.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
+          {d.images.map((image) => (
+            <li class="overflow-hidden rounded-lg border border-steel-200 bg-steel-50">
+              <Image src={productImage(image.file)} alt={image.illustrative ? `${product.name} (imagen ilustrativa)` : product.name} width={d.images.length > 1 ? 360 : 520} class="mx-auto h-auto w-full object-contain" loading="eager" />
+            </li>
+          ))}
+        </ul>
+        {illustrative && <p class="mt-2 text-xs text-steel-600">Imagen ilustrativa. La foto de este producto está en preparación.</p>}
+      </div>
+
+      <div>
+        <div class="flex flex-wrap gap-3">
+          <a href={`/cotizador/?producto=${product.slug}`} class="rounded bg-brand-600 px-6 py-3 font-semibold text-white hover:bg-brand-700">Cotizar este producto</a>
+          {d.ficha && (
+            <a href={d.ficha.path} target="_blank" rel="noopener noreferrer" type="application/pdf" class="rounded border border-steel-200 bg-white px-6 py-3 font-semibold hover:border-brand-600">
+              Ficha técnica (PDF, {d.ficha.sizeKb} KB)
+            </a>
+          )}
+        </div>
+        {d.ficha ? (
+          <p class="mt-3 text-xs text-steel-600">Documento {d.ficha.code ?? "de la empresa"}. En la ficha encuentras medidas, materiales, acabados y códigos de color.</p>
+        ) : (
+          <p class="mt-3 rounded bg-steel-50 p-3 text-sm text-steel-600">La ficha técnica de este producto está en preparación. Pídela en el cotizador o llamando al <a class="text-brand-700 underline" href="tel:+5744446733">(574) 444 6733</a>.</p>
+        )}
+        <p class="mt-6 text-sm text-steel-600">No publicamos precios en línea: un asesor te responde con una cotización formal.</p>
+      </div>
+    </div>
+
+    {refs.length > 0 && (
+      <section class="mt-10" aria-labelledby="referencias">
+        <h2 id="referencias" class="text-xl font-bold">Referencias</h2>
+        <div class="mt-3 overflow-x-auto rounded-lg border border-steel-200 bg-white">
+          <table class="w-full text-left text-sm">
+            <caption class="sr-only">Referencias de {product.name} según su ficha técnica</caption>
+            <thead class="bg-steel-50 text-steel-600">
+              <tr><th scope="col" class="px-4 py-2 font-semibold">Código</th><th scope="col" class="px-4 py-2 font-semibold">Descripción</th></tr>
+            </thead>
+            <tbody>
+              {refs.map((r) => (
+                <tr class="border-t border-steel-200"><td class="px-4 py-2 font-mono">{r.code}</td><td class="px-4 py-2">{r.text}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-2 text-xs text-steel-600">Códigos y descripciones tomados de la ficha técnica; consúltala para las medidas completas.</p>
+      </section>
+    )}
+
+    {related.length > 0 && (
+      <section class="mt-12" aria-labelledby="relacionados">
+        <h2 id="relacionados" class="text-xl font-bold">Más en {category}</h2>
+        <ul class="mt-3 flex flex-wrap gap-2 text-sm">
+          {related.map((p) => <li><a href={`/productos/${p.category}/${p.slug}/`} class="inline-block rounded-full border border-steel-200 bg-white px-3 py-1 hover:border-brand-600">{p.name}</a></li>)}
+        </ul>
+      </section>
+    )}
+  </div>
+</Layout>

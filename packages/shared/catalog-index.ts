@@ -1,0 +1,251 @@
+// Output of scripts/catalog/import-catalog.mjs (source: scripts/catalog/manifest.json). Do not edit by hand.
+// Light product index (slug, name, category): the only catalog data the quote wizard bundles.
+import type { CategoryId } from "./catalog";
+
+export const CATALOG_INDEX: readonly { slug: string; name: string; category: CategoryId }[] = [
+  {
+    "slug": "bandeja-porta-cables",
+    "name": "Bandejas porta cables",
+    "category": "bandejas-portacables"
+  },
+  {
+    "slug": "bandeja-cruz",
+    "name": "Cruz",
+    "category": "bandejas-portacables"
+  },
+  {
+    "slug": "bandeja-curva-horizontal-45",
+    "name": "Curva horizontal 45°",
+    "category": "bandejas-portacables"
+  },
+  {
+    "slug": "bandeja-curva-horizontal-90",
+    "name": "Curva horizontal 90°",
+    "category": "bandejas-portacables"
+  },
+  {
+    "slug": "bandeja-curva-vertical-exterior",
+    "name": "Curva vertical exterior",
+    "category": "bandejas-portacables"
+  },
+  {
+    "slug": "bandeja-curva-vertical-interior",
+    "name": "Curva vertical interior",
+    "category": "bandejas-portacables"
+  },
+  {
+    "slug": "bandeja-reduccion-asimetrica",
+    "name": "Reducción asimétrica",
+    "category": "bandejas-portacables"
+  },
+  {
+    "slug": "bandeja-reduccion-simetrica",
+    "name": "Reducción simétrica",
+    "category": "bandejas-portacables"
+  },
+  {
+    "slug": "bandeja-te",
+    "name": "Te",
+    "category": "bandejas-portacables"
+  },
+  {
+    "slug": "canaleta",
+    "name": "Canaletas",
+    "category": "canaletas"
+  },
+  {
+    "slug": "canaleta-curva-horizontal-exterior",
+    "name": "Curva horizontal exterior",
+    "category": "canaletas"
+  },
+  {
+    "slug": "canaleta-curva-horizontal-interior",
+    "name": "Curva horizontal interior",
+    "category": "canaletas"
+  },
+  {
+    "slug": "canaleta-cruz-ductos",
+    "name": "Cruz ductos",
+    "category": "canaletas"
+  },
+  {
+    "slug": "canaleta-curva-vertical",
+    "name": "Curva vertical",
+    "category": "canaletas"
+  },
+  {
+    "slug": "canaleta-curva-horizontal",
+    "name": "Curva horizontal",
+    "category": "canaletas"
+  },
+  {
+    "slug": "canaleta-curva-vertical-exterior",
+    "name": "Curva vertical exterior",
+    "category": "canaletas"
+  },
+  {
+    "slug": "canaleta-curva-vertical-interior",
+    "name": "Curva vertical interior",
+    "category": "canaletas"
+  },
+  {
+    "slug": "canaleta-tapas-dobles-realzadas",
+    "name": "Tapas dobles realzadas",
+    "category": "canaletas"
+  },
+  {
+    "slug": "canaleta-tapas-dobles",
+    "name": "Tapas dobles",
+    "category": "canaletas"
+  },
+  {
+    "slug": "canaleta-tapas-sencillas",
+    "name": "Tapas sencillas",
+    "category": "canaletas"
+  },
+  {
+    "slug": "canaleta-tapas-sencillas-realzadas",
+    "name": "Tapas sencillas realzadas",
+    "category": "canaletas"
+  },
+  {
+    "slug": "canaleta-tapas-triples-realzadas",
+    "name": "Tapas triples realzadas",
+    "category": "canaletas"
+  },
+  {
+    "slug": "canaleta-tapas-triples",
+    "name": "Tapas triples",
+    "category": "canaletas"
+  },
+  {
+    "slug": "canaleta-te",
+    "name": "Te canaletas",
+    "category": "canaletas"
+  },
+  {
+    "slug": "canaleta-te-ductos",
+    "name": "Te ductos",
+    "category": "canaletas"
+  },
+  {
+    "slug": "bandeja-19-pulgadas",
+    "name": "Bandejas de 19\"",
+    "category": "racks-comunicaciones"
+  },
+  {
+    "slug": "multitoma-19-pulgadas",
+    "name": "Multitomas de 19\"",
+    "category": "racks-comunicaciones"
+  },
+  {
+    "slug": "multitoma-5-salidas-dobles",
+    "name": "Multitomas de 19\" de 5 salidas dobles",
+    "category": "racks-comunicaciones"
+  },
+  {
+    "slug": "multitoma-5-salidas-dobles-reguladas",
+    "name": "Multitomas de 19\" de 5 salidas dobles reguladas",
+    "category": "racks-comunicaciones"
+  },
+  {
+    "slug": "multitoma-grado-hospitalario",
+    "name": "Multitoma grado hospitalario",
+    "category": "racks-comunicaciones"
+  },
+  {
+    "slug": "organizador-tipo-varilla",
+    "name": "Organizador tipo varilla",
+    "category": "racks-comunicaciones"
+  },
+  {
+    "slug": "rack-cerrado-abatible",
+    "name": "Rack cerrado abatible",
+    "category": "racks-comunicaciones"
+  },
+  {
+    "slug": "rack-cerrado-un-cuerpo",
+    "name": "Rack cerrado de 1 cuerpo",
+    "category": "racks-comunicaciones"
+  },
+  {
+    "slug": "rack-de-piso",
+    "name": "Racks de piso",
+    "category": "racks-comunicaciones"
+  },
+  {
+    "slug": "rack-abierto-de-pared",
+    "name": "Rack abierto de pared",
+    "category": "racks-comunicaciones"
+  },
+  {
+    "slug": "patch-panel",
+    "name": "Patch panels",
+    "category": "racks-comunicaciones"
+  },
+  {
+    "slug": "bandeja-fibra-optica",
+    "name": "Bandeja para fibra óptica",
+    "category": "racks-comunicaciones"
+  },
+  {
+    "slug": "celda-seccionador",
+    "name": "Celdas para seccionador",
+    "category": "linea-electrica"
+  },
+  {
+    "slug": "celda-transformador",
+    "name": "Celdas para transformadores",
+    "category": "linea-electrica"
+  },
+  {
+    "slug": "equipo-medida-proteccion",
+    "name": "Equipo de medida y protección",
+    "category": "linea-electrica"
+  },
+  {
+    "slug": "gabinete-contadores",
+    "name": "Gabinetes de contadores",
+    "category": "linea-electrica"
+  },
+  {
+    "slug": "ml-proteccion",
+    "name": "ML de protección",
+    "category": "linea-electrica"
+  },
+  {
+    "slug": "gabinete-de-gas",
+    "name": "Gabinete de gas",
+    "category": "linea-electrica"
+  },
+  {
+    "slug": "gabinete-de-incendio",
+    "name": "Gabinete de incendio",
+    "category": "linea-electrica"
+  },
+  {
+    "slug": "soporte-aereo",
+    "name": "Soporte aéreo",
+    "category": "soportes"
+  },
+  {
+    "slug": "soporte-peldano",
+    "name": "Soporte peldaño",
+    "category": "soportes"
+  },
+  {
+    "slug": "soporte-plancha",
+    "name": "Soporte plancha",
+    "category": "soportes"
+  },
+  {
+    "slug": "soporte-repisa",
+    "name": "Soporte repisa",
+    "category": "soportes"
+  },
+  {
+    "slug": "soporte-universal",
+    "name": "Soporte universal",
+    "category": "soportes"
+  }
+];

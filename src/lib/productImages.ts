@@ -1,0 +1,10 @@
+import type { ImageMetadata } from "astro";
+
+// Optimized masters produced by scripts/catalog/import-catalog.mjs. Astro derives the delivered sizes at build time.
+const images = import.meta.glob<{ default: ImageMetadata }>("/src/assets/productos/*.webp", { eager: true });
+
+export function productImage(file: string): ImageMetadata {
+  const found = images[`/src/assets/productos/${file}.webp`] ?? images["/src/assets/productos/placeholder.webp"];
+  if (!found) throw new Error(`Missing product image: ${file}`);
+  return found.default;
+}

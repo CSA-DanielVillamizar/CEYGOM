@@ -1,6 +1,6 @@
 # EP-01: Catálogo de productos
 
-- **Estado:** En curso
+- **Estado:** En revisión con la empresa (49 productos publicados en una versión de revisión; faltan fotos reales y datos por confirmar)
 - **Prioridad:** Alta
 - **Historias:** [HU-01](../historias/HU-01-catalogo-por-categorias.md) (hecha), [HU-07](../historias/HU-07-paginas-de-producto-con-ficha.md) (pendiente)
 
