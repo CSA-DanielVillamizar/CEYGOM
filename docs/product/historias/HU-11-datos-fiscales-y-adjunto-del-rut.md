@@ -91,6 +91,6 @@ Característica: Datos fiscales y RUT
 
 - Pruebas automáticas de esquema, API y enlace de WhatsApp (hechas).
 - Prueba manual en el navegador del recorrido natural y jurídico, con y sin archivo (hecha en local).
-- Prueba de extremo a extremo con el destino real del webhook, con un archivo de 5 MB (pendiente).
+- Prueba de extremo a extremo con el destino real del webhook, con un archivo de 5 MB (hecha en producción: fila completa en la hoja y archivo en su subcarpeta de Drive, en unos 16 s de un máximo de 25 s).
 - Confirmación con el sistema contable de los campos y las responsabilidades fiscales requeridas (pendiente).
 - Revisión legal del texto de `/privacidad/` (pendiente, HU-06).

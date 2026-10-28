@@ -3,7 +3,7 @@ import { HttpRequest, InvocationContext } from "@azure/functions";
 import { handleQuote, type Deps } from "./handler";
 import { loadEnv } from "./env";
 import { newReference } from "./reference";
-import { postLead } from "./webhook";
+import { isSafeWebhookUrl, postLead, webhookTimeoutMs, WEBHOOK_TIMEOUT_MS, WEBHOOK_TIMEOUT_WITH_FILE_MS } from "./webhook";
 
 const validBody = {
   items: [{ category: "canaletas", quantity: 10, productSlug: "canaleta" }],
@@ -194,5 +194,115 @@ describe("helpers", () => {
   it("postLead throws on non-2xx", async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response("no", { status: 500 }));
     await expect(postLead("https://hooks.example/x", {} as never, undefined, fetchMock as unknown as typeof fetch)).rejects.toThrow("500");
+  });
+});
+
+describe("leads webhook", () => {
+  const lead = (withFile: boolean) =>
+    ({
+      reference: "COT-2026-AAAAAA",
+      createdAt: "2026-03-01T00:00:00.000Z",
+      request: { ...validBody, ...(withFile ? { rutFile: rut() } : {}) },
+    }) as never;
+  const send = (answer: Response, withFile = false) =>
+    postLead("https://script.google.com/macros/s/ID/exec?token=SECRET", lead(withFile), undefined, vi.fn().mockResolvedValue(answer) as unknown as typeof fetch);
+
+  it("waits longer when the lead carries the RUT file", () => {
+    expect(webhookTimeoutMs(lead(false))).toBe(WEBHOOK_TIMEOUT_MS);
+    expect(webhookTimeoutMs(lead(true))).toBe(WEBHOOK_TIMEOUT_WITH_FILE_MS);
+    expect(WEBHOOK_TIMEOUT_WITH_FILE_MS).toBeGreaterThan(WEBHOOK_TIMEOUT_MS);
+    expect(WEBHOOK_TIMEOUT_WITH_FILE_MS).toBeLessThan(45_000); // managed functions stop at 45 s
+  });
+
+  it("sends the request to the configured URL with a timeout signal", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response("{}", { status: 200 }));
+    await postLead("https://script.google.com/macros/s/ID/exec?token=SECRET", lead(true), undefined, fetchMock as unknown as typeof fetch);
+    expect(fetchMock.mock.calls[0]![0]).toBe("https://script.google.com/macros/s/ID/exec?token=SECRET");
+    expect((fetchMock.mock.calls[0]![1] as { signal: AbortSignal }).signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it.each([["Apps Script ok", '{"ok":true}'], ["duplicate", '{"ok":true,"duplicate":true}'], ["Make", "Accepted"], ["empty", ""], ["HTML page", "<html>hola</html>"]])(
+    "counts a 200 answer as delivered: %s",
+    async (_name, answer) => {
+      await expect(send(new Response(answer, { status: 200 }))).resolves.toBeUndefined();
+    },
+  );
+
+  it.each([
+    ["unauthorized", '{"ok":false,"error":"unauthorized"}', "Webhook rejected the lead: unauthorized"],
+    ["internal", '{"ok":false,"error":"internal"}', "Webhook rejected the lead: internal"],
+    ["no code", '{"ok":false}', "Webhook rejected the lead"],
+    ["odd code is not echoed", '{"ok":false,"error":"Token SECRET <b>"}', "Webhook rejected the lead"],
+  ])("fails when the destination reports a rejection with status 200: %s", async (_name, answer, message) => {
+    await expect(send(new Response(answer, { status: 200 }))).rejects.toThrow(new RegExp(`^${message}$`));
+  });
+
+  it("never puts the URL, which may carry a token, in the error", async () => {
+    const attempts = [send(new Response("no", { status: 502 })), send(new Response('{"ok":false,"error":"unauthorized"}', { status: 200 }))];
+    for (const attempt of attempts) {
+      await attempt.catch((e: Error) => {
+        expect(e.message).not.toContain("SECRET");
+        expect(e.message).not.toContain("script.google.com");
+      });
+    }
+  });
+
+  it.each([
+    ["https://script.google.com/macros/s/ID/exec?token=x", true],
+    ["https://hook.eu1.make.com/abc", true],
+    ["http://localhost:9999/", true],
+    ["http://127.0.0.1:9999/", true],
+    ["http://script.google.com/macros/s/ID/exec", false],
+    ["http://hooks.example/x", false],
+    ["ftp://hooks.example/x", false],
+    ["no es una url", false],
+  ])("isSafeWebhookUrl(%s) is %s", (url, expected) => {
+    expect(isSafeWebhookUrl(url)).toBe(expected);
+  });
+});
+
+describe("webhook failures are logged as warnings and never block the customer", () => {
+  const logsOf = (ctx: InvocationContext) => {
+    const out: { level: string; text: string }[] = [];
+    for (const level of ["log", "error", "warn", "info"] as const) ctx[level] = ((...a: unknown[]) => void out.push({ level, text: a.join(" ") })) as never;
+    return out;
+  };
+  const run = async (deps: Partial<Deps>) => {
+    const ctx = new InvocationContext();
+    const logs = logsOf(ctx);
+    const req = new HttpRequest({ method: "POST", url: "http://localhost/api/quote", headers: { "content-type": "application/json" }, body: { string: JSON.stringify({ ...validBody, rutFile: rut(100) }) } });
+    const res = await handleQuote(req, ctx, { env: baseEnv, postLead: vi.fn().mockResolvedValue(undefined), now: () => new Date("2026-03-01T00:00:00Z"), ...deps });
+    return { res, logs };
+  };
+
+  it("a timeout answers 200 with the wa.me link and a warning that names the reference only", async () => {
+    const timeout = Object.assign(new Error("The operation was aborted due to timeout"), { name: "TimeoutError" });
+    const { res, logs } = await run({ postLead: vi.fn().mockRejectedValue(timeout) });
+    const body = res.jsonBody as { reference: string; whatsappUrl: string; webhookDelivered: boolean };
+    expect(res.status).toBe(200);
+    expect(body.webhookDelivered).toBe(false);
+    expect(body.whatsappUrl.startsWith("https://wa.me/573000000000?text=")).toBe(true);
+    const warning = logs.find((l) => l.level === "warn")!;
+    expect(warning.text).toContain(body.reference);
+    expect(warning.text).toContain("timeout");
+    expect(logs.filter((l) => l.level === "error")).toEqual([]);
+    for (const secret of ["900123456", "ana@ejemplo.com", "3001234567", "hooks.example"]) expect(logs.map((l) => l.text).join("\n")).not.toContain(secret);
+  });
+
+  it("does not forward the lead over plain http, but still answers 200", async () => {
+    const post = vi.fn();
+    const { res, logs } = await run({ env: { ...baseEnv, LEADS_WEBHOOK_URL: "http://hooks.example/lead" }, postLead: post });
+    expect(res.status).toBe(200);
+    expect((res.jsonBody as { webhookDelivered: boolean }).webhookDelivered).toBe(false);
+    expect(post).not.toHaveBeenCalled();
+    expect(logs.find((l) => l.level === "warn")!.text).toContain("https");
+  });
+
+  it("reads the destination from LEADS_WEBHOOK_URL", async () => {
+    const post = vi.fn().mockResolvedValue(undefined);
+    const url = "https://script.google.com/macros/s/ID/exec?token=abc";
+    const { res } = await run({ env: { ...baseEnv, LEADS_WEBHOOK_URL: url }, postLead: post });
+    expect(post.mock.calls[0]![0]).toBe(url);
+    expect((res.jsonBody as { webhookDelivered: boolean }).webhookDelivered).toBe(true);
   });
 });

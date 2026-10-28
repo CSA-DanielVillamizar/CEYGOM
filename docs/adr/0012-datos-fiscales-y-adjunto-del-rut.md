@@ -28,7 +28,8 @@ Para crear el cliente y emitir la factura electrónica, el área de facturación
 
 - Positivas: el lead llega completo para crear el cliente y facturar, sin infraestructura adicional.
 - Negativas: el formulario es más largo y puede bajar la finalización (medir en HU-09). El archivo depende del webhook: si falla, se pierde y el cliente debe enviarlo por WhatsApp (la pantalla final lo indica). La función no analiza el archivo en busca de malware; el almacenamiento destino debe hacerlo o restringir el acceso y la descarga a personal de facturación.
-- Con Google Apps Script como destino, un error al guardar el archivo no cambia el código HTTP de la respuesta, así que `webhookDelivered` puede ser `true` sin que el archivo se haya guardado. Para detectar fallos usar Make u otro destino que devuelva el estado real, o la alternativa 2.
+- Google Apps Script no permite fijar el código HTTP de la respuesta. Para que un fallo al guardar el archivo no se cuente como entregado, el receptor informa el resultado en el cuerpo (`{"ok":false,"error":"<código>"}`) y la API trata esa respuesta como lead no entregado. Una respuesta 2xx que no sea JSON (texto plano o la página de error de Google) se sigue contando como entregada.
+- Destino elegido: Google Apps Script + Sheets + Drive, sin costo de licencias (guía en `docs/integraciones/google-apps-script.md`). Google no documenta un límite de tamaño para las peticiones que recibe una aplicación web: la prueba con un RUT de 5 MB es requisito antes de dar la integración por buena.
 - Cambio de contrato: se elimina `company`, y `personType`, `ciiuCode` y `fiscalResponsibilities` pasan a ser obligatorios. El único cliente de la API es el cotizador de este repositorio.
 - Pendiente: confirmar con el sistema contable qué campos exige y si las responsabilidades fiscales deben seguir los códigos oficiales del RUT; la lista actual es descriptiva.
 
