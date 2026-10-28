@@ -62,7 +62,7 @@ function doPost(e) {
       var c = r.contact;
       var items = (r.items || []).map(function (it) {
         var dims = [it.widthMm, it.heightMm, it.depthMm].filter(Boolean).join('x');
-        return it.quantity + ' x ' + (it.productSlug || it.category) +
+        return it.quantity + ' x ' + (it.productSlug || it.category) + (it.reference ? ' (' + it.reference + ')' : '') +
           (dims ? ' (' + dims + ' mm)' : '') + (it.finish ? ' [' + it.finish + ']' : '') +
           (it.notes ? ' - ' + it.notes : '');
       }).join('\n');
@@ -146,7 +146,7 @@ function notify_(lead, rutUrl, rutSaved) {
     var c = r.contact;
     var who = (c.businessName ? c.businessName + ' - ' : '') + c.fullName;
     var items = (r.items || []).map(function (it) {
-      return '- ' + it.quantity + ' x ' + (it.productSlug || it.category) + (it.notes ? ' (' + it.notes + ')' : '');
+      return '- ' + it.quantity + ' x ' + (it.productSlug || it.category) + (it.reference ? ' (' + it.reference + ')' : '') + (it.notes ? ' - ' + it.notes : '');
     }).join('\n');
     var rutLine = !r.rutFile ? 'No adjuntó RUT.' : rutSaved ? 'RUT guardado en Drive: ' + rutUrl : 'El RUT NO se guardó (límite diario): pídeselo al cliente.';
     var body = [

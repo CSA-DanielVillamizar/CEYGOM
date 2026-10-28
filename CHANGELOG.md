@@ -25,6 +25,11 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). E
 - Aviso por correo de cada cotización (propiedad `NOTIFY_EMAIL` del receptor), sin datos fiscales, y tope diario de archivos RUT guardados (`MAX_RUT_PER_DAY`). Con el tope alcanzado el lead se guarda sin archivo y el cliente ve el aviso de enviar el RUT por WhatsApp.
 - `POST /api/quote` exige que `Origin` coincida con `ALLOWED_ORIGIN` cuando está configurado (antes aceptaba peticiones sin `Origin`).
 
+- Identidad e inicio: logo de la empresa, favicon, imagen para compartir en todas las páginas, fotos de producto en el inicio y en las tarjetas de categoría, cifras calculadas desde los datos (369 referencias, 49 productos, 44 fichas), datos estructurados `LocalBusiness` y buscador en la portada. El botón de WhatsApp ya no tapa el pie de página (HU-14).
+- Buscador y filtros del catálogo por código de referencia, nombre y categoría, con índice estático que solo se descarga al buscar (HU-13, ADR-0014).
+- Lista de cotización ("Mi cotización"): agregar productos y referencias específicas con cantidad desde el catálogo y continuar al cotizador con todo precargado. Campo opcional `reference` por ítem en la solicitud, el webhook, WhatsApp y el aviso por correo (HU-12, ADR-0014).
+- El control de presupuesto del CI ahora también limita el JavaScript del inicio, del catálogo y de la lista, y el tamaño del índice del buscador.
+
 ### Desplegado
 
 - Receptor de Google Apps Script en la cuenta de la empresa y `LEADS_WEBHOOK_URL` configurada en producción. Verificado con un PDF de 5 MB: fila completa en la hoja y archivo en su subcarpeta de Drive.

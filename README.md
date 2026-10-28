@@ -35,6 +35,8 @@ npx swa start http://localhost:4321 --api-devserver-url http://localhost:7071 --
 
 49 products with their data sheets (PDF), photos and references are generated from `scripts/catalog/manifest.json` (see [`scripts/catalog/README.md`](scripts/catalog/README.md) and ADR-0013): one page per product at `/productos/<category>/<slug>/`, a sitemap and structured data. What the company still has to provide or confirm is listed in [`docs/catalogo/pendientes.md`](docs/catalogo/pendientes.md). Photos that do not show the exact product are marked "Imagen ilustrativa".
 
+The catalog has a search box (by reference code, name or category) and a quote list ("Mi cotización") that visitors fill with products and specific references before opening the wizard (`/cotizador/?lista=1`). Both run in the browser with small scripts (no server, no personal data; ADR-0014). Brand images (logo, favicon, share image) are described in [`docs/marca.md`](docs/marca.md).
+
 ```bash
 npm run catalog:import -- <download-folder>   # regenerate after editing the manifest
 npm run budget                                # size and JavaScript budget (runs in CI; see docs/finops.md)
