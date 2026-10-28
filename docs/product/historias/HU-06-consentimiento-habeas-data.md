@@ -12,6 +12,7 @@
 - Hecho: página `/privacidad/` (`src/pages/privacidad.astro`) con responsable, datos, finalidades, derechos, plazos de consultas y reclamos (Ley 1581 de 2012), proveedores, conservación y almacenamiento en el navegador; enlace desde la casilla del cotizador y desde el pie de página. Los datos del responsable están en `src/data/legal.ts`; los que faltan se omiten, no se inventan.
 - Pendiente: revisión y aprobación del texto por quien corresponda legalmente; razón social completa y NIT; correo designado para consultas y reclamos (`TODO(negocio)` en `src/data/legal.ts`).
 - Nota: el campo del contrato sigue siendo `acceptsDataPolicy` (`z.literal(true)`).
+- La política declara también los datos fiscales y el RUT adjunto con su finalidad exclusiva de facturación y creación de terceros ([HU-11](HU-11-datos-fiscales-y-adjunto-del-rut.md), ADR-0012). La revisión legal debe cubrirlos, y confirmar que el acceso al almacenamiento del RUT se limita al personal de facturación, tal como afirma la sección 7.
 
 ## Criterios de aceptación
 

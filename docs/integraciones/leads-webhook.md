@@ -17,12 +17,28 @@ La función `POST /api/quote` envía cada solicitud válida a `LEADS_WEBHOOK_URL
       { "category": "bandejas-portacables", "productSlug": "bandeja-cruz", "quantity": 10, "widthMm": 300, "finish": "galvanizado", "notes": "..." }
     ],
     "project": { "city": "Medellín", "neededBy": "2026-12-01", "environment": "interior", "notes": "..." },
-    "contact": { "fullName": "...", "company": "...", "taxId": "9001234567", "email": "...", "phone": "573001234567", "acceptsDataPolicy": true }
+    "contact": {
+      "personType": "juridica",
+      "fullName": "...",
+      "businessName": "...",
+      "taxId": "900123456",
+      "taxIdCheckDigit": "8",
+      "ciiuCode": "2599",
+      "fiscalResponsibilities": ["responsable-iva", "autorretenedor"],
+      "email": "...",
+      "phone": "573001234567",
+      "acceptsDataPolicy": true
+    },
+    "rutFile": { "fileName": "RUT.pdf", "mimeType": "application/pdf", "sizeBytes": 183422, "contentBase64": "JVBERi0x..." }
   }
 }
 ```
 
-Los campos opcionales pueden faltar. `phone` y `taxId` (NIT o cédula del RUT, obligatorio) llegan solo con dígitos, y `email` en minúsculas. Si el cliente escribió el dígito de verificación del NIT, viene como parte del número; el sistema de facturación debe separarlo si lo necesita. El destino recibe datos personales: debe estar bajo control de la empresa y mencionado en la política de datos (`/privacidad/`).
+- `personType`: `natural` o `juridica`. Para `natural`, `businessName` y `taxIdCheckDigit` no vienen; `taxId` es la cédula. Para `juridica`, `businessName` y `taxIdCheckDigit` son obligatorios y el DV ya fue verificado contra el NIT con el algoritmo de la DIAN.
+- `fiscalResponsibilities`: uno o más de `responsable-iva`, `no-responsable-iva`, `gran-contribuyente`, `autorretenedor`, `regimen-simple`, `otra`. Es lo que declaró el cliente; la fuente de verdad es el RUT adjunto.
+- `rutFile` es opcional. Si viene, la API ya comprobó que es PDF, JPG o PNG, que pesa 5 MB o menos, que el tamaño coincide con el contenido y que la firma del archivo corresponde al formato declarado. `contentBase64` no lleva prefijo `data:`. Con archivo, el tiempo máximo de espera del webhook sube de 8 a 25 s y el cuerpo puede pesar cerca de 7 MB (el límite de Static Web Apps es 30 MB).
+- Los demás campos opcionales pueden faltar. `phone`, `taxId` y `ciiuCode` llegan solo con dígitos, y `email` en minúsculas.
+- El destino recibe datos personales y un documento tributario: debe estar bajo control de la empresa, con acceso restringido al personal de facturación, y mencionado en la política de datos (`/privacidad/`). El archivo, el NIT y los datos fiscales nunca van en el enlace de WhatsApp ni en los registros de la función.
 
 ## Opción A: Google Sheets con Apps Script
 
@@ -32,11 +48,12 @@ Apps Script no expone las cabeceras HTTP, así que no puede verificar la firma H
 2. Pega el contenido de [`apps-script-leads.gs`](apps-script-leads.gs).
 3. En **Configuración del proyecto > Propiedades del script** crea `WEBHOOK_TOKEN` con un valor largo y aleatorio.
 4. **Implementar > Nueva implementación > Aplicación web**: ejecutar como tu usuario, acceso "Cualquier usuario". Copia la URL que termina en `/exec`.
-5. En las Application settings de `swa-ceygom-prd` define `LEADS_WEBHOOK_URL` con esa URL más `?token=<WEBHOOK_TOKEN>`. No definas `LEADS_WEBHOOK_SECRET`. La URL completa es un secreto: no la versiones ni la pegues en tickets.
+5. Para el RUT adjunto: crea una carpeta privada en Drive, compártela solo con el personal de facturación y guarda su id en la propiedad `RUT_FOLDER_ID`. La primera ejecución pedirá autorizar el acceso a Drive y a la hoja.
+6. En las Application settings de `swa-ceygom-prd` define `LEADS_WEBHOOK_URL` con esa URL más `?token=<WEBHOOK_TOKEN>`. No definas `LEADS_WEBHOOK_SECRET`. La URL completa es un secreto: no la versiones ni la pegues en tickets.
 
-Cada fila queda con la referencia, la fecha, los productos, el proyecto y los datos de contacto. El script ignora referencias repetidas y crea la hoja `Leads` con encabezados si no existe.
+Cada fila queda con la referencia, la fecha, los productos, el proyecto, el tipo de persona, los datos de identificación y fiscales, el contacto y el enlace al RUT en Drive (archivo `COT-AAAA-XXXXXX-RUT.<ext>`). El script guarda el archivo antes de escribir la fila, ignora referencias repetidas y crea la hoja `Leads` con encabezados si no existe.
 
-Apps Script responde 200 incluso con un token incorrecto (el cuerpo trae `unauthorized`), por lo que la API lo contaría como entregado. Verifica la integración con una solicitud real y confirma que aparece la fila.
+Limitación: Apps Script no permite fijar el código HTTP de la respuesta. Ante un token incorrecto o un error al guardar en Drive, la API recibe igualmente un 200 y marcaría el lead como entregado. Verifica la integración con una solicitud real (con y sin archivo) y confirma que aparece la fila y el archivo. Si necesitas que un fallo se refleje en `webhookDelivered`, usa la opción B.
 
 ## Opción B: Make
 

@@ -1,6 +1,6 @@
 # ADR-0011: NIT o cédula (RUT) obligatorio en el cotizador
 
-- **Estado:** Aceptada
+- **Estado:** Aceptada; ampliada por [ADR-0012](0012-datos-fiscales-y-adjunto-del-rut.md) (tipo de persona, datos fiscales y adjunto del RUT)
 - **Fecha:** 2026-10-28
 - **Responsables:** Daniel Villamizar
 - **Épicas relacionadas:** EP-02, EP-03, EP-06

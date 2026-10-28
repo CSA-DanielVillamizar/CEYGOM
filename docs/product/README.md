@@ -9,6 +9,7 @@ Estructura: **épicas** (objetivos de negocio) contienen **historias de usuario*
 | [EP-01 Catálogo](epicas/EP-01-catalogo.md) | [HU-01 Catálogo por categorías](historias/HU-01-catalogo-por-categorias.md) | Hecha | Alta |
 | | [HU-07 Páginas de producto con ficha](historias/HU-07-paginas-de-producto-con-ficha.md) | Pendiente | Media |
 | [EP-02 Cotizador](epicas/EP-02-cotizador.md) | [HU-02 Cotizador multipasos](historias/HU-02-cotizador-multipasos.md) | Hecha | Alta |
+| | [HU-11 Datos fiscales y adjunto del RUT](historias/HU-11-datos-fiscales-y-adjunto-del-rut.md) | En revisión | Alta |
 | [EP-03 Leads y WhatsApp](epicas/EP-03-leads-y-whatsapp.md) | [HU-03 API de cotización](historias/HU-03-api-de-cotizacion.md) | Hecha | Alta |
 | | [HU-08 Contacto por WhatsApp](historias/HU-08-contacto-directo-por-whatsapp.md) | Hecha | Media |
 | [EP-04 SEO y migración](epicas/EP-04-seo-y-migracion.md) | [HU-04 Redirecciones y 404](historias/HU-04-redirecciones-y-404.md) | Hecha | Alta |

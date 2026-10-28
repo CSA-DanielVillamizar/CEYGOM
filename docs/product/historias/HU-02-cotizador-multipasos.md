@@ -32,15 +32,16 @@ Característica: Cotizador multipasos
     Cuando el usuario pulsa "Agregar otro producto"
     Entonces puede añadir hasta 20 productos
 
-  Escenario: NIT o cédula obligatorio
+  Escenario: Identificación obligatoria
     Dado que el usuario está en el paso "Contacto" sin escribir su NIT o cédula
     Cuando pulsa "Siguiente"
     Entonces permanece en el paso
     Y ve el aviso "Ingresa el NIT o la cédula" junto al campo
+    # Tipo de persona, CIIU, responsabilidades fiscales y adjunto del RUT: ver HU-11.
 
   Escenario: Normalización del NIT o cédula
-    Cuando el usuario escribe "900.123.456-7"
-    Entonces el resumen JSON contiene "taxId": "9001234567"
+    Cuando el usuario escribe "900.123.456"
+    Entonces el resumen JSON contiene "taxId": "900123456"
 
   Escenario: Consentimiento obligatorio
     Dado que el usuario está en el paso "Contacto" con datos válidos

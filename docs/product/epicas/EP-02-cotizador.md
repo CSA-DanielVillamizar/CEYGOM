@@ -2,7 +2,7 @@
 
 - **Estado:** Entregada (pendiente de validación en dispositivos reales)
 - **Prioridad:** Alta
-- **Historias:** [HU-02](../historias/HU-02-cotizador-multipasos.md) (hecha)
+- **Historias:** [HU-02](../historias/HU-02-cotizador-multipasos.md) (hecha), [HU-11](../historias/HU-11-datos-fiscales-y-adjunto-del-rut.md) (en revisión)
 
 ## Objetivo
 
@@ -15,7 +15,7 @@ Convierte visitas en solicitudes estructuradas y reduce la fricción de pedir co
 ## Alcance
 
 - Asistente de cuatro pasos: productos, proyecto, contacto y resumen.
-- NIT o cédula obligatorio (ADR-0011) para crear el cliente y facturar.
+- Tipo de persona, NIT o cédula, CIIU y responsabilidades fiscales, con adjunto opcional del RUT (ADR-0011, ADR-0012, [HU-11](../historias/HU-11-datos-fiscales-y-adjunto-del-rut.md)).
 - Hasta 20 productos por solicitud; precarga con `?producto=<slug>`.
 - Resumen en JSON conforme al esquema compartido.
 - Accesibilidad por teclado y mensajes de error asociados al campo.
