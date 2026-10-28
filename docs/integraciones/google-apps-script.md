@@ -36,6 +36,9 @@ El cliente nunca espera por Google: si el receptor falla, tarda o responde un re
    | `RUT_FOLDER_ID` | El id de la carpeta del paso 2 |
    | `NOTIFY_EMAIL` | (opcional) Correo que recibe un aviso por cada cotización, por ejemplo `contacto@electrometalicasceygom.com`. Para cambiarlo basta editar esta propiedad: no hace falta volver a implementar |
    | `MAX_RUT_PER_DAY` | (opcional, 100 por defecto) Tope diario de archivos RUT guardados en Drive |
+   | `CUSTOMER_ACK` | (opcional) `off` desactiva el correo de confirmación al cliente; cualquier otro valor lo deja activo |
+   | `MAX_ACK_PER_DAY` | (opcional, 50 por defecto) Tope diario de confirmaciones a clientes |
+   | `SITE_URL` | (opcional) Dirección del sitio, sin barra final de preferencia, para enlazar `/privacidad/` en la confirmación. Cámbiala al configurar el dominio propio |
 
    Para generar el token:
 
@@ -82,6 +85,7 @@ Google no documenta un límite de tamaño para las peticiones que recibe una apl
 ## Aviso por correo y tope diario de archivos
 
 - **Aviso.** Con `NOTIFY_EMAIL` definido, cada cotización envía un correo a esa dirección con la referencia, el cliente, el teléfono, el correo, la ciudad, los productos y los enlaces a la hoja y al RUT en Drive. El campo "responder a" es el correo del cliente, así que ventas puede contestarle directamente. El aviso **no** incluye NIT, CIIU ni responsabilidades fiscales: esos datos quedan solo en la hoja. Si el envío falla o se agotó la cuota diaria de correo de la cuenta, el lead se registra igualmente y el motivo queda en el registro de ejecuciones, con la referencia y sin datos del cliente. La primera vez que se despliega una versión con este código, Google pide autorizar también el envío de correo.
+- **Confirmación al cliente (ADR-0015).** Después del aviso al equipo, el script envía un correo a la dirección que escribió el cliente, con la referencia, los productos, la ciudad, el teléfono de la empresa y el enlace a la política de datos. "Responder a" es `NOTIFY_EMAIL`. **No** incluye NIT o cédula, CIIU, responsabilidades fiscales, el celular ni enlaces a la hoja o al RUT. Se omite sin avisar al cliente cuando: `CUSTOMER_ACK=off`; quedan 10 envíos de cuota o menos (reserva para los avisos al equipo); se alcanzó `MAX_ACK_PER_DAY`; o esa dirección ya recibió 3 en el día. Un fallo nunca pierde la solicitud ni el aviso al equipo, y el registro guarda solo la referencia. Cada cotización con confirmación gasta 2 de los 100 destinatarios diarios de una cuenta Gmail gratuita (1.500 en Google Workspace), por eso el techo práctico es de unas 50 al día. Como cambia el código, hay que volver a implementar y autorizar de nuevo el envío de correo: abre el editor, ejecuta una función que envíe correo y acepta los permisos.
 - **Tope diario.** Cada archivo RUT son hasta 5 MB de los 15 GB gratuitos de la cuenta. Con `MAX_RUT_PER_DAY` alcanzado, la solicitud se registra en la hoja con "NO GUARDADO: límite diario de archivos" y el script responde `{"ok":true,"rutSaved":false}`; la función de Azure lo trata como no entregado y el cliente ve el aviso de enviar el RUT por WhatsApp. El contador se reinicia cada día (zona horaria del script). Ajusta el tope según el volumen real de solicitudes.
 
 ## Qué pasa ante un fallo
