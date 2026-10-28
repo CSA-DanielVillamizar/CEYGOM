@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import { Image, getImage } from "astro:assets";
 import { buildWhatsappChatUrl } from "@shared/whatsapp";
+import { LEGAL } from "../data/legal";
 import logo from "../assets/brand/logo-emc.webp";
 import ogDefault from "../assets/brand/og-default.jpg";
 
@@ -101,7 +102,8 @@ const path = Astro.url.pathname;
       <!-- Bottom padding keeps the last lines above the floating WhatsApp button at every screen size. -->
       <div class="mx-auto grid max-w-6xl gap-4 px-4 pt-8 pb-24 sm:grid-cols-2">
         <div>
-          <p class="font-semibold text-white">Electro Metálicas Ceygom</p>
+          <p class="font-semibold text-white">{LEGAL.legalName ?? LEGAL.tradeName}</p>
+          {LEGAL.nit && <p>NIT {LEGAL.nit}</p>}
           <p>Calle 28 nro 57-13, Unidad Industrial de Belén, Medellín</p>
           <p>PBX: <a class="underline" href="tel:+5744446733">(574) 444 6733</a></p>
         </div>

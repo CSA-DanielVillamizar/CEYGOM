@@ -33,6 +33,8 @@ const localBusiness = {
   "@type": "LocalBusiness",
   "@id": new URL("/#empresa", siteUrl).toString(),
   name: LEGAL.tradeName,
+  ...(LEGAL.legalName ? { legalName: LEGAL.legalName } : {}),
+  ...(LEGAL.nit ? { taxID: LEGAL.nit } : {}),
   url: new URL("/", siteUrl).toString(),
   description,
   logo: logoUrl,

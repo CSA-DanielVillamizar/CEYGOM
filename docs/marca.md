@@ -15,5 +15,5 @@
 
 - **Logo vectorial (SVG) o en alta resolución.** El actual es un recorte de baja resolución de un banner; se ve bien a 40 px de alto, pero no escala. Al recibirlo, reemplazar `logo-emc.webp` y construir de él el favicon.
 - **Colores y tipografía oficiales** (hoy el rojo `#c8102e` y los grises acero del sitio son una aproximación al logo).
-- **Razón social.** El banner dice "S.A.S."; hay que confirmarla antes de publicarla en la política de datos (`src/data/legal.ts`).
+- **Razón social y NIT.** Entregados por la empresa y publicados (`src/data/legal.ts`). Falta confirmar con ella que el banner y el RUT coinciden en la forma jurídica.
 - Fotos reales de planta y de productos instalados para el inicio.
