@@ -34,6 +34,8 @@ El cliente nunca espera por Google: si el receptor falla, tarda o responde un re
    |---|---|
    | `WEBHOOK_TOKEN` | Un valor largo y aleatorio (ver abajo) |
    | `RUT_FOLDER_ID` | El id de la carpeta del paso 2 |
+   | `NOTIFY_EMAIL` | (opcional) Correo que recibe un aviso por cada cotización, por ejemplo `contacto@electrometalicasceygom.com`. Para cambiarlo basta editar esta propiedad: no hace falta volver a implementar |
+   | `MAX_RUT_PER_DAY` | (opcional, 100 por defecto) Tope diario de archivos RUT guardados en Drive |
 
    Para generar el token:
 
@@ -77,6 +79,11 @@ az staticwebapp appsettings set -n swa-ceygom-prd -g rg-ceygom-prd --setting-nam
 
 Google no documenta un límite de tamaño para las peticiones que recibe una aplicación web, por lo que la prueba con 5 MB es obligatoria antes de dar por buena la integración. En la instalación de producción (octubre de 2026) un PDF de 5 MB se guardó correctamente y la respuesta tardó unos 16 s, frente a un máximo de 25 s con archivo. Los límites oficiales que sí conocemos: 6 minutos por ejecución y 30 ejecuciones simultáneas por usuario ([cuotas de Apps Script](https://developers.google.com/apps-script/guides/services/quotas)). Si 5 MB resultara demasiado, la alternativa es la subida directa a un almacenamiento propio (ADR-0012, alternativa 2).
 
+## Aviso por correo y tope diario de archivos
+
+- **Aviso.** Con `NOTIFY_EMAIL` definido, cada cotización envía un correo a esa dirección con la referencia, el cliente, el teléfono, el correo, la ciudad, los productos y los enlaces a la hoja y al RUT en Drive. El campo "responder a" es el correo del cliente, así que ventas puede contestarle directamente. El aviso **no** incluye NIT, CIIU ni responsabilidades fiscales: esos datos quedan solo en la hoja. Si el envío falla o se agotó la cuota diaria de correo de la cuenta, el lead se registra igualmente y el motivo queda en el registro de ejecuciones, con la referencia y sin datos del cliente. La primera vez que se despliega una versión con este código, Google pide autorizar también el envío de correo.
+- **Tope diario.** Cada archivo RUT son hasta 5 MB de los 15 GB gratuitos de la cuenta. Con `MAX_RUT_PER_DAY` alcanzado, la solicitud se registra en la hoja con "NO GUARDADO: límite diario de archivos" y el script responde `{"ok":true,"rutSaved":false}`; la función de Azure lo trata como no entregado y el cliente ve el aviso de enviar el RUT por WhatsApp. El contador se reinicia cada día (zona horaria del script). Ajusta el tope según el volumen real de solicitudes.
+
 ## Qué pasa ante un fallo
 
 | Situación | Respuesta del receptor | Resultado para el cliente |
@@ -85,6 +92,7 @@ Google no documenta un límite de tamaño para las peticiones que recibe una apl
 | JSON o campos inválidos | `invalid_json` o `invalid_payload` | Igual |
 | Error al guardar en Drive o en la hoja | `{"ok":false,"error":"internal"}` (el detalle queda en el registro de ejecuciones de Apps Script) | Igual; si adjuntó RUT, la pantalla le pide enviarlo por WhatsApp |
 | Google tarda más de 25 s con archivo (8 s sin archivo) | La función corta la espera | Igual |
+| Tope diario de archivos alcanzado | `{"ok":true,"rutSaved":false}` (la fila sí se guarda) | 200 con WhatsApp; `webhookDelivered: false`; la pantalla final pide enviar el RUT por WhatsApp |
 | Referencia repetida | `{"ok":true,"duplicate":true}` | Entregado; no se duplica la fila |
 | La página de error de Google (HTML) | No es JSON | Se cuenta como entregado: revisar el registro de ejecuciones si faltan filas |
 

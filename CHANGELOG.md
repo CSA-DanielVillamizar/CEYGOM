@@ -20,6 +20,9 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). E
 - Página `/privacidad/` con la política de tratamiento de datos personales (Ley 1581 de 2012), enlazada desde el cotizador y el pie de página.
 - Documentación del webhook de leads y receptor de Google Apps Script para registrar solicitudes en una hoja de cálculo.
 
+- Aviso por correo de cada cotización (propiedad `NOTIFY_EMAIL` del receptor), sin datos fiscales, y tope diario de archivos RUT guardados (`MAX_RUT_PER_DAY`). Con el tope alcanzado el lead se guarda sin archivo y el cliente ve el aviso de enviar el RUT por WhatsApp.
+- `POST /api/quote` exige que `Origin` coincida con `ALLOWED_ORIGIN` cuando está configurado (antes aceptaba peticiones sin `Origin`).
+
 ### Desplegado
 
 - Receptor de Google Apps Script en la cuenta de la empresa y `LEADS_WEBHOOK_URL` configurada en producción. Verificado con un PDF de 5 MB: fila completa en la hoja y archivo en su subcarpeta de Drive.
