@@ -1,0 +1,9 @@
+node_modules
+dist
+.astro
+api/dist
+api/local.settings.json
+.env
+.env.*
+!.env.example
+*.log

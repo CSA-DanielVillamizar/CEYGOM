@@ -1,0 +1,96 @@
+---
+import "../styles/global.css";
+import { buildWhatsappChatUrl } from "@shared/whatsapp";
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? "https://electrometalicasceygom.com";
+const canonical = new URL(Astro.url.pathname, siteUrl).toString();
+const fullTitle = title.includes("Ceygom") ? title : `${title} | Electro Metálicas Ceygom`;
+
+// Set PUBLIC_WHATSAPP_NUMBER (digits only, international format). Without it the floating button points to the quote form.
+const whatsappNumber = import.meta.env.PUBLIC_WHATSAPP_NUMBER as string | undefined;
+const floatingHref = whatsappNumber ? buildWhatsappChatUrl(whatsappNumber) : "/cotizador/";
+
+const nav = [
+  { href: "/", label: "Inicio" },
+  { href: "/productos/", label: "Productos" },
+  { href: "/empresa/", label: "Empresa" },
+  { href: "/contacto/", label: "Contacto" },
+];
+const path = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="es-CO">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_CO" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="theme-color" content="#c8102e" />
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body class="min-h-screen font-sans antialiased flex flex-col">
+    <a href="#contenido" class="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:bg-white focus:px-3 focus:py-2">Saltar al contenido</a>
+
+    <header class="bg-steel-900 text-white">
+      <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
+        <a href="/" class="text-lg font-bold tracking-tight">Electro Metálicas <span class="text-brand-600">Ceygom</span></a>
+        <nav aria-label="Principal">
+          <ul class="flex flex-wrap items-center gap-1 text-sm">
+            {nav.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  aria-current={path === item.href ? "page" : undefined}
+                  class:list={["rounded px-3 py-2 hover:bg-white/10", path === item.href && "bg-white/15 font-semibold"]}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+            <li>
+              <a href="/cotizador/" class="ml-1 rounded bg-brand-600 px-4 py-2 font-semibold hover:bg-brand-700">Cotizar</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contenido" class="flex-1">
+      <slot />
+    </main>
+
+    <footer class="bg-steel-900 text-sm text-white/80">
+      <div class="mx-auto grid max-w-6xl gap-4 px-4 py-8 sm:grid-cols-2">
+        <div>
+          <p class="font-semibold text-white">Electro Metálicas Ceygom</p>
+          <p>Calle 28 nro 57-13, Unidad Industrial de Belén, Medellín</p>
+          <p>PBX: <a class="underline" href="tel:+5744446733">(574) 444 6733</a></p>
+        </div>
+        <p class="sm:text-right">© {new Date().getFullYear()} Electro Metálicas Ceygom. Todos los derechos reservados.</p>
+      </div>
+    </footer>
+
+    <a
+      href={floatingHref}
+      target={whatsappNumber ? "_blank" : undefined}
+      rel={whatsappNumber ? "noopener noreferrer" : undefined}
+      class="fixed bottom-4 right-4 z-40 rounded-full bg-green-600 px-5 py-3 text-sm font-bold text-white shadow-lg hover:bg-green-700"
+      aria-label={whatsappNumber ? "Escribir por WhatsApp" : "Solicitar cotización"}
+    >
+      {whatsappNumber ? "WhatsApp" : "Cotizar"}
+    </a>
+  </body>
+</html>

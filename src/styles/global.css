@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #fef2f2;
+  --color-brand-600: #c8102e;
+  --color-brand-700: #a50d26;
+  --color-steel-50: #f5f6f7;
+  --color-steel-200: #d9dde1;
+  --color-steel-600: #4b5563;
+  --color-steel-900: #1c2127;
+  --font-sans: "Trebuchet MS", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-steel-50);
+  color: var(--color-steel-900);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-brand-600);
+  outline-offset: 2px;
+}

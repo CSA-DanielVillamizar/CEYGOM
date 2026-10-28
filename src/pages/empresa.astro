@@ -1,0 +1,32 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const objetivos = [
+  "Cumplir con las especificaciones técnicas del producto.",
+  "Satisfacer las necesidades de los clientes.",
+  "Destinar recursos que faciliten el incremento de la capacidad productiva.",
+  "Desarrollar las competencias del personal.",
+  "Incrementar la participación comercial en el mercado nacional.",
+];
+---
+
+<Layout
+  title="Empresa"
+  description="Misión, visión y objetivos de Electro Metálicas Ceygom, fabricante de elementos para cableado estructurado y tableros de subestaciones eléctricas."
+>
+  <div class="mx-auto max-w-4xl px-4 py-10">
+    <h1 class="text-3xl font-bold">Quiénes somos</h1>
+
+    <h2 class="mt-8 text-xl font-bold">Misión</h2>
+    <p class="mt-2">Fabricar productos con altos estándares de calidad, cumpliendo con las reglamentaciones técnicas de fabricación requeridas en el mercado, buscando la permanencia y crecimiento de la organización para contribuir al desarrollo integral de sus empleados.</p>
+
+    <h2 class="mt-8 text-xl font-bold">Visión</h2>
+    <p class="mt-2">Ser reconocidos en el sector constructor nacional como la mejor alternativa para el desarrollo de elementos para cableado estructurado y tableros de subestaciones eléctricas, satisfaciendo las necesidades y requerimientos de nuestros clientes.</p>
+
+    <h2 class="mt-8 text-xl font-bold">Objetivos de calidad</h2>
+    <ul class="mt-2 list-disc space-y-1 pl-5">{objetivos.map((o) => <li>{o}</li>)}</ul>
+
+    {/* TODO(negocio): años de trayectoria, capacidad de planta, procesos, certificaciones (RETIE/NTC/ISO) y clientes autorizados. */}
+    <a href="/cotizador/" class="mt-10 inline-block rounded bg-brand-600 px-6 py-3 font-semibold text-white hover:bg-brand-700">Solicitar cotización</a>
+  </div>
+</Layout>

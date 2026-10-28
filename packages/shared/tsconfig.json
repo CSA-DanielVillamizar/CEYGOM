@@ -1,0 +1,5 @@
+{
+  "extends": "../../node_modules/astro/tsconfigs/strict.json",
+  "include": ["./**/*.ts"],
+  "compilerOptions": { "noEmit": true, "noUncheckedIndexedAccess": true }
+}

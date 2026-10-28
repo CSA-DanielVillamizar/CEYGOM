@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "lib": ["ES2022"],
+    "types": ["node"],
+    "paths": { "zod": ["./node_modules/zod"] }
+  },
+  "include": ["quote/**/*.ts", "../packages/shared/**/*.ts"],
+  "exclude": ["../packages/shared/**/*.test.ts", "quote/**/*.test.ts"]
+}

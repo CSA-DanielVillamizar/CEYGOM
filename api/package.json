@@ -1,0 +1,20 @@
+{
+  "name": "ceygom-api",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/quote/index.js",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.6.0",
+    "zod": "^3.25.0"
+  }
+}

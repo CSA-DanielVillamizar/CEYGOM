@@ -1,0 +1,57 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { CATEGORIES, PRODUCTS } from "@shared/catalog";
+
+const counts = Object.fromEntries(CATEGORIES.map((c) => [c.id, PRODUCTS.filter((p) => p.category === c.id).length]));
+---
+
+<Layout
+  title="Gabinetes, racks y bandejas portacables en Medellín | Electro Metálicas Ceygom"
+  description="Fabricamos gabinetes eléctricos, racks de comunicaciones, bandejas portacables, canaletas y estructuras a medida. Solicita tu cotización en línea."
+>
+  <section class="bg-steel-900 text-white">
+    <div class="mx-auto max-w-6xl px-4 py-16 sm:py-24">
+      <h1 class="max-w-3xl text-3xl font-bold leading-tight sm:text-5xl">
+        Gabinetes, racks y estructuras metálicas para redes eléctricas y de comunicación
+      </h1>
+      <p class="mt-4 max-w-2xl text-lg text-white/80">
+        Fabricamos y distribuimos productos estándar y a medida, con departamento de ingeniería para proyectos exclusivos y personalizados.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="/cotizador/" class="rounded bg-brand-600 px-6 py-3 font-semibold hover:bg-brand-700">Solicitar cotización</a>
+        <a href="/productos/" class="rounded border border-white/40 px-6 py-3 font-semibold hover:bg-white/10">Ver productos</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 py-12">
+    <h2 class="text-2xl font-bold">Líneas de producto</h2>
+    <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {CATEGORIES.map((c) => (
+        <li>
+          <a href={`/productos/#${c.id}`} class="block h-full rounded-lg border border-steel-200 bg-white p-5 hover:border-brand-600">
+            <h3 class="font-bold">{c.label}</h3>
+            <p class="mt-1 text-sm text-steel-600">{counts[c.id]} {counts[c.id] === 1 ? "referencia" : "referencias"}</p>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="bg-white">
+    <div class="mx-auto grid max-w-6xl gap-8 px-4 py-12 md:grid-cols-3">
+      <div>
+        <h2 class="font-bold">Ingeniería y modelado 3D</h2>
+        <p class="mt-2 text-sm text-steel-600">Visualizamos cada pieza, terminado y ensamblaje antes de producir, para reducir costos y tiempos.</p>
+      </div>
+      <div>
+        <h2 class="font-bold">Fabricación a medida</h2>
+        <p class="mt-2 text-sm text-steel-600">Cajas y gabinetes modificables según las necesidades específicas de cada cliente.</p>
+      </div>
+      <div>
+        <h2 class="font-bold">Fichas técnicas</h2>
+        <p class="mt-2 text-sm text-steel-600">Documentación técnica de bandejas, canaletas, racks, celdas y soportes.</p>
+      </div>
+    </div>
+  </section>
+</Layout>
