@@ -5,9 +5,13 @@ import { buildWhatsappChatUrl } from "@shared/whatsapp";
 interface Props {
   title: string;
   description: string;
+  /** Absolute URL of the image used when the page is shared. */
+  image?: string;
+  /** schema.org objects rendered as JSON-LD. */
+  jsonLd?: Record<string, unknown>[];
 }
 
-const { title, description } = Astro.props;
+const { title, description, image, jsonLd = [] } = Astro.props;
 const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? "https://electrometalicasceygom.com";
 const canonical = new URL(Astro.url.pathname, siteUrl).toString();
 const fullTitle = title.includes("Ceygom") ? title : `${title} | Electro Metálicas Ceygom`;
@@ -38,6 +42,9 @@ const path = Astro.url.pathname;
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
+    {image && <meta property="og:image" content={image} />}
+    <meta name="twitter:card" content={image ? "summary_large_image" : "summary"} />
+    {jsonLd.map((data) => <script type="application/ld+json" set:html={JSON.stringify(data)} />)}
     <meta name="theme-color" content="#c8102e" />
     <meta name="generator" content={Astro.generator} />
   </head>

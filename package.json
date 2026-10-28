@@ -12,10 +12,13 @@
     "typecheck": "astro check && tsc -p api/tsconfig.json --noEmit && tsc -p packages/shared/tsconfig.json --noEmit",
     "test": "vitest run",
     "api:build": "npm --prefix api run build",
-    "swa": "swa start http://localhost:4321 --api-location api --run \"npm run dev\""
+    "swa": "swa start http://localhost:4321 --api-location api --run \"npm run dev\"",
+    "budget": "node scripts/check-budget.mjs",
+    "catalog:import": "node scripts/catalog/import-catalog.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^4.0.0",
+    "@astrojs/sitemap": "^3.7.4",
     "@tailwindcss/vite": "^4.0.0",
     "astro": "^5.0.0",
     "react": "^19.0.0",
