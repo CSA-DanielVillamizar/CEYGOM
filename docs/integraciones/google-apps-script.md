@@ -101,6 +101,7 @@ El receptor guarda el archivo antes de escribir la fila, así que un fallo deja 
 ## Operación y seguridad
 
 - **Cambios en el script.** Una Web App sirve la versión desplegada, no la guardada. Tras editar el código: **Implementar > Administrar implementaciones > editar > Versión nueva > Implementar**. La URL no cambia.
+- **Permisos nuevos.** Si el código nuevo usa un servicio que el script no usaba antes (como `MailApp` para el aviso por correo), Google **no pide autorización al implementar**: la versión se despliega, pero esa parte falla en silencio y queda solo en el registro de ejecuciones (el lead sí se guarda). Para autorizar, crea una función temporal en el editor que use el servicio nuevo, ejecútala con **Ejecutar**, acepta los permisos (Configuración avanzada > Ir a… > Permitir) y vuelve a dejar el código tal como está en el repositorio. Ejecutar `doGet` o `doPost` no sirve: Google solo pide el permiso de lo que la función ejecutada usa. Luego comprueba con una cotización de prueba (la carpeta "Enviados" de la cuenta debe mostrar el aviso).
 - **Rotar el token.** Cambia `WEBHOOK_TOKEN` en el script y `LEADS_WEBHOOK_URL` en Azure al mismo tiempo. Entre los dos cambios los leads no se registran (el cliente no lo nota).
 - **Acceso.** La hoja y la carpeta contienen identificación y documentos tributarios: compártelas solo con facturación y revisa los permisos con regularidad.
 - **Derechos de los titulares.** Para atender una solicitud de supresión, borra la fila de la hoja y la subcarpeta de la referencia en Drive (ver `/privacidad/`).
