@@ -141,6 +141,18 @@ describe("POST /api/quote", () => {
     expect(post).not.toHaveBeenCalled();
   });
 
+  it("403 when Origin is missing and ALLOWED_ORIGIN is set, 200 when it matches", async () => {
+    const env = { ...baseEnv, ALLOWED_ORIGIN: "https://electrometalicasceygom.com" };
+    const post = vi.fn().mockResolvedValue(undefined);
+    expect((await call(validBody, { env, postLead: post })).status).toBe(403);
+    expect(post).not.toHaveBeenCalled();
+    expect((await call(validBody, { env, postLead: post }, { origin: "https://electrometalicasceygom.com" })).status).toBe(200);
+  });
+
+  it("without ALLOWED_ORIGIN any origin is accepted (local development)", async () => {
+    expect((await call(validBody)).status).toBe(200);
+  });
+
   it("403 for a different Origin when ALLOWED_ORIGIN is set", async () => {
     const res = await call(validBody, { env: { ...baseEnv, ALLOWED_ORIGIN: "https://electrometalicasceygom.com" } }, { origin: "https://evil.example" });
     expect(res.status).toBe(403);
@@ -235,6 +247,13 @@ describe("leads webhook", () => {
     ["odd code is not echoed", '{"ok":false,"error":"Token SECRET <b>"}', "Webhook rejected the lead"],
   ])("fails when the destination reports a rejection with status 200: %s", async (_name, answer, message) => {
     await expect(send(new Response(answer, { status: 200 }))).rejects.toThrow(new RegExp(`^${message}$`));
+  });
+
+  it("fails when the destination kept the lead but could not store the RUT file", async () => {
+    await expect(send(new Response('{"ok":true,"rutSaved":false}', { status: 200 }), true)).rejects.toThrow("Webhook did not store the RUT file");
+    // Without an attached file the flag is irrelevant.
+    await expect(send(new Response('{"ok":true,"rutSaved":false}', { status: 200 }), false)).resolves.toBeUndefined();
+    await expect(send(new Response('{"ok":true,"rutSaved":true}', { status: 200 }), true)).resolves.toBeUndefined();
   });
 
   it("never puts the URL, which may carry a token, in the error", async () => {
