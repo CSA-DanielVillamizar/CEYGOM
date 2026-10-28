@@ -38,12 +38,25 @@ npx swa start http://localhost:4321 --api-devserver-url http://localhost:7071 --
 | GitHub repo variables | `PUBLIC_WHATSAPP_NUMBER`, `PUBLIC_SITE_URL` | Public, inlined in the build |
 | GitHub secret | `AZURE_STATIC_WEB_APPS_API_TOKEN` | Created with the SWA resource |
 | SWA Application settings | `WHATSAPP_NUMBER` (required), `LEADS_WEBHOOK_URL`, `LEADS_WEBHOOK_SECRET`, `ALLOWED_ORIGIN` | Server side. Do not start names with the reserved prefixes (`WEBSITE_`, `FUNCTIONS_`, `AZURE_FUNCTION_`...) |
+| Google Apps Script properties | `WEBHOOK_TOKEN`, `RUT_FOLDER_ID` | Set in the script project, not in Azure. See the guide below |
 
-Webhook requests carry `x-ceygom-signature: sha256=<hex HMAC of the body>` when `LEADS_WEBHOOK_SECRET` is set.
+### Lead storage (Google Apps Script + Sheets + Drive)
+
+`LEADS_WEBHOOK_URL` is optional but without it quote requests, tax data and the attached RUT are not stored anywhere. Set it in the Application settings of the Static Web App to the URL of the Apps Script web app plus its token:
+
+```bash
+az staticwebapp appsettings set -n swa-ceygom-prd -g rg-ceygom-prd --setting-names "LEADS_WEBHOOK_URL=https://script.google.com/macros/s/<ID>/exec?token=<WEBHOOK_TOKEN>"
+```
+
+The URL is a secret (it carries the token); it must be HTTPS and is never logged. Do not set `LEADS_WEBHOOK_SECRET` with Apps Script, which cannot read headers. Setup, testing and operation: [`docs/integraciones/google-apps-script.md`](docs/integraciones/google-apps-script.md); payload contract: [`docs/integraciones/leads-webhook.md`](docs/integraciones/leads-webhook.md).
+
+The webhook never blocks the customer: if it fails, times out (8 s, or 25 s when a RUT file is attached) or the destination answers `{"ok":false}`, the API still answers 200 with the WhatsApp link, `webhookDelivered: false` and a warning in the server log with the quote reference.
+
+When the webhook has a `LEADS_WEBHOOK_SECRET` (for example Make), requests carry `x-ceygom-signature: sha256=<hex HMAC of the body>`.
 
 ## Pending business data (do not invent)
 
-WhatsApp number and hours, webhook destination, product photos/descriptions/data sheets (PDFs go in `public/fichas/`), certifications, Habeas Data policy text (marked `TODO(negocio)` in the code).
+WhatsApp hours, the company Google account that owns the Apps Script, sheet and Drive folder, product photos/descriptions/data sheets (PDFs go in `public/fichas/`), certifications, Habeas Data policy text (marked `TODO(negocio)` in the code).
 
 ## Production (Azure Static Web Apps)
 
@@ -53,6 +66,6 @@ Verified in production: Oryx builds `api/` with the esbuild step and the functio
 
 ## Not verified yet
 
-The `wa.me` link and the quote wizard on real iOS and Android devices, the wizard in a browser against production, the per-PR preview environment, and the lead webhook (`LEADS_WEBHOOK_URL` is not configured, so requests are not stored anywhere yet).
+The `wa.me` link and the quote wizard on real iOS and Android devices, the wizard in a browser against production, and the lead webhook against the real Apps Script web app (`LEADS_WEBHOOK_URL` is not configured yet, so requests are not stored anywhere). Google does not document a size limit for requests received by a web app: test with a 5 MB RUT first (see the guide).
 
 Verified locally (SWA CLI 2.1.0 emulator, Functions Core Tools 4.12.1 on Node 24): the full wizard flow in a browser (validation per step, `?producto=` prefill, submit, success screen with the wa.me link), the API (200, 400 for missing consent, 403 for a foreign origin, honeypot decoy, `GET /api/quote` is 404), webhook delivery with a valid HMAC signature, 301 redirects and the real 404 from `staticwebapp.config.json`. The emulator does not reproduce the cloud exactly.

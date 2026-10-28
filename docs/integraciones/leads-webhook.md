@@ -1,10 +1,11 @@
 # Integración de leads (webhook)
 
-La función `POST /api/quote` envía cada solicitud válida a `LEADS_WEBHOOK_URL`. Decisión: [ADR-0005](../adr/0005-leads-por-webhook-firmado-opcional.md). El webhook es opcional y su falla **no** impide que el cliente reciba la referencia y el enlace de WhatsApp: la API responde 200 con `webhookDelivered: false` y deja en el registro la referencia y el motivo del error, sin datos personales.
+La función `POST /api/quote` envía cada solicitud válida a `LEADS_WEBHOOK_URL`. Decisión: [ADR-0005](../adr/0005-leads-por-webhook-firmado-opcional.md). El webhook es opcional y su falla **no** impide que el cliente reciba la referencia y el enlace de WhatsApp: la API responde 200 con `webhookDelivered: false` y deja una advertencia en el registro con la referencia y el motivo del error, sin datos personales ni la URL del webhook.
 
 ## Contrato
 
-- Método: `POST`, `content-type: application/json`, tiempo máximo de espera 8 s. Cualquier respuesta distinta de 2xx cuenta como fallo.
+- Método: `POST`, `content-type: application/json`, solo por HTTPS (HTTP únicamente hacia `localhost`). Tiempo máximo de espera: 8 s, o 25 s si el lead lleva el RUT.
+- Fallo: cualquier respuesta distinta de 2xx, un tiempo agotado, un error de red o una respuesta JSON con `"ok": false`. Una respuesta 2xx de texto plano (`Accepted`, vacía) cuenta como entregada.
 - Cabecera `x-ceygom-signature: sha256=<hex>` solo si hay `LEADS_WEBHOOK_SECRET`. Es el HMAC-SHA256 del cuerpo exacto, calculado con ese secreto.
 - Cuerpo (`LeadRecordSchema` en `packages/shared/quote.schema.ts`):
 
@@ -42,18 +43,11 @@ La función `POST /api/quote` envía cada solicitud válida a `LEADS_WEBHOOK_URL
 
 ## Opción A: Google Sheets con Apps Script
 
-Apps Script no expone las cabeceras HTTP, así que no puede verificar la firma HMAC. En su lugar se usa un token secreto en la URL.
+Es la opción elegida: sin costo de licencias. Instalación paso a paso, verificación y operación en **[`google-apps-script.md`](google-apps-script.md)**; el código está en [`apps-script-leads.gs`](apps-script-leads.gs).
 
-1. Crea una hoja de cálculo y abre **Extensiones > Apps Script**.
-2. Pega el contenido de [`apps-script-leads.gs`](apps-script-leads.gs).
-3. En **Configuración del proyecto > Propiedades del script** crea `WEBHOOK_TOKEN` con un valor largo y aleatorio.
-4. **Implementar > Nueva implementación > Aplicación web**: ejecutar como tu usuario, acceso "Cualquier usuario". Copia la URL que termina en `/exec`.
-5. Para el RUT adjunto: crea una carpeta privada en Drive, compártela solo con el personal de facturación y guarda su id en la propiedad `RUT_FOLDER_ID`. La primera ejecución pedirá autorizar el acceso a Drive y a la hoja.
-6. En las Application settings de `swa-ceygom-prd` define `LEADS_WEBHOOK_URL` con esa URL más `?token=<WEBHOOK_TOKEN>`. No definas `LEADS_WEBHOOK_SECRET`. La URL completa es un secreto: no la versiones ni la pegues en tickets.
+Apps Script no expone las cabeceras HTTP, así que no puede verificar la firma HMAC: se usa un token secreto en la URL (`?token=`) y no se define `LEADS_WEBHOOK_SECRET`. Tampoco permite fijar el código HTTP de la respuesta, por lo que informa el resultado en el cuerpo JSON (`{"ok":true}` o `{"ok":false,"error":"<código>"}`), y la API trata `ok:false` como lead no entregado.
 
-Cada fila queda con la referencia, la fecha, los productos, el proyecto, el tipo de persona, los datos de identificación y fiscales, el contacto y el enlace al RUT en Drive (archivo `COT-AAAA-XXXXXX-RUT.<ext>`). El script guarda el archivo antes de escribir la fila, ignora referencias repetidas y crea la hoja `Leads` con encabezados si no existe.
-
-Limitación: Apps Script no permite fijar el código HTTP de la respuesta. Ante un token incorrecto o un error al guardar en Drive, la API recibe igualmente un 200 y marcaría el lead como entregado. Verifica la integración con una solicitud real (con y sin archivo) y confirma que aparece la fila y el archivo. Si necesitas que un fallo se refleje en `webhookDelivered`, usa la opción B.
+Cada fila queda con la referencia, la fecha, los productos, el proyecto, el tipo de persona, los datos de identificación y fiscales, el contacto y el enlace al RUT, que se guarda en una subcarpeta de Drive con el nombre de la cotización.
 
 ## Opción B: Make
 
@@ -72,6 +66,6 @@ La configuración se aplica sin volver a desplegar. Después envía una solicitu
 
 ## Qué se probó
 
-- Pruebas automáticas: la API responde 200 con enlace de WhatsApp cuando el webhook devuelve error o lanza cualquier valor, y firma el cuerpo con HMAC-SHA256 (`api/quote`).
-- Probado en local con un receptor de prueba: firma válida.
-- **No probado:** la entrega real a Google Apps Script o a Make. Falta definir el destino con el negocio (HU-03, #10).
+- Pruebas automáticas (`api/quote`): la API responde 200 con enlace de WhatsApp cuando el webhook falla, se agota el tiempo, rechaza con `ok:false` o lanza cualquier valor; registra una advertencia con la referencia y sin datos personales; no envía leads por HTTP plano; lee el destino de `LEADS_WEBHOOK_URL`; elige 8 o 25 s según haya archivo; y firma el cuerpo con HMAC-SHA256.
+- Probado en local con un receptor de prueba: un PDF de 5 MB llegó íntegro con firma válida.
+- **No probado:** la entrega real a Google Apps Script (incluido el tamaño máximo de petición, que Google no documenta) ni a Make. Falta crear el despliegue en la cuenta de la empresa (HU-03, #10).
