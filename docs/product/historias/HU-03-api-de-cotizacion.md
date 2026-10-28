@@ -1,7 +1,7 @@
 # HU-03: API de cotización con registro del lead y enlace de WhatsApp
 
 - **Épica:** [EP-03](../epicas/EP-03-leads-y-whatsapp.md)
-- **Estado:** Hecha (verificada en local con el emulador de Static Web Apps)
+- **Estado:** Hecha (verificada en local y en producción: 200 con solicitud válida, 400 sin consentimiento, 403 con origen ajeno; el webhook aún no está configurado)
 - **Prioridad:** Alta
 
 **Como** equipo de ventas, **quiero** recibir cada solicitud en nuestro destino de registro y que el cliente pueda abrir WhatsApp con el resumen ya escrito, **para** responder en minutos.
@@ -76,4 +76,5 @@ Característica: Procesamiento del cotizador
 ## Definición de terminado específica
 
 - Pruebas automáticas en `api/quote/handler.test.ts`.
-- Probado a través del emulador de Static Web Apps (hecho); repetir en el entorno desplegado (pendiente).
+- Probado a través del emulador de Static Web Apps y en el entorno desplegado (hecho).
+- Pendiente: configurar `LEADS_WEBHOOK_URL` para que las solicitudes queden registradas.

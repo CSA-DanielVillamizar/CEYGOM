@@ -23,7 +23,7 @@ Funciones en TypeScript, Node 22, modelo v4. `api/build.mjs` empaqueta con esbui
 
 - Positivas: un solo artefacto, sin depender de workspaces, arranque rápido.
 - Negativas: hay un paso de build adicional que debe ejecutarse antes del despliegue.
-- Pendiente de comprobar en la nube: que Oryx ejecute el build de `api/` como se espera (se confirma en el primer despliegue real).
+- Comprobado en el primer despliegue (2026-10-28): Oryx construye `api/` con el paso de esbuild y la función `quote` queda activa en Static Web Apps.
 
 ## Verificación
 

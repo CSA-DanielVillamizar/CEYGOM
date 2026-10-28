@@ -13,6 +13,10 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). E
 - Flujo de GitHub Actions para pruebas y despliegue.
 - Documentación: ADR, épicas, historias de usuario, guía de contribución y plantillas de PR e issues.
 
+### Desplegado
+
+- Primer despliegue a producción en Azure Static Web Apps (plan Free, Central US). Verificadas las páginas, las redirecciones, el 404, las cabeceras y el endpoint `POST /api/quote`.
+
 ### Corregido
 
 - Etiquetas de acabado del cotizador con mayúscula y tilde.

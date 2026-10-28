@@ -13,7 +13,7 @@ Estructura: **épicas** (objetivos de negocio) contienen **historias de usuario*
 | | [HU-08 Contacto por WhatsApp](historias/HU-08-contacto-directo-por-whatsapp.md) | Hecha | Media |
 | [EP-04 SEO y migración](epicas/EP-04-seo-y-migracion.md) | [HU-04 Redirecciones y 404](historias/HU-04-redirecciones-y-404.md) | Hecha | Alta |
 | | [HU-09 Medición de conversión](historias/HU-09-medicion-de-conversion.md) | Pendiente | Media |
-| [EP-05 Plataforma y calidad](epicas/EP-05-plataforma-y-calidad.md) | [HU-05 Despliegue continuo](historias/HU-05-despliegue-continuo.md) | Pendiente | Alta |
+| [EP-05 Plataforma y calidad](epicas/EP-05-plataforma-y-calidad.md) | [HU-05 Despliegue continuo](historias/HU-05-despliegue-continuo.md) | En curso | Alta |
 | | [HU-10 Endurecimiento de seguridad](historias/HU-10-endurecimiento-de-seguridad.md) | Pendiente | Baja |
 | [EP-06 Cumplimiento](epicas/EP-06-cumplimiento-y-datos-personales.md) | [HU-06 Consentimiento y Habeas Data](historias/HU-06-consentimiento-habeas-data.md) | Parcial | Alta |
 
