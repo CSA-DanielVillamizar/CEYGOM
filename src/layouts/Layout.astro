@@ -1,6 +1,9 @@
 ---
 import "../styles/global.css";
+import { Image, getImage } from "astro:assets";
 import { buildWhatsappChatUrl } from "@shared/whatsapp";
+import logo from "../assets/brand/logo-emc.webp";
+import ogDefault from "../assets/brand/og-default.jpg";
 
 interface Props {
   title: string;
@@ -9,12 +12,16 @@ interface Props {
   image?: string;
   /** schema.org objects rendered as JSON-LD. */
   jsonLd?: Record<string, unknown>[];
+  /** For personal pages (the quote list) that should not appear in search results. */
+  noindex?: boolean;
 }
 
-const { title, description, image, jsonLd = [] } = Astro.props;
+const { title, description, image, jsonLd = [], noindex = false } = Astro.props;
 const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? "https://electrometalicasceygom.com";
 const canonical = new URL(Astro.url.pathname, siteUrl).toString();
 const fullTitle = title.includes("Ceygom") ? title : `${title} | Electro Metálicas Ceygom`;
+// Pages without their own picture share the brand image (1200x630) when the link is shared.
+const shareImage = image ?? new URL((await getImage({ src: ogDefault, width: 1200, height: 630 })).src, siteUrl).toString();
 
 // Set PUBLIC_WHATSAPP_NUMBER (digits only, international format). Without it the floating button points to the quote form.
 const whatsappNumber = import.meta.env.PUBLIC_WHATSAPP_NUMBER as string | undefined;
@@ -37,13 +44,16 @@ const path = Astro.url.pathname;
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="es_CO" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    {image && <meta property="og:image" content={image} />}
-    <meta name="twitter:card" content={image ? "summary_large_image" : "summary"} />
+    <meta property="og:image" content={shareImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     {jsonLd.map((data) => <script type="application/ld+json" set:html={JSON.stringify(data)} />)}
     <meta name="theme-color" content="#c8102e" />
     <meta name="generator" content={Astro.generator} />
@@ -53,7 +63,10 @@ const path = Astro.url.pathname;
 
     <header class="bg-steel-900 text-white">
       <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-        <a href="/" class="text-lg font-bold tracking-tight">Electro Metálicas <span class="text-brand-600">Ceygom</span></a>
+        <a href="/" class="flex items-center gap-3 text-lg font-bold tracking-tight">
+          <Image src={logo} alt="" width={64} class="h-10 w-auto rounded-sm" loading="eager" />
+          <span>Electro Metálicas <span class="text-brand-600">Ceygom</span></span>
+        </a>
         <nav aria-label="Principal">
           <ul class="flex flex-wrap items-center gap-1 text-sm">
             {nav.map((item) => (
@@ -68,6 +81,11 @@ const path = Astro.url.pathname;
               </li>
             ))}
             <li>
+              <a href="/cotizacion/" aria-current={path === "/cotizacion/" ? "page" : undefined} class:list={["rounded px-3 py-2 hover:bg-white/10", path === "/cotizacion/" && "bg-white/15 font-semibold"]}>
+                Mi cotización<span data-cart-count hidden class="ml-1 rounded-full bg-brand-600 px-2 py-0.5 text-xs font-semibold"></span>
+              </a>
+            </li>
+            <li>
               <a href="/cotizador/" class="ml-1 rounded bg-brand-600 px-4 py-2 font-semibold hover:bg-brand-700">Cotizar</a>
             </li>
           </ul>
@@ -80,7 +98,8 @@ const path = Astro.url.pathname;
     </main>
 
     <footer class="bg-steel-900 text-sm text-white/80">
-      <div class="mx-auto grid max-w-6xl gap-4 px-4 py-8 sm:grid-cols-2">
+      <!-- Bottom padding keeps the last lines above the floating WhatsApp button at every screen size. -->
+      <div class="mx-auto grid max-w-6xl gap-4 px-4 pt-8 pb-24 sm:grid-cols-2">
         <div>
           <p class="font-semibold text-white">Electro Metálicas Ceygom</p>
           <p>Calle 28 nro 57-13, Unidad Industrial de Belén, Medellín</p>
@@ -102,5 +121,14 @@ const path = Astro.url.pathname;
     >
       {whatsappNumber ? "WhatsApp" : "Cotizar"}
     </a>
+
+    <!-- Confirmation shown when something is added to the quote list (also announced to screen readers). -->
+    <div id="cart-toast" role="status" aria-live="polite" hidden class="fixed bottom-4 left-4 z-50 max-w-[calc(100vw-9rem)] rounded-lg bg-steel-900 px-4 py-3 text-sm text-white shadow-lg sm:max-w-sm">
+      <span data-toast-text></span>
+      <a href="/cotizacion/" class="ml-2 font-semibold underline">Ver mi cotización</a>
+    </div>
+    <script>
+      import "../scripts/site";
+    </script>
   </body>
 </html>

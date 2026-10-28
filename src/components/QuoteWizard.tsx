@@ -18,6 +18,16 @@ import {
   type RutFile,
 } from "@shared/quote.schema";
 import { buildWhatsappMessage, buildWhatsappUrl } from "@shared/whatsapp";
+import { clearStoredCart, loadCart } from "@shared/cart";
+
+// localStorage can throw (blocked storage, private mode): the wizard works without it.
+const safeStorage = (): Storage | undefined => {
+  try {
+    return window.localStorage;
+  } catch {
+    return undefined;
+  }
+};
 
 const FINISH_LABELS: Record<(typeof FINISHES)[number], string> = {
   galvanizado: "Galvanizado",
@@ -44,6 +54,8 @@ type FiscalResponsibility = (typeof FISCAL_RESPONSIBILITIES)[number];
 interface ItemDraft {
   category: CategoryId | "";
   productSlug: string;
+  /** Specific reference (BP0101), optional; may be missing in progress saved by an older version. */
+  reference?: string;
   quantity: string;
   widthMm: string;
   heightMm: string;
@@ -87,7 +99,7 @@ type Action =
   | { type: "rut"; file: RutFile | null; error: string }
   | { type: "honeypot"; value: string };
 
-const emptyItem = (): ItemDraft => ({ category: "", productSlug: "", quantity: "1", widthMm: "", heightMm: "", depthMm: "", finish: "", notes: "" });
+const emptyItem = (): ItemDraft => ({ category: "", productSlug: "", reference: "", quantity: "1", widthMm: "", heightMm: "", depthMm: "", finish: "", notes: "" });
 
 const initial: State = {
   step: 0,
@@ -141,6 +153,7 @@ const text = (v: string): string | undefined => (v.trim() === "" ? undefined : v
 const itemPayload = (d: ItemDraft) => ({
   category: d.category || undefined,
   productSlug: text(d.productSlug),
+  reference: text(d.reference ?? ""),
   quantity: num(d.quantity),
   widthMm: num(d.widthMm),
   heightMm: num(d.heightMm),
@@ -285,17 +298,30 @@ export default function QuoteWizard() {
   const [errors, setErrors] = useState<Errors>({});
   const [submit, setSubmit] = useState<SubmitState>({ kind: "idle" });
   const [hydrated, setHydrated] = useState(false);
+  const [fromList, setFromList] = useState(0);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const rutInputRef = useRef<HTMLInputElement>(null);
 
-  // Restore progress and prefill from /cotizador/?producto=<slug>.
+  // Restore progress; prefill from /cotizador/?producto=<slug> or from the quote list (/cotizador/?lista=1).
   useEffect(() => {
     const saved = loadProgress();
     if (saved) dispatch({ type: "hydrate", state: saved });
-    const slug = new URLSearchParams(window.location.search).get("producto");
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get("producto");
     const product = slug ? productBySlug(slug) : undefined;
     if (product) dispatch({ type: "item", index: 0, patch: { category: product.category, productSlug: product.slug } });
+    if (params.get("lista") === "1") {
+      // The list comes from storage: only products of our catalog and valid references get through.
+      const items = loadCart(safeStorage()).lines.flatMap((line): ItemDraft[] => {
+        const p = productBySlug(line.slug);
+        return p ? [{ ...emptyItem(), category: p.category, productSlug: p.slug, reference: line.ref ?? "", quantity: String(line.qty) }] : [];
+      });
+      if (items.length > 0) {
+        dispatch({ type: "hydrate", state: { items, step: 0 } });
+        setFromList(items.length);
+      }
+    }
     setHydrated(true);
   }, []);
 
@@ -337,6 +363,8 @@ export default function QuoteWizard() {
       if (res.ok) {
         setSubmit({ kind: "done", result: (await res.json()) as QuoteResponse });
         clearProgress();
+        clearStoredCart(safeStorage());
+        window.dispatchEvent(new Event("ceygom:cart")); // refresh the header counter
         return;
       }
       if (res.status === 400) {
@@ -420,6 +448,11 @@ export default function QuoteWizard() {
       {/* Step 1: items */}
       {state.step === 0 && (
         <div className="space-y-6">
+          {fromList > 0 && (
+            <p className="rounded bg-steel-50 p-3 text-sm text-steel-600">
+              Cargamos {fromList} {fromList === 1 ? "producto" : "productos"} de tu lista. Revisa las cantidades y completa lo que falte; puedes <a href="/cotizacion/" className="font-semibold text-brand-700 underline">editar tu lista</a> o <a href="/productos/" className="font-semibold text-brand-700 underline">seguir explorando</a>.
+            </p>
+          )}
           {state.items.map((it, idx) => {
             const p = `items.${idx}.`;
             const products = PRODUCTS.filter((x) => x.category === it.category);
@@ -440,6 +473,10 @@ export default function QuoteWizard() {
                       <option value="">Cualquiera / no sé</option>
                       {products.map((x) => <option key={x.slug} value={x.slug}>{x.name}</option>)}
                     </select>
+                  </Field>
+                  <Field id={f(`ref${idx}`)} label="Referencia (opcional)" error={e(`${p}reference`)} hint="El código de la ficha técnica. Ej.: BP0101">
+                    <input id={f(`ref${idx}`)} className={`${inputCls} font-mono uppercase`} autoComplete="off" maxLength={11} value={it.reference ?? ""} aria-invalid={!!e(`${p}reference`)} aria-describedby={describedBy(f(`ref${idx}`), !!e(`${p}reference`), true)}
+                      onChange={(ev) => dispatch({ type: "item", index: idx, patch: { reference: ev.target.value } })} />
                   </Field>
                   <Field id={f(`qty${idx}`)} label="Cantidad" error={e(`${p}quantity`)}>
                     <input id={f(`qty${idx}`)} type="number" inputMode="numeric" min={1} className={inputCls} value={it.quantity} aria-invalid={!!e(`${p}quantity`)} aria-describedby={describedBy(f(`qty${idx}`), !!e(`${p}quantity`))}
@@ -608,7 +645,7 @@ export default function QuoteWizard() {
           <ul className="list-disc space-y-1 pl-5">
             {state.items.map((it, i) => (
               <li key={i}>
-                {(it.productSlug && productBySlug(it.productSlug)?.name) || CATEGORIES.find((c) => c.id === it.category)?.label} × {it.quantity}
+                {(it.productSlug && productBySlug(it.productSlug)?.name) || CATEGORIES.find((c) => c.id === it.category)?.label}{it.reference ? ` (${it.reference.toUpperCase()})` : ""} × {it.quantity}
                 {it.widthMm && it.heightMm && it.depthMm ? ` (${it.widthMm}×${it.heightMm}×${it.depthMm} mm)` : ""}
               </li>
             ))}

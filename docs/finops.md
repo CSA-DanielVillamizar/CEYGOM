@@ -23,7 +23,11 @@ No hay recursos facturables en Azure más allá del plan Free. El grupo `rg-ceyg
 | Tamaño del sitio | 7,3 MB | 150 MB | 250 MB por entorno |
 | Archivos | 169 | 10 000 | 15 000 |
 | Archivo más grande | 0,38 MB | 15 MB | n/a |
-| JavaScript de `/cotizador/` (gzip) | 90 KB | 200 KB | n/a |
+| JavaScript de `/cotizador/` (gzip) | 93,5 KB | 200 KB | n/a |
+| JavaScript del inicio y de las páginas de producto (gzip) | 1,8 KB | 15 KB | n/a |
+| JavaScript de `/productos/` (gzip) | 4,1 KB | 20 KB | n/a |
+| JavaScript de `/cotizacion/` (gzip) | 2,8 KB | 15 KB | n/a |
+| Índice del buscador, solo al buscar (gzip) | 3,1 KB | 15 KB | n/a |
 
 Cada pull request crea un entorno de vista previa con una copia completa del sitio; con 3 entornos más producción, el sitio completo no debería pasar de unos 40 MB en uso total.
 

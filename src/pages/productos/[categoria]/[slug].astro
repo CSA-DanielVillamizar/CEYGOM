@@ -91,7 +91,8 @@ const illustrative = d.images.every((i) => i.illustrative);
 
       <div>
         <div class="flex flex-wrap gap-3">
-          <a href={`/cotizador/?producto=${product.slug}`} class="rounded bg-brand-600 px-6 py-3 font-semibold text-white hover:bg-brand-700">Cotizar este producto</a>
+          <button type="button" data-cart-add data-slug={product.slug} data-name={product.name} data-cat={product.category} class="rounded bg-brand-600 px-6 py-3 font-semibold text-white hover:bg-brand-700">Agregar a mi cotización</button>
+          <a href={`/cotizador/?producto=${product.slug}`} class="rounded border border-steel-200 bg-white px-6 py-3 font-semibold hover:border-brand-600">Cotizar solo este producto</a>
           {d.ficha && (
             <a href={d.ficha.path} target="_blank" rel="noopener noreferrer" type="application/pdf" class="rounded border border-steel-200 bg-white px-6 py-3 font-semibold hover:border-brand-600">
               Ficha técnica (PDF, {d.ficha.sizeKb} KB)
@@ -114,11 +115,20 @@ const illustrative = d.images.every((i) => i.illustrative);
           <table class="w-full text-left text-sm">
             <caption class="sr-only">Referencias de {product.name} según su ficha técnica</caption>
             <thead class="bg-steel-50 text-steel-600">
-              <tr><th scope="col" class="px-4 py-2 font-semibold">Código</th><th scope="col" class="px-4 py-2 font-semibold">Descripción</th></tr>
+              <tr><th scope="col" class="px-4 py-2 font-semibold">Código</th><th scope="col" class="px-4 py-2 font-semibold">Descripción</th><th scope="col" class="px-4 py-2 font-semibold">Cotizar</th></tr>
             </thead>
             <tbody>
               {refs.map((r) => (
-                <tr class="border-t border-steel-200"><td class="px-4 py-2 font-mono">{r.code}</td><td class="px-4 py-2">{r.text}</td></tr>
+                <tr class="border-t border-steel-200" data-cart-row>
+                  <td class="px-4 py-2 font-mono">{r.code}</td>
+                  <td class="px-4 py-2">{r.text}</td>
+                  <td class="px-4 py-2">
+                    <span class="flex items-center gap-2">
+                      <input type="number" min="1" value="1" data-cart-qty aria-label={`Cantidad de ${r.code}`} class="w-16 rounded border border-steel-200 px-2 py-1" />
+                      <button type="button" data-cart-add data-slug={product.slug} data-ref={r.code} data-name={product.name} data-cat={product.category} class="rounded border border-steel-200 bg-white px-3 py-1.5 text-sm font-semibold hover:border-brand-600">Agregar</button>
+                    </span>
+                  </td>
+                </tr>
               ))}
             </tbody>
           </table>

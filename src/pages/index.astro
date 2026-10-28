@@ -1,40 +1,129 @@
 ---
+import { Image, getImage } from "astro:assets";
 import Layout from "../layouts/Layout.astro";
 import { CATEGORIES, PRODUCTS } from "@shared/catalog";
+import { PRODUCT_DETAILS } from "@shared/catalog-details";
+import { CATEGORY_IMAGES } from "../data/categoryImages";
+import { LEGAL } from "../data/legal";
+import { productImage } from "../lib/productImages";
+import logo from "../assets/brand/logo-emc.webp";
 
-const counts = Object.fromEntries(CATEGORIES.map((c) => [c.id, PRODUCTS.filter((p) => p.category === c.id).length]));
+// Every figure shown on this page is computed from the catalog data, never typed by hand.
+const withPage = PRODUCTS.filter((p) => PRODUCT_DETAILS[p.slug]);
+const totals = {
+  products: withPage.length,
+  references: withPage.reduce((n, p) => n + PRODUCT_DETAILS[p.slug]!.references.length, 0),
+  sheets: withPage.filter((p) => PRODUCT_DETAILS[p.slug]!.ficha).length,
+};
+const perCategory = Object.fromEntries(
+  CATEGORIES.map((c) => {
+    const items = withPage.filter((p) => p.category === c.id);
+    return [c.id, { products: items.length, references: items.reduce((n, p) => n + PRODUCT_DETAILS[p.slug]!.references.length, 0) }];
+  }),
+);
+const plural = (n: number, one: string, many: string) => `${n.toLocaleString("es-CO")} ${n === 1 ? one : many}`;
+
+const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? "https://electrometalicasceygom.com";
+const description = "Fabricamos gabinetes eléctricos, racks de comunicaciones, bandejas portacables, canaletas y estructuras a medida. Solicita tu cotización en línea.";
+const logoUrl = new URL((await getImage({ src: logo, width: 224 })).src, siteUrl).toString();
+
+// Local business data for search engines: only facts already published on the site.
+const localBusiness = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "@id": new URL("/#empresa", siteUrl).toString(),
+  name: LEGAL.tradeName,
+  url: new URL("/", siteUrl).toString(),
+  description,
+  logo: logoUrl,
+  image: logoUrl,
+  telephone: "+57 4 444 6733",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Calle 28 nro 57-13, Unidad Industrial de Belén",
+    addressLocality: "Medellín",
+    addressRegion: "Antioquia",
+    addressCountry: "CO",
+  },
+  hasMap: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Calle 28 #57-13, Unidad Industrial de Belén, Medellín")}`,
+};
+
+const hero = ["rack-piso-cerrado", "gabinete-equipos-medida", "bandeja-ranurada40cm"] as const;
 ---
 
-<Layout
-  title="Gabinetes, racks y bandejas portacables en Medellín | Electro Metálicas Ceygom"
-  description="Fabricamos gabinetes eléctricos, racks de comunicaciones, bandejas portacables, canaletas y estructuras a medida. Solicita tu cotización en línea."
->
+<Layout title="Gabinetes, racks y bandejas portacables en Medellín | Electro Metálicas Ceygom" description={description} jsonLd={[localBusiness]}>
   <section class="bg-steel-900 text-white">
-    <div class="mx-auto max-w-6xl px-4 py-16 sm:py-24">
-      <h1 class="max-w-3xl text-3xl font-bold leading-tight sm:text-5xl">
-        Gabinetes, racks y estructuras metálicas para redes eléctricas y de comunicación
-      </h1>
-      <p class="mt-4 max-w-2xl text-lg text-white/80">
-        Fabricamos y distribuimos productos estándar y a medida, con departamento de ingeniería para proyectos exclusivos y personalizados.
-      </p>
-      <div class="mt-8 flex flex-wrap gap-3">
-        <a href="/cotizador/" class="rounded bg-brand-600 px-6 py-3 font-semibold hover:bg-brand-700">Solicitar cotización</a>
-        <a href="/productos/" class="rounded border border-white/40 px-6 py-3 font-semibold hover:bg-white/10">Ver productos</a>
+    <div class="mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 sm:py-16 lg:grid-cols-[1.1fr_0.9fr]">
+      <div>
+        <h1 class="text-3xl font-bold leading-tight sm:text-5xl">Gabinetes, racks y estructuras metálicas para redes eléctricas y de comunicación</h1>
+        <p class="mt-4 max-w-xl text-lg text-white/80">
+          Fabricamos y distribuimos productos estándar y a medida, con departamento de ingeniería para proyectos exclusivos y personalizados.
+        </p>
+
+        <form action="/productos/" method="get" role="search" class="mt-6 flex max-w-xl gap-2">
+          <label for="hero-q" class="sr-only">Buscar un producto o una referencia</label>
+          <input id="hero-q" name="q" type="search" autocomplete="off" placeholder="Producto o referencia: BP0101" class="min-w-0 flex-1 rounded border border-white/20 bg-white px-4 py-3 text-base text-steel-900 placeholder:text-steel-600" />
+          <button type="submit" class="rounded bg-white px-5 py-3 font-semibold text-steel-900 hover:bg-steel-200">Buscar</button>
+        </form>
+
+        <div class="mt-6 flex flex-wrap gap-3">
+          <a href="/cotizador/" class="rounded bg-brand-600 px-6 py-3 font-semibold hover:bg-brand-700">Solicitar cotización</a>
+          <a href="/productos/" class="rounded border border-white/40 px-6 py-3 font-semibold hover:bg-white/10">Ver productos</a>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3" aria-hidden="true">
+        <div class="row-span-2 overflow-hidden rounded-lg bg-white">
+          <Image src={productImage(hero[0])} alt="" width={420} class="h-full w-full object-contain" loading="eager" />
+        </div>
+        <div class="overflow-hidden rounded-lg bg-white">
+          <Image src={productImage(hero[1])} alt="" width={300} class="h-full w-full object-contain" loading="eager" />
+        </div>
+        <div class="overflow-hidden rounded-lg bg-white">
+          <Image src={productImage(hero[2])} alt="" width={300} class="h-full w-full object-contain" loading="eager" />
+        </div>
       </div>
     </div>
+  </section>
+
+  <section class="border-b border-steel-200 bg-white">
+    <dl class="mx-auto grid max-w-6xl grid-cols-3 gap-4 px-4 py-6 text-center">
+      <div>
+        <dt class="text-xs text-steel-600 sm:text-sm">Referencias</dt>
+        <dd class="text-2xl font-bold text-brand-700 sm:text-3xl">{totals.references.toLocaleString("es-CO")}</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-steel-600 sm:text-sm">Productos</dt>
+        <dd class="text-2xl font-bold text-brand-700 sm:text-3xl">{totals.products}</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-steel-600 sm:text-sm">Fichas técnicas</dt>
+        <dd class="text-2xl font-bold text-brand-700 sm:text-3xl">{totals.sheets}</dd>
+      </div>
+    </dl>
   </section>
 
   <section class="mx-auto max-w-6xl px-4 py-12">
     <h2 class="text-2xl font-bold">Líneas de producto</h2>
     <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {CATEGORIES.map((c) => (
-        <li>
-          <a href={`/productos/#${c.id}`} class="block h-full rounded-lg border border-steel-200 bg-white p-5 hover:border-brand-600">
-            <h3 class="font-bold">{c.label}</h3>
-            <p class="mt-1 text-sm text-steel-600">{counts[c.id]} {counts[c.id] === 1 ? "referencia" : "referencias"}</p>
-          </a>
-        </li>
-      ))}
+      {CATEGORIES.map((c) => {
+        const image = CATEGORY_IMAGES[c.id];
+        const n = perCategory[c.id]!;
+        return (
+          <li>
+            <a href={`/productos/#${c.id}`} class="flex h-full flex-col overflow-hidden rounded-lg border border-steel-200 bg-white hover:border-brand-600">
+              {image && <Image src={productImage(image.file)} alt="" width={420} class="h-40 w-full bg-steel-50 object-contain" loading="lazy" />}
+              <span class="p-5">
+                <span class="block font-bold">{c.label}</span>
+                <span class="mt-1 block text-sm text-steel-600">
+                  {c.id === "a-medida" ? "Según tus planos o necesidades" : `${plural(n.products, "producto", "productos")} · ${plural(n.references, "referencia", "referencias")}`}
+                </span>
+                {image?.illustrative && <span class="mt-1 block text-[11px] text-steel-600">Imagen ilustrativa</span>}
+              </span>
+            </a>
+          </li>
+        );
+      })}
     </ul>
   </section>
 

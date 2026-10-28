@@ -69,6 +69,19 @@ describe("QuoteRequestSchema", () => {
     expect(QuoteRequestSchema.safeParse(bad).success).toBe(false);
   });
 
+  it("accepts an optional product reference, normalized to upper case, and rejects malformed ones", () => {
+    const withRef = (reference: unknown) => {
+      const req = valid();
+      (req.items[0] as Record<string, unknown>).reference = reference;
+      return QuoteRequestSchema.safeParse(req);
+    };
+    const ok = withRef(" bp0101 ");
+    expect(ok.success && ok.data.items[0]!.reference).toBe("BP0101");
+    expect(withRef("").success && withRef("").data!.items[0]!.reference).toBeUndefined();
+    expect(withRef(undefined).success).toBe(true);
+    for (const bad of ["BP", "0101", "bandeja 1", "BP0101; DROP", "ABCDE0101", "BP01"]) expect(withRef(bad).success, bad).toBe(false);
+  });
+
   it("requires at least one item and a quantity >= 1", () => {
     expect(QuoteRequestSchema.safeParse({ ...valid(), items: [] }).success).toBe(false);
     const zero = valid();
@@ -185,6 +198,13 @@ describe("WhatsApp link", () => {
       expect(decoded).not.toContain(secret);
     }
     expect(decoded.length).toBeLessThanOrEqual(MAX_MESSAGE_LENGTH);
+  });
+
+  it("shows the chosen reference next to the product", () => {
+    const req = valid();
+    (req.items[0] as Record<string, unknown>).reference = "RA1301";
+    const text = buildWhatsappMessage(undefined, QuoteRequestSchema.parse(req));
+    expect(text).toContain("Rack cerrado abatible (RA1301) x2");
   });
 
   it("strips non-digits from the number", () => {

@@ -19,5 +19,6 @@ Estados posibles: `Propuesta`, `Aceptada`, `Aceptada con revisión pendiente`, `
 | [0011](0011-identificacion-tributaria-obligatoria-en-el-cotizador.md) | NIT o cédula (RUT) obligatorio en el cotizador | Aceptada; ampliada por ADR-0012 |
 | [0012](0012-datos-fiscales-y-adjunto-del-rut.md) | Datos fiscales del RUT y adjunto opcional del documento | Aceptada |
 | [0013](0013-catalogo-generado-desde-manifiesto.md) | Catálogo generado desde un manifiesto, con fichas y fotos optimizadas | Aceptada |
+| [0014](0014-lista-de-cotizacion-y-buscador-en-el-navegador.md) | Lista de cotización y buscador del catálogo en el navegador, sin servidor | Aceptada |
 
 Para proponer una decisión nueva, abre un issue con la plantilla "Propuesta de ADR" y luego un PR que añada el archivo.

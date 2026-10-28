@@ -15,7 +15,7 @@ La función `POST /api/quote` envía cada solicitud válida a `LEADS_WEBHOOK_URL
   "createdAt": "2026-10-28T02:15:00.000Z",
   "request": {
     "items": [
-      { "category": "bandejas-portacables", "productSlug": "bandeja-cruz", "quantity": 10, "widthMm": 300, "finish": "galvanizado", "notes": "..." }
+      { "category": "bandejas-portacables", "productSlug": "bandeja-porta-cables", "reference": "BP0101", "quantity": 10, "widthMm": 300, "finish": "galvanizado", "notes": "..." }
     ],
     "project": { "city": "Medellín", "neededBy": "2026-12-01", "environment": "interior", "notes": "..." },
     "contact": {

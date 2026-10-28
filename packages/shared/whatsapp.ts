@@ -27,7 +27,7 @@ export function buildWhatsappMessage(reference: string | undefined, req: Message
     const dims = [item.widthMm, item.heightMm, item.depthMm].every((d) => d !== undefined)
       ? ` ${item.widthMm}x${item.heightMm}x${item.depthMm} mm`
       : "";
-    lines.push(`${i + 1}. ${name} x${item.quantity}${dims}`);
+    lines.push(`${i + 1}. ${name}${item.reference ? ` (${item.reference})` : ""} x${item.quantity}${dims}`);
   });
 
   lines.push(`Ciudad: ${req.project.city}`);

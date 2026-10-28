@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { CATEGORY_IDS } from "./catalog";
 import { base64ByteLength, matchesSignature, nitCheckDigit } from "./fiscal";
+import { REFERENCE_PATTERN } from "./reference";
 
 export const FINISHES = ["galvanizado", "pintura-electrostatica", "inoxidable", "otro"] as const;
 export const ENVIRONMENTS = ["interior", "exterior"] as const;
@@ -37,6 +38,14 @@ const optionalMm = z.number().int("Usa números enteros").positive("Debe ser may
 export const QuoteItemSchema = z.object({
   category: z.enum(CATEGORY_IDS, { errorMap: () => ({ message: "Elige una categoría" }) }),
   productSlug: z.string().trim().regex(/^[a-z0-9-]+$/).max(80).optional(),
+  // Specific reference of the product as printed in its data sheet (for example BP0101). Optional.
+  reference: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .regex(REFERENCE_PATTERN, "La referencia no es válida. Ej.: BP0101")
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
   quantity: z
     .number({ invalid_type_error: "Ingresa una cantidad" })
     .int("Usa números enteros")
