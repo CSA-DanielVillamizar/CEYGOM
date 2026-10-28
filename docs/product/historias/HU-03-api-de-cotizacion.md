@@ -28,7 +28,7 @@ Característica: Procesamiento del cotizador
   Escenario: Mensaje de WhatsApp sin datos de contacto
     Cuando se construye el enlace
     Entonces el texto decodificado contiene la referencia, los productos, la ciudad y el nombre
-    Y no contiene el correo ni el celular
+    Y no contiene el correo, el celular ni el NIT o la cédula
     Y mide 800 caracteres o menos
 
   Escenario: Webhook configurado
@@ -45,7 +45,7 @@ Característica: Procesamiento del cotizador
     Y el registro no contiene datos personales
 
   Escenario: Datos inválidos
-    Cuando falta el correo o no se acepta la política de datos
+    Cuando falta el correo, el NIT o la cédula, o no se acepta la política de datos
     Entonces la respuesta es 400 con "VALIDATION_ERROR" e "issues" con la ruta del campo
 
   Escenario: Cuerpo que no es JSON o demasiado grande

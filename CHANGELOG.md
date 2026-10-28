@@ -13,6 +13,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). E
 - Flujo de GitHub Actions para pruebas y despliegue.
 - Documentación: ADR, épicas, historias de usuario, guía de contribución y plantillas de PR e issues.
 
+- Campo obligatorio de NIT o cédula (RUT) en el cotizador, normalizado a dígitos, incluido en el lead y declarado en la política de datos (ADR-0011).
 - Página `/privacidad/` con la política de tratamiento de datos personales (Ley 1581 de 2012), enlazada desde el cotizador y el pie de página.
 - Documentación del webhook de leads y receptor de Google Apps Script para registrar solicitudes en una hoja de cálculo.
 

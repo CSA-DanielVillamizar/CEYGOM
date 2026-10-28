@@ -17,12 +17,12 @@ La función `POST /api/quote` envía cada solicitud válida a `LEADS_WEBHOOK_URL
       { "category": "bandejas-portacables", "productSlug": "bandeja-cruz", "quantity": 10, "widthMm": 300, "finish": "galvanizado", "notes": "..." }
     ],
     "project": { "city": "Medellín", "neededBy": "2026-12-01", "environment": "interior", "notes": "..." },
-    "contact": { "fullName": "...", "company": "...", "email": "...", "phone": "573001234567", "acceptsDataPolicy": true }
+    "contact": { "fullName": "...", "company": "...", "taxId": "9001234567", "email": "...", "phone": "573001234567", "acceptsDataPolicy": true }
   }
 }
 ```
 
-Los campos opcionales pueden faltar. `phone` llega solo con dígitos y `email` en minúsculas. El destino recibe datos personales: debe estar bajo control de la empresa y mencionado en la política de datos (`/privacidad/`).
+Los campos opcionales pueden faltar. `phone` y `taxId` (NIT o cédula del RUT, obligatorio) llegan solo con dígitos, y `email` en minúsculas. Si el cliente escribió el dígito de verificación del NIT, viene como parte del número; el sistema de facturación debe separarlo si lo necesita. El destino recibe datos personales: debe estar bajo control de la empresa y mencionado en la política de datos (`/privacidad/`).
 
 ## Opción A: Google Sheets con Apps Script
 

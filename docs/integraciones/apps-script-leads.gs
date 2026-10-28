@@ -9,7 +9,7 @@
 var SHEET_NAME = 'Leads';
 var HEADERS = [
   'Referencia', 'Fecha (UTC)', 'Productos', 'Ciudad', 'Fecha requerida', 'Entorno',
-  'Notas del proyecto', 'Nombre', 'Empresa', 'Correo', 'Celular'
+  'Notas del proyecto', 'Nombre', 'Empresa', 'NIT / cédula', 'Correo', 'Celular'
 ];
 
 function doPost(e) {
@@ -45,7 +45,7 @@ function doPost(e) {
     sheet.appendRow([
       lead.reference, lead.createdAt, items,
       r.project.city, r.project.neededBy || '', r.project.environment || '', r.project.notes || '',
-      r.contact.fullName, r.contact.company || '', r.contact.email, "'" + r.contact.phone
+      r.contact.fullName, r.contact.company || '', "'" + r.contact.taxId, r.contact.email, "'" + r.contact.phone
     ]);
   } finally {
     lock.releaseLock();

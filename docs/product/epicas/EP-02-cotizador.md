@@ -15,6 +15,7 @@ Convierte visitas en solicitudes estructuradas y reduce la fricción de pedir co
 ## Alcance
 
 - Asistente de cuatro pasos: productos, proyecto, contacto y resumen.
+- NIT o cédula obligatorio (ADR-0011) para crear el cliente y facturar.
 - Hasta 20 productos por solicitud; precarga con `?producto=<slug>`.
 - Resumen en JSON conforme al esquema compartido.
 - Accesibilidad por teclado y mensajes de error asociados al campo.
