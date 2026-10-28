@@ -18,6 +18,7 @@ const LIMITS = {
   commonPageGzipKB: 15, // home, product pages and the quote list: only the small site script
   catalogGzipKB: 20, // /productos/: site script + catalog search
   searchIndexGzipKB: 15, // fetched only when the visitor starts searching
+  annexIndexGzipKB: 15, // fetched only by the quote list when it has lines
 };
 
 const files = [];
@@ -62,6 +63,7 @@ const pages = [
   ["JavaScript de /cotizacion/ (gzip)", "cotizacion/index.html", LIMITS.commonPageGzipKB],
 ];
 const searchIndexKB = gzipKB(fs.readFileSync(path.join(dist, "productos/search-index.json")));
+const annexIndexKB = gzipKB(fs.readFileSync(path.join(dist, "productos/anexo-index.json")));
 
 const rows = [
   ["Tamaño total del sitio", `${totalMB.toFixed(1)} MB`, `${LIMITS.totalMB} MB`, totalMB <= LIMITS.totalMB],
@@ -72,6 +74,7 @@ const rows = [
     return [name, `${kb.toFixed(1)} KB`, `${limit} KB`, kb <= limit];
   }),
   ["Índice del buscador, solo al buscar (gzip)", `${searchIndexKB.toFixed(1)} KB`, `${LIMITS.searchIndexGzipKB} KB`, searchIndexKB <= LIMITS.searchIndexGzipKB],
+  ["Índice del anexo técnico, solo en la lista (gzip)", `${annexIndexKB.toFixed(1)} KB`, `${LIMITS.annexIndexGzipKB} KB`, annexIndexKB <= LIMITS.annexIndexGzipKB],
 ];
 for (const [name, value, limit, ok] of rows) console.log(`${ok ? "OK  " : "FAIL"} ${name}: ${value} (límite ${limit})`);
 if (rows.some((r) => !r[3])) {

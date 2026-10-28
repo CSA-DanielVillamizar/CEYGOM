@@ -32,6 +32,13 @@ function announce(message: string) {
 }
 
 renderCount();
+
+// Offline mode (public/sw.js): pages and data sheets already opened keep working without a connection.
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
+  window.addEventListener("load", () => void navigator.serviceWorker.register("/sw.js").catch(() => undefined));
+}
+window.addEventListener("offline", () => announce("Sin conexión: puedes ver lo que ya abriste y tu lista se conserva. Para enviar una solicitud necesitas internet."));
+
 window.addEventListener("storage", (e) => e.key === CART_KEY && renderCount());
 window.addEventListener("ceygom:cart", renderCount);
 

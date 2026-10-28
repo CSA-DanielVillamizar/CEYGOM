@@ -1,0 +1,19 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Sin conexión" description="Estás sin conexión a internet. Puedes consultar lo que ya visitaste en este equipo." noindex>
+  <div class="mx-auto max-w-2xl px-4 py-16">
+    <h1 class="text-3xl font-bold">Sin conexión</h1>
+    <p class="mt-3 text-steel-600">
+      No hay internet en este momento y esta página no estaba guardada en tu equipo. Las páginas de productos y las fichas técnicas que ya abriste siguen disponibles, y tu lista de cotización se conserva.
+    </p>
+    <p class="mt-3 text-steel-600">
+      Para enviar una solicitud necesitas conexión. Si es urgente, llámanos al <a class="text-brand-700 underline" href="tel:+5744446733">(574) 444 6733</a>.
+    </p>
+    <div class="mt-6 flex flex-wrap gap-3">
+      <a href="/cotizacion/" class="rounded bg-brand-600 px-6 py-3 font-semibold text-white hover:bg-brand-700">Ver mi cotización</a>
+      <a href="/productos/" class="rounded border border-steel-200 bg-white px-6 py-3 font-semibold hover:border-brand-600">Ver productos</a>
+    </div>
+  </div>
+</Layout>
