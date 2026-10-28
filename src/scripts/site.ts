@@ -57,3 +57,17 @@ document.addEventListener("click", (event) => {
   button.textContent = "Agregado ✓";
   window.setTimeout(() => (button.textContent = original), 1500);
 });
+
+// "Copiar" buttons (data-copy="<text>"): copy a reference code to the clipboard, e.g. to paste it into an order or email.
+document.addEventListener("click", async (event) => {
+  const button = (event.target as Element | null)?.closest<HTMLElement>("[data-copy]");
+  if (!button?.dataset.copy) return;
+  const original = button.textContent;
+  try {
+    await navigator.clipboard.writeText(button.dataset.copy);
+    button.textContent = "Copiado ✓";
+  } catch {
+    button.textContent = "No se pudo copiar";
+  }
+  window.setTimeout(() => (button.textContent = original), 1500);
+});

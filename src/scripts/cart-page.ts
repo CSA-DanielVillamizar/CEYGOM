@@ -65,9 +65,9 @@ function render() {
     const tr = document.createElement("tr");
     tr.className = "border-t border-steel-200";
     const cells: (Node | string)[][] = [[name], [line.ref ? Object.assign(document.createElement("span"), { className: "font-mono", textContent: line.ref }) : "General"], [qty], [remove]];
-    for (const nodes of cells) {
+    for (const [i, nodes] of cells.entries()) {
       const td = document.createElement("td");
-      td.className = "px-4 py-2";
+      td.className = i === 3 ? "px-4 py-2 print:hidden" : "px-4 py-2";
       td.append(...nodes);
       tr.append(td);
     }
@@ -93,6 +93,13 @@ clear?.addEventListener("click", () => {
   window.dispatchEvent(new Event("ceygom:cart"));
   if (live) live.textContent = "Tu lista quedó vacía.";
   render();
+});
+
+// The browser's print dialog offers "Save as PDF": no PDF library is shipped. The page prints with the company letterhead.
+document.getElementById("cart-print")?.addEventListener("click", () => window.print());
+window.addEventListener("beforeprint", () => {
+  const date = document.getElementById("print-date");
+  if (date) date.textContent = new Date().toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" });
 });
 
 window.addEventListener("storage", (e) => e.key === CART_KEY && render());
