@@ -45,8 +45,14 @@ Webhook requests carry `x-ceygom-signature: sha256=<hex HMAC of the body>` when 
 
 WhatsApp number and hours, webhook destination, product photos/descriptions/data sheets (PDFs go in `public/fichas/`), certifications, Habeas Data policy text (marked `TODO(negocio)` in the code).
 
+## Production (Azure Static Web Apps)
+
+Resource `swa-ceygom-prd` (Free plan, Central US) in resource group `rg-ceygom-prd`, at `https://thankful-sky-016632b10.1.azurestaticapps.net` (temporary host name until the custom domain is linked; when it is, update `PUBLIC_SITE_URL` and `ALLOWED_ORIGIN`). Every push to `main` runs the workflow; the deployment token lives in the repository secret `AZURE_STATIC_WEB_APPS_API_TOKEN`.
+
+Verified in production: Oryx builds `api/` with the esbuild step and the function is active; the main pages return 200; `/empresa.html` and `/productos.html` redirect with 301; unknown paths return a real 404; the security headers are present; `POST /api/quote` returns 200 for a valid request, 400 without consent and 403 for a foreign origin; `GET /api/quote` returns 404; the floating WhatsApp button points to `wa.me`.
+
 ## Not verified yet
 
-Deployment to a real SWA, that Oryx builds `api/` with the esbuild step as expected, and the `wa.me` link on real devices.
+The `wa.me` link and the quote wizard on real iOS and Android devices, the wizard in a browser against production, the per-PR preview environment, and the lead webhook (`LEADS_WEBHOOK_URL` is not configured, so requests are not stored anywhere yet).
 
 Verified locally (SWA CLI 2.1.0 emulator, Functions Core Tools 4.12.1 on Node 24): the full wizard flow in a browser (validation per step, `?producto=` prefill, submit, success screen with the wa.me link), the API (200, 400 for missing consent, 403 for a foreign origin, honeypot decoy, `GET /api/quote` is 404), webhook delivery with a valid HMAC signature, 301 redirects and the real 404 from `staticwebapp.config.json`. The emulator does not reproduce the cloud exactly.

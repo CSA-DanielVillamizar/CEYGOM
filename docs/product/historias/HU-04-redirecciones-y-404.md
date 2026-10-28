@@ -1,7 +1,7 @@
 # HU-04: Redirecciones de URLs heredadas y página 404 real
 
 - **Épica:** [EP-04](../epicas/EP-04-seo-y-migracion.md)
-- **Estado:** Hecha (verificada en el emulador; repetir en el entorno desplegado)
+- **Estado:** Hecha (verificada en el emulador y en producción: redirecciones 301, 404 real y cabeceras de seguridad)
 - **Prioridad:** Alta
 
 **Como** responsable de marketing, **quiero** que las URLs antiguas lleven a las nuevas y que las inexistentes devuelvan 404, **para** no perder posicionamiento durante la migración.

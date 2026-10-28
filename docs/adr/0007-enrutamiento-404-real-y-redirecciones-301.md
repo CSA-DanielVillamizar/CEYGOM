@@ -26,4 +26,4 @@ En `public/staticwebapp.config.json`: redirecciones 301 de `/index.html`, `/empr
 
 ## Verificación
 
-Comprobado en el emulador de Static Web Apps: 301 de `/empresa.html` a `/empresa/` y 404 real para rutas inexistentes. Pendiente de repetir en el entorno desplegado.
+Comprobado en el emulador de Static Web Apps y en producción (2026-10-28): 301 de `/empresa.html` a `/empresa/` y de `/productos.html` a `/productos/`, y 404 real para rutas inexistentes.

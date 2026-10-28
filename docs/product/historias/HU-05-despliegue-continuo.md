@@ -1,7 +1,7 @@
 # HU-05: Despliegue continuo en Azure Static Web Apps
 
 - **Épica:** [EP-05](../epicas/EP-05-plataforma-y-calidad.md)
-- **Estado:** Pendiente (workflow escrito, no ejecutado contra un recurso real)
+- **Estado:** En curso (primer despliegue a producción exitoso el 2026-10-28; faltan la vista previa por PR y la protección de `main`)
 - **Prioridad:** Alta
 
 **Como** equipo de desarrollo, **quiero** que cada cambio se pruebe automáticamente y se despliegue desde GitHub, **para** publicar con seguridad y ver una vista previa por PR.
@@ -12,10 +12,11 @@
 
 ## Tareas previas (negocio y plataforma)
 
-1. Crear el recurso Static Web Apps (plan Free) en Azure.
-2. Cargar el secreto `AZURE_STATIC_WEB_APPS_API_TOKEN` y las variables `PUBLIC_WHATSAPP_NUMBER` y `PUBLIC_SITE_URL` en el repositorio.
-3. Configurar las Application settings del servidor (ADR-0008).
-4. Proteger la rama `main` (PR obligatorio y CI en verde).
+1. [x] Crear el recurso Static Web Apps (plan Free) en Azure: `swa-ceygom-prd` en `rg-ceygom-prd`.
+2. [x] Cargar el secreto `AZURE_STATIC_WEB_APPS_API_TOKEN` y las variables `PUBLIC_WHATSAPP_NUMBER` y `PUBLIC_SITE_URL` en el repositorio.
+3. [x] Configurar las Application settings del servidor (`WHATSAPP_NUMBER`, `ALLOWED_ORIGIN`; el webhook queda pendiente de definición del negocio).
+4. [ ] Proteger la rama `main` (PR obligatorio y CI en verde).
+5. [ ] Enlazar el dominio propio y actualizar `PUBLIC_SITE_URL` y `ALLOWED_ORIGIN`.
 
 ## Criterios de aceptación
 
@@ -44,6 +45,6 @@ Característica: Entrega continua
     Entonces se elimina su entorno de vista previa
 ```
 
-## Riesgo abierto
+## Riesgo resuelto
 
-Confirmar que Oryx construye `api/` con el paso de esbuild (ADR-0003). Si no lo hace, se ajusta el flujo para compilar la API antes del despliegue.
+Oryx construye `api/` con el paso de esbuild y la función queda activa en producción (ADR-0003). Sigue pendiente comprobar el entorno de vista previa con un PR real.
