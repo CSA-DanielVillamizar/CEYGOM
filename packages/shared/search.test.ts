@@ -80,3 +80,23 @@ describe("search over the real catalog", () => {
     expect(JSON.stringify(real).length).toBeLessThan(60_000);
   });
 });
+
+describe("finish filter", () => {
+  const withFinish: SearchEntry[] = [
+    { ...index[0]!, f: ["galvanizado", "pintura-electrostatica"] },
+    { ...index[2]!, f: ["pintura-electrostatica"] },
+    index[3]!,
+  ];
+
+  it("keeps only the products offered in that finish, and combines with category and text", () => {
+    expect(search(withFinish, "", "", "galvanizado").products.map((p) => p.s)).toEqual(["bandeja-porta-cables"]);
+    expect(search(withFinish, "", "", "pintura-electrostatica").products.map((p) => p.s).sort()).toEqual(["bandeja-porta-cables", "rack-de-piso"]);
+    expect(search(withFinish, "rack", "", "galvanizado").products).toEqual([]);
+    expect(search(withFinish, "", "racks-comunicaciones", "pintura-electrostatica").products.map((p) => p.s)).toEqual(["rack-de-piso"]);
+  });
+
+  it("does not filter when no finish is chosen, and products without finish data never match a finish", () => {
+    expect(search(withFinish, "").products).toHaveLength(3);
+    expect(search(withFinish, "canaleta", "", "galvanizado").products).toEqual([]);
+  });
+});

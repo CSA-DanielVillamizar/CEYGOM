@@ -6,6 +6,7 @@ import { search, type SearchEntry } from "@shared/search";
 const form = document.getElementById("catalog-search") as HTMLFormElement | null;
 const input = document.getElementById("catalog-q") as HTMLInputElement | null;
 const select = document.getElementById("catalog-cat") as HTMLSelectElement | null;
+const finishSelect = document.getElementById("catalog-finish") as HTMLSelectElement | null;
 const browse = document.getElementById("catalog-browse");
 const results = document.getElementById("catalog-results");
 const status = document.getElementById("catalog-status");
@@ -44,9 +45,9 @@ function addButton(attrs: Attrs, label: string): HTMLButtonElement {
   return el("button", { type: "button", "data-cart-add": "", class: "rounded border border-steel-200 bg-white px-3 py-1.5 text-sm font-semibold hover:border-brand-600", ...attrs }, label);
 }
 
-function render(query: string, category: string) {
+function render(query: string, category: string, finish: string) {
   if (!index || !results || !browse || !status) return;
-  const hasFilter = query.trim() !== "" || category !== "";
+  const hasFilter = query.trim() !== "" || category !== "" || finish !== "";
   browse.hidden = hasFilter;
   results.hidden = !hasFilter;
   if (!hasFilter) {
@@ -54,14 +55,14 @@ function render(query: string, category: string) {
     return;
   }
 
-  const { products, references } = search(index, query, category);
+  const { products, references } = search(index, query, category, finish);
   status.textContent = products.length === 0 ? "No encontramos coincidencias." : `${plural(products.length, "producto", "productos")}${references.length ? ` y ${plural(references.length, "referencia", "referencias")}` : ""}.`;
   results.replaceChildren();
 
   if (products.length === 0) {
     results.append(
       el("p", { class: "rounded-lg border border-steel-200 bg-white p-6 text-steel-600" },
-        "No encontramos productos ni referencias con esa búsqueda. Prueba con el código (por ejemplo BP0101), con una palabra del nombre o quita el filtro de categoría. Si no lo encuentras, ",
+        "No encontramos productos ni referencias con esa búsqueda. Prueba con el código (por ejemplo BP0101), con una palabra del nombre o quita los filtros de categoría y acabado. Si no lo encuentras, ",
         el("a", { href: "/cotizador/?producto=fabricacion-a-medida", class: "font-semibold text-brand-700 underline" }, "lo fabricamos a medida"),
         "."),
     );
@@ -108,6 +109,7 @@ function sync() {
   const params = new URLSearchParams(window.location.search);
   input.value.trim() ? params.set("q", input.value.trim()) : params.delete("q");
   select.value ? params.set("cat", select.value) : params.delete("cat");
+  finishSelect?.value ? params.set("acabado", finishSelect.value) : params.delete("acabado");
   const qs = params.toString();
   history.replaceState(null, "", `${window.location.pathname}${qs ? `?${qs}` : ""}${window.location.hash}`);
 }
@@ -121,7 +123,7 @@ async function run() {
     if (status) status.textContent = "No pudimos cargar el buscador. Recarga la página o explora las categorías.";
     return;
   }
-  render(input.value, select.value);
+  render(input.value, select.value, finishSelect?.value ?? "");
   sync();
 }
 
@@ -136,6 +138,7 @@ if (form && input && select) {
     timer = window.setTimeout(() => void run(), 120);
   });
   select.addEventListener("change", () => void run());
+  finishSelect?.addEventListener("change", () => void run());
   input.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && input.value) {
       input.value = "";
@@ -146,5 +149,6 @@ if (form && input && select) {
   const params = new URLSearchParams(window.location.search);
   input.value = params.get("q") ?? "";
   select.value = params.get("cat") ?? "";
-  if (input.value || select.value) void run();
+  if (finishSelect) finishSelect.value = params.get("acabado") ?? "";
+  if (input.value || select.value || finishSelect?.value) void run();
 }

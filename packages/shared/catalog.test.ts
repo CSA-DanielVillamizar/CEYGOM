@@ -84,3 +84,39 @@ describe("product details", () => {
     }
   });
 });
+
+describe("technical facts read from the data sheets", () => {
+  const details = Object.entries(PRODUCT_DETAILS);
+
+  it("only lists known finishes and well-formed color codes", () => {
+    for (const [slug, d] of details) {
+      for (const f of d.finishes) expect(["galvanizado", "pintura-electrostatica"], slug).toContain(f);
+      for (const c of d.colors) expect(c.code, slug).toMatch(/^\d{2}$/);
+    }
+  });
+
+  it("publishes dimensions only for references of the product, with one value per column", () => {
+    const withSpecs = details.filter(([, d]) => d.specs);
+    expect(withSpecs.length).toBeGreaterThanOrEqual(8);
+    for (const [slug, d] of withSpecs) {
+      const codes = new Set(d.references.map((r) => r.code));
+      for (const [code, values] of Object.entries(d.specs!.rows)) {
+        expect(codes.has(code), `${slug} ${code}`).toBe(true);
+        expect(values, `${slug} ${code}`).toHaveLength(d.specs!.columns.length);
+        for (const v of values) expect(v).toMatch(/^\d+(\.\d+)?$/);
+      }
+      expect(Object.keys(d.specs!.rows).length / d.references.length, slug).toBeGreaterThanOrEqual(0.8);
+    }
+  });
+
+  it("matches what the printed sheets say (spot checks against the PDFs)", () => {
+    const tray = PRODUCT_DETAILS["bandeja-porta-cables"]!;
+    expect(tray.specs!.columns).toEqual(["Altura total (mm)", "Ancho (mm)", "Longitud (mm)", "Altura (mm)", "Capacidad de carga (kg/m)"]);
+    expect(tray.specs!.rows["BP0101"]).toEqual(["55", "50", "2400", "42", "74"]);
+    expect(tray.specs!.rows["BP1201"]).toEqual(["85", "300", "2400", "72", "149"]);
+    expect(PRODUCT_DETAILS["canaleta"]!.specs!.rows["CN2401"]).toEqual(["240", "80", "2400", "20"]);
+    expect(tray.finishes).toEqual(["galvanizado", "pintura-electrostatica"]);
+    expect(PRODUCT_DETAILS["rack-de-piso"]!.finishes).toEqual(["pintura-electrostatica"]);
+    expect(tray.colors).toContainEqual({ code: "01", name: "Blanco" });
+  });
+});

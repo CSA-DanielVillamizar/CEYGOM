@@ -4,6 +4,7 @@ import Layout from "../../layouts/Layout.astro";
 import { CATEGORIES, PRODUCTS } from "@shared/catalog";
 import { PRODUCT_DETAILS } from "@shared/catalog-details";
 import { productImage } from "../../lib/productImages";
+import { FINISH_LABELS } from "@shared/search";
 
 const categories = CATEGORIES.filter((c) => c.id !== "a-medida");
 const totalRefs = PRODUCTS.reduce((n, p) => n + (PRODUCT_DETAILS[p.slug]?.references.length ?? 0), 0);
@@ -29,6 +30,13 @@ const totalRefs = PRODUCTS.reduce((n, p) => n + (PRODUCT_DETAILS[p.slug]?.refere
         <select id="catalog-cat" name="cat" class="mt-1 block w-full rounded border border-steel-200 bg-white px-3 py-3 text-base">
           <option value="">Todas las categorías</option>
           {categories.map((c) => <option value={c.id}>{c.label}</option>)}
+        </select>
+      </div>
+      <div>
+        <label for="catalog-finish" class="block text-sm font-semibold">Acabado</label>
+        <select id="catalog-finish" name="acabado" class="mt-1 block w-full rounded border border-steel-200 bg-white px-3 py-3 text-base">
+          <option value="">Todos los acabados</option>
+          {Object.entries(FINISH_LABELS).map(([id, label]) => <option value={id}>{label}</option>)}
         </select>
       </div>
     </form>

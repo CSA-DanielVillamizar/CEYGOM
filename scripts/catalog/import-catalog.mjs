@@ -12,6 +12,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
+import { parseSheet } from "./sheet-specs.mjs";
 
 const root = path.resolve(import.meta.dirname, "../..");
 const staging = process.argv[2];
@@ -77,6 +78,7 @@ for (const p of manifest.products) {
   const missing = [];
   let ficha = null;
   let references = [];
+  let facts = { finishes: [], colors: [] };
 
   if (p.ficha) {
     const src = path.join(staging, "fichas", p.ficha);
@@ -86,6 +88,20 @@ for (const p of manifest.products) {
     fs.copyFileSync(src, dest);
     const text = execFileSync("pdftotext", ["-layout", "-enc", "UTF-8", src, "-"], { encoding: "utf8", maxBuffer: 20 * 1024 * 1024 });
     references = parseReferences(text);
+    facts = parseSheet(text);
+    // Dimensions are published only when the table lines up for (almost) every reference; otherwise the PDF is the source.
+    if (facts.specs) {
+      const covered = references.filter((r) => facts.specs.rows[r.code]).length;
+      if (references.length === 0 || covered / references.length < 0.8) {
+        delete facts.specs;
+        missing.push("Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)");
+      } else {
+        for (const code of Object.keys(facts.specs.rows)) if (!references.some((r) => r.code === code)) delete facts.specs.rows[code];
+      }
+    } else {
+      missing.push("Medidas por referencia (consultar la ficha)");
+    }
+    if (!facts.material) missing.push("Material y acabado (la ficha no se puede leer como texto)");
     ficha = { path: `/fichas/${p.category}/${p.slug}.pdf`, code: text.match(/FT-MYV-\d+/)?.[0] ?? null, sizeKb: Math.round(fs.statSync(dest).size / 1024) };
     if (references.length === 0) missing.push("Tabla de referencias (la ficha no se puede leer como texto; consultar el PDF)");
   } else {
@@ -104,7 +120,7 @@ for (const p of manifest.products) {
   }
   missing.push("Descripción comercial y especificaciones aprobadas por la empresa");
 
-  details[p.slug] = { ficha, references, images, pending: [...new Set(missing)] };
+  details[p.slug] = { ficha, references, ...(facts.material ? { material: facts.material } : {}), finishes: facts.finishes, colors: facts.colors, ...(facts.specs ? { specs: facts.specs } : {}), images, pending: [...new Set(missing)] };
   pending.push({ ...p, missing: [...new Set(missing)] });
 }
 
@@ -115,7 +131,7 @@ fs.writeFileSync(
 );
 fs.writeFileSync(
   path.join(root, "packages/shared/catalog-details.ts"),
-  `${header}// Product pages only: references read from the data sheets, photos and pending items. Keep it out of the wizard.\n\nexport interface ProductImage {\n  /** File name (no extension) in src/assets/productos. */\n  file: string;\n  /** True when the photo does not show this exact product. */\n  illustrative: boolean;\n  /** True when the assignment of the photo still has to be confirmed with the company. */\n  confirm: boolean;\n}\n\nexport interface ProductDetail {\n  ficha: { path: string; code: string | null; sizeKb: number } | null;\n  references: { code: string; text: string }[];\n  images: ProductImage[];\n  pending: string[];\n}\n\nexport const PRODUCT_DETAILS: Record<string, ProductDetail> = ${JSON.stringify(details, null, 2)};\n`,
+  `${header}// Product pages only: references read from the data sheets, photos and pending items. Keep it out of the wizard.\n\nexport interface ProductImage {\n  /** File name (no extension) in src/assets/productos. */\n  file: string;\n  /** True when the photo does not show this exact product. */\n  illustrative: boolean;\n  /** True when the assignment of the photo still has to be confirmed with the company. */\n  confirm: boolean;\n}\n\nexport interface ProductDetail {\n  ficha: { path: string; code: string | null; sizeKb: number } | null;\n  references: { code: string; text: string }[];\n  /** Material as stated in the sheet (for example "Láminas de acero frío (cold-rolled) calibres 20 y 18"). */\n  material?: string;\n  /** Finishes the sheet says the product is offered in. */\n  finishes: ("galvanizado" | "pintura-electrostatica")[];\n  /** Color codes (the last two digits of each reference) and their names, from the sheet. */\n  colors: { code: string; name: string }[];\n  /** Dimension columns and, per reference code, one value per column. Only when the sheet table is read with certainty. */\n  specs?: { columns: string[]; rows: Record<string, string[]> };\n  images: ProductImage[];\n  pending: string[];\n}\n\nexport const PRODUCT_DETAILS: Record<string, ProductDetail> = ${JSON.stringify(details, null, 2)};\n`,
 );
 
 // Review list for the company.
