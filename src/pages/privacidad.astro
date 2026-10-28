@@ -33,8 +33,10 @@ const h2 = "mt-8 text-xl font-semibold";
     <h2 class={h2}>2. Datos personales que recogemos</h2>
     <p class="mt-2">Cuando solicitas una cotización en línea, te pedimos:</p>
     <ul class="mt-2 list-disc space-y-1 pl-6">
-      <li>Nombre completo y, de forma opcional, empresa.</li>
-      <li>Número de NIT o de cédula, tal como figura en el RUT.</li>
+      <li>Tipo de persona (natural o jurídica) y nombre completo; si eres persona jurídica, la razón social o el nombre comercial y el nombre de la persona de contacto.</li>
+      <li>Número de cédula (persona natural) o de NIT con su dígito de verificación (persona jurídica), tal como figuran en el RUT.</li>
+      <li>Datos fiscales del RUT: código de actividad económica (CIIU) y responsabilidades fiscales.</li>
+      <li>De forma opcional, una copia de tu RUT (PDF, JPG o PNG, hasta 5 MB). Ese documento puede contener datos adicionales, como tu dirección, teléfono y correo registrados ante la DIAN.</li>
       <li>Correo electrónico y número de celular.</li>
       <li>Ciudad del proyecto y los detalles de lo que necesitas (productos, cantidades, medidas, observaciones).</li>
     </ul>
@@ -48,7 +50,12 @@ const h2 = "mt-8 text-xl font-semibold";
     <ul class="mt-2 list-disc space-y-1 pl-6">
       <li>Gestionar tu solicitud de cotización y responderte por teléfono, correo o WhatsApp.</li>
       <li>Asignarte una referencia de cotización y hacer seguimiento comercial de tu solicitud.</li>
-      <li>Crear tu registro como cliente y facilitar la facturación si la cotización se concreta, para lo cual usamos tu NIT o cédula.</li>
+      <li>
+        Facturación y creación de terceros: usar tu identificación, tus datos fiscales y, si lo adjuntas, tu RUT
+        exclusivamente para crear tu registro como cliente en el sistema contable de la empresa y emitir la
+        factura electrónica si la cotización se concreta. No usamos estos datos para publicidad ni para ninguna otra
+        finalidad.
+      </li>
       <li>Atender consultas, reclamos y solicitudes relacionadas con tus datos.</li>
       <li>Cumplir obligaciones legales y contables aplicables.</li>
     </ul>
@@ -93,8 +100,10 @@ const h2 = "mt-8 text-xl font-semibold";
       el servicio de alojamiento del sitio (Microsoft Azure) y la herramienta con la que registramos las solicitudes
       de cotización para el equipo comercial. Si decides continuar la conversación por WhatsApp, el mensaje se envía a
       través de ese servicio, sujeto a sus propias condiciones. El mensaje prellenado incluye la referencia, los
-      productos, la ciudad y tu nombre; no incluye tu correo, tu celular ni tu NIT o cédula. Algunos de estos proveedores pueden operar
-      servidores fuera de Colombia.
+      productos, la ciudad y tu nombre; no incluye tu correo, tu celular, tu NIT o cédula, tus datos fiscales ni tu
+      RUT. Si adjuntas el RUT, se envía al espacio de almacenamiento que la empresa controla para guardar las
+      solicitudes y se asocia a tu referencia de cotización; solo accede a él el personal encargado de facturación y
+      creación de clientes. Algunos de estos proveedores pueden operar servidores fuera de Colombia.
     </p>
 
     <h2 class={h2}>8. Conservación y seguridad</h2>
@@ -102,15 +111,15 @@ const h2 = "mt-8 text-xl font-semibold";
       Conservamos los datos durante el tiempo necesario para atender tu solicitud y cumplir las obligaciones
       comerciales y legales aplicables. Aplicamos medidas técnicas y administrativas razonables para protegerlos: la
       comunicación con el sitio se hace por HTTPS, el servidor valida los datos recibidos y los registros técnicos no
-      incluyen tu nombre, correo ni celular.
+      incluyen tu nombre, correo, celular, identificación, datos fiscales ni el contenido del RUT.
     </p>
 
     <h2 class={h2}>9. Información guardada en tu navegador</h2>
     <p class="mt-2">
       Mientras llenas el cotizador, el sitio guarda tu avance en el almacenamiento de sesión de tu navegador para que
       no lo pierdas si recargas la página. Esa información no se envía a nuestros servidores hasta que envías la
-      solicitud, se borra al cerrar la pestaña y nunca incluye tu autorización: debes marcarla de nuevo en cada
-      sesión.
+      solicitud, se borra al cerrar la pestaña y nunca incluye tu autorización ni el archivo del RUT: debes marcar la
+      autorización y volver a adjuntar el archivo en cada sesión.
     </p>
 
     <h2 class={h2}>10. Cambios a esta política</h2>

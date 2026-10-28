@@ -1,20 +1,57 @@
 import { describe, expect, it } from "vitest";
-import { QuoteRequestSchema, type QuoteRequest } from "./quote.schema";
+import { nitCheckDigit } from "./fiscal";
+import { QuoteContactSchema, QuoteRequestSchema, RUT_MAX_BYTES, RutFileSchema } from "./quote.schema";
 import { buildWhatsappMessage, buildWhatsappUrl, MAX_MESSAGE_LENGTH } from "./whatsapp";
 
-const valid = (): QuoteRequest => ({
-  items: [{ category: "racks-comunicaciones", productSlug: "rack-cerrado-abatible", quantity: 2, widthMm: 600, heightMm: 2100, depthMm: 600 }],
+export const rutFixture = (kind: "pdf" | "jpeg" | "png" = "pdf", extra = 0) => {
+  const head = {
+    pdf: Buffer.from("%PDF-1.4\n"),
+    jpeg: Buffer.from([0xff, 0xd8, 0xff, 0xe0]),
+    png: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+  }[kind];
+  const bytes = Buffer.concat([head, Buffer.alloc(extra, 1)]);
+  return {
+    fileName: "RUT.pdf",
+    mimeType: { pdf: "application/pdf", jpeg: "image/jpeg", png: "image/png" }[kind],
+    sizeBytes: bytes.length,
+    contentBase64: bytes.toString("base64"),
+  };
+};
+
+const juridica = () => ({
+  personType: "juridica" as const,
+  fullName: "Ana Pérez",
+  businessName: "Ejemplo SAS",
+  taxId: "900.123.456",
+  taxIdCheckDigit: "8",
+  ciiuCode: "2599",
+  fiscalResponsibilities: ["responsable-iva" as const],
+  email: "ANA@Ejemplo.com",
+  phone: "+57 300 123 4567",
+  acceptsDataPolicy: true as const,
+});
+
+const valid = () => ({
+  items: [{ category: "racks-comunicaciones" as const, productSlug: "rack-cerrado-abatible", quantity: 2, widthMm: 600, heightMm: 2100, depthMm: 600 }],
   project: { city: "Medellín", notes: "Puerta con chapa & ventilación" },
-  contact: { fullName: "Ana Pérez", taxId: "900.123.456-7", email: "ANA@Ejemplo.com", phone: "+57 300 123 4567", acceptsDataPolicy: true },
+  contact: juridica(),
+});
+
+describe("nitCheckDigit", () => {
+  it("matches known NITs", () => {
+    expect(nitCheckDigit("800197268")).toBe("4"); // DIAN
+    expect(nitCheckDigit("900123456")).toBe("8");
+  });
 });
 
 describe("QuoteRequestSchema", () => {
-  it("accepts a valid request and normalizes email and phone", () => {
+  it("accepts a valid request and normalizes email, phone and NIT", () => {
     const r = QuoteRequestSchema.safeParse(valid());
     expect(r.success).toBe(true);
     if (r.success) {
       expect(r.data.contact.email).toBe("ana@ejemplo.com");
       expect(r.data.contact.phone).toBe("573001234567");
+      expect(r.data.contact.taxId).toBe("900123456");
     }
   });
 
@@ -26,22 +63,9 @@ describe("QuoteRequestSchema", () => {
     if (!r.success) expect(r.error.issues.map((i) => i.path.join("."))).toContain("contact.email");
   });
 
-  it("keeps only the digits of the NIT or cédula", () => {
-    const r = QuoteRequestSchema.safeParse(valid());
-    expect(r.success && r.data.contact.taxId).toBe("9001234567");
-  });
-
-  it.each([undefined, "", "   ", "12345", "abc", "1".repeat(16)])("rejects the NIT or cédula %j", (taxId) => {
-    const bad = valid() as unknown as { contact: Record<string, unknown> };
-    bad.contact.taxId = taxId;
-    const r = QuoteRequestSchema.safeParse(bad);
-    expect(r.success).toBe(false);
-    if (!r.success) expect(r.error.issues.map((i) => i.path.join("."))).toContain("contact.taxId");
-  });
-
   it("requires consent", () => {
-    const bad = valid();
-    (bad.contact as { acceptsDataPolicy: boolean }).acceptsDataPolicy = false;
+    const bad = valid() as unknown as { contact: Record<string, unknown> };
+    bad.contact.acceptsDataPolicy = false;
     expect(QuoteRequestSchema.safeParse(bad).success).toBe(false);
   });
 
@@ -57,9 +81,99 @@ describe("QuoteRequestSchema", () => {
   });
 });
 
+describe("QuoteContactSchema: person type and tax data", () => {
+  const issuePaths = (input: unknown) => {
+    const r = QuoteContactSchema.safeParse(input);
+    return r.success ? [] : r.error.issues.map((i) => i.path.join("."));
+  };
+
+  it("requires the person type", () => {
+    expect(issuePaths({ ...juridica(), personType: undefined })).toContain("personType");
+  });
+
+  it("legal entity needs business name and a correct verification digit", () => {
+    expect(issuePaths({ ...juridica(), businessName: "" })).toContain("businessName");
+    expect(issuePaths({ ...juridica(), taxIdCheckDigit: undefined })).toContain("taxIdCheckDigit");
+    expect(issuePaths({ ...juridica(), taxIdCheckDigit: "" })).toContain("taxIdCheckDigit");
+    expect(issuePaths({ ...juridica(), taxIdCheckDigit: "3" })).toContain("taxIdCheckDigit");
+    expect(issuePaths({ ...juridica(), taxIdCheckDigit: "12" })).toContain("taxIdCheckDigit");
+  });
+
+  it("natural person needs only name and cédula; legal-entity fields are dropped", () => {
+    const natural = { ...juridica(), personType: "natural", taxId: "1.020.304.050", businessName: "Ignorada SAS", taxIdCheckDigit: "9" };
+    const r = QuoteContactSchema.safeParse(natural);
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data.taxId).toBe("1020304050");
+      expect(r.data.businessName).toBeUndefined();
+      expect(r.data.taxIdCheckDigit).toBeUndefined();
+    }
+  });
+
+  it.each([undefined, "", "   ", "12345", "abc", "1".repeat(16)])("rejects the NIT or cédula %j", (taxId) => {
+    expect(issuePaths({ ...juridica(), taxId })).toContain("taxId");
+  });
+
+  it.each([undefined, "", "25", "25991", "abcd"])("rejects the CIIU code %j", (ciiuCode) => {
+    expect(issuePaths({ ...juridica(), ciiuCode })).toContain("ciiuCode");
+  });
+
+  it("requires at least one fiscal responsibility, and not both IVA statuses", () => {
+    expect(issuePaths({ ...juridica(), fiscalResponsibilities: [] })).toContain("fiscalResponsibilities");
+    expect(issuePaths({ ...juridica(), fiscalResponsibilities: undefined })).toContain("fiscalResponsibilities");
+    expect(issuePaths({ ...juridica(), fiscalResponsibilities: ["responsable-iva", "no-responsable-iva"] })).toContain("fiscalResponsibilities");
+    expect(issuePaths({ ...juridica(), fiscalResponsibilities: ["no-responsable-iva", "autorretenedor"] })).toEqual([]);
+    expect(issuePaths({ ...juridica(), fiscalResponsibilities: ["invalida"] })).not.toEqual([]);
+  });
+});
+
+describe("RutFileSchema", () => {
+  const paths = (input: unknown) => {
+    const r = RutFileSchema.safeParse(input);
+    return r.success ? [] : r.error.issues.map((i) => i.path.join("."));
+  };
+
+  it.each(["pdf", "jpeg", "png"] as const)("accepts a small %s", (kind) => {
+    expect(RutFileSchema.safeParse(rutFixture(kind)).success).toBe(true);
+  });
+
+  it("is optional in the request and travels with it when present", () => {
+    expect(QuoteRequestSchema.safeParse(valid()).success).toBe(true);
+    const r = QuoteRequestSchema.safeParse({ ...valid(), rutFile: rutFixture("pdf") });
+    expect(r.success && r.data.rutFile?.fileName).toBe("RUT.pdf");
+  });
+
+  it("accepts a file of exactly 5 MB and rejects one byte more", () => {
+    expect(RutFileSchema.safeParse(rutFixture("pdf", RUT_MAX_BYTES - 9)).success).toBe(true);
+    expect(paths(rutFixture("pdf", RUT_MAX_BYTES - 8))).not.toEqual([]);
+  });
+
+  it("rejects other formats", () => {
+    expect(paths({ ...rutFixture("pdf"), mimeType: "application/zip" })).toContain("mimeType");
+    expect(paths({ ...rutFixture("pdf"), mimeType: "text/html" })).toContain("mimeType");
+  });
+
+  it("rejects content that does not match the declared type", () => {
+    const png = rutFixture("png");
+    expect(paths({ ...png, mimeType: "application/pdf" })).toContain("mimeType");
+    expect(paths({ ...rutFixture("pdf"), contentBase64: Buffer.from("<script>alert(1)</script>").toString("base64"), sizeBytes: 25 })).toContain("mimeType");
+  });
+
+  it("rejects a size that does not match the content, empty and malformed content", () => {
+    expect(paths({ ...rutFixture("pdf"), sizeBytes: 3 })).toContain("sizeBytes");
+    expect(paths({ ...rutFixture("pdf"), contentBase64: "" })).toContain("contentBase64");
+    expect(paths({ ...rutFixture("pdf"), contentBase64: "no es base64!" })).toContain("contentBase64");
+  });
+
+  it("rejects path-like file names", () => {
+    expect(paths({ ...rutFixture("pdf"), fileName: "../etc/passwd" })).toContain("fileName");
+    expect(paths({ ...rutFixture("pdf"), fileName: "" })).toContain("fileName");
+  });
+});
+
 describe("WhatsApp link", () => {
-  it("encodes the text and keeps personal contact data out of it", () => {
-    const parsed = QuoteRequestSchema.parse(valid());
+  it("encodes the text and keeps contact and tax data out of it", () => {
+    const parsed = QuoteRequestSchema.parse({ ...valid(), rutFile: rutFixture("pdf") });
     const text = buildWhatsappMessage("COT-2026-ABC123", parsed);
     const url = buildWhatsappUrl("+57 XXX 300 000 000".replace(/X/g, "0"), text);
     expect(url.startsWith("https://wa.me/57")).toBe(true);
@@ -67,9 +181,9 @@ describe("WhatsApp link", () => {
     expect(decoded).toContain("COT-2026-ABC123");
     expect(decoded).toContain("Rack cerrado abatible x2");
     expect(decoded).toContain("Medellín");
-    expect(decoded).not.toContain("ana@ejemplo.com");
-    expect(decoded).not.toContain("573001234567");
-    expect(decoded).not.toContain("9001234567");
+    for (const secret of ["ana@ejemplo.com", "573001234567", "900123456", "2599", "responsable", "RUT", parsed.rutFile!.contentBase64]) {
+      expect(decoded).not.toContain(secret);
+    }
     expect(decoded.length).toBeLessThanOrEqual(MAX_MESSAGE_LENGTH);
   });
 

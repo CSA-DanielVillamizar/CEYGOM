@@ -8,7 +8,23 @@ import { postLead } from "./webhook";
 const validBody = {
   items: [{ category: "canaletas", quantity: 10, productSlug: "canaleta" }],
   project: { city: "Medellín" },
-  contact: { fullName: "Ana Pérez", taxId: "9001234567", email: "ana@ejemplo.com", phone: "3001234567", acceptsDataPolicy: true },
+  contact: {
+    personType: "juridica",
+    fullName: "Ana Pérez",
+    businessName: "Ejemplo SAS",
+    taxId: "900123456",
+    taxIdCheckDigit: "8",
+    ciiuCode: "2599",
+    fiscalResponsibilities: ["responsable-iva"],
+    email: "ana@ejemplo.com",
+    phone: "3001234567",
+    acceptsDataPolicy: true,
+  },
+};
+
+const rut = (extraBytes = 0) => {
+  const bytes = Buffer.concat([Buffer.from("%PDF-1.4\n"), Buffer.alloc(extraBytes, 1)]);
+  return { fileName: "RUT.pdf", mimeType: "application/pdf", sizeBytes: bytes.length, contentBase64: bytes.toString("base64") };
 };
 
 const baseEnv = { WHATSAPP_NUMBER: "573000000000", LEADS_WEBHOOK_URL: "https://hooks.example/lead" };
@@ -57,8 +73,56 @@ describe("POST /api/quote", () => {
     expect((missing.jsonBody as { issues: { path: string }[] }).issues.map((i) => i.path)).toContain("contact.taxId");
     expect(post).not.toHaveBeenCalled();
 
-    await call({ ...validBody, contact: { ...validBody.contact, taxId: "900.123.456-7" } }, { postLead: post });
-    expect(post.mock.calls[0]![1].request.contact.taxId).toBe("9001234567");
+    await call({ ...validBody, contact: { ...validBody.contact, taxId: "900.123.456" } }, { postLead: post });
+    expect(post.mock.calls[0]![1].request.contact.taxId).toBe("900123456");
+  });
+
+  it.each([
+    ["person type", { personType: undefined }, "contact.personType"],
+    ["business name of a legal entity", { businessName: "" }, "contact.businessName"],
+    ["NIT verification digit", { taxIdCheckDigit: "1" }, "contact.taxIdCheckDigit"],
+    ["CIIU code", { ciiuCode: "12" }, "contact.ciiuCode"],
+    ["fiscal responsibilities", { fiscalResponsibilities: [] }, "contact.fiscalResponsibilities"],
+  ])("400 for an invalid %s", async (_name, patch, path) => {
+    const post = vi.fn();
+    const res = await call({ ...validBody, contact: { ...validBody.contact, ...patch } }, { postLead: post });
+    expect(res.status).toBe(400);
+    expect((res.jsonBody as { issues: { path: string }[] }).issues.map((i) => i.path)).toContain(path);
+    expect(post).not.toHaveBeenCalled();
+  });
+
+  it("forwards the RUT file to the webhook but never puts it, or tax data, in the wa.me link or the logs", async () => {
+    const post = vi.fn().mockResolvedValue(undefined);
+    const file = rut(1000);
+    const logs: string[] = [];
+    const ctx = new InvocationContext();
+    for (const level of ["log", "error", "warn", "info"] as const) ctx[level] = ((...a: unknown[]) => void logs.push(a.join(" "))) as never;
+    const req = new HttpRequest({
+      method: "POST",
+      url: "http://localhost/api/quote",
+      headers: { "content-type": "application/json" },
+      body: { string: JSON.stringify({ ...validBody, rutFile: file }) },
+    });
+    const res = await handleQuote(req, ctx, { env: baseEnv, postLead: post, now: () => new Date("2026-03-01T00:00:00Z") });
+    expect(res.status).toBe(200);
+    expect(post.mock.calls[0]![1].request.rutFile).toEqual(file);
+    const url = decodeURIComponent((res.jsonBody as { whatsappUrl: string }).whatsappUrl);
+    for (const secret of [file.contentBase64, "900123456", "2599", "ana@ejemplo.com", "3001234567"]) {
+      expect(url).not.toContain(secret);
+      expect(logs.join("\n")).not.toContain(secret);
+    }
+    expect(logs.join("\n")).toContain("rut=attached");
+  });
+
+  it("accepts a 5 MB RUT and rejects a bigger or inconsistent one without calling the webhook", async () => {
+    const post = vi.fn().mockResolvedValue(undefined);
+    expect((await call({ ...validBody, rutFile: rut(5 * 1024 * 1024 - 9) }, { postLead: post })).status).toBe(200);
+
+    const tooBig = await call({ ...validBody, rutFile: rut(5 * 1024 * 1024) }, { postLead: post });
+    expect(tooBig.status).toBe(400);
+    const fake = { ...rut(), mimeType: "image/png" };
+    expect((await call({ ...validBody, rutFile: fake }, { postLead: post })).status).toBe(400);
+    expect(post).toHaveBeenCalledTimes(1);
   });
 
   it("400 when consent is missing", async () => {
