@@ -12,6 +12,7 @@ export const GET: APIRoute = () => {
     c: p.category,
     l: categoryLabel(p.category),
     r: PRODUCT_DETAILS[p.slug]!.references.map((r) => [r.code, r.text] as [string, string]),
+    ...(PRODUCT_DETAILS[p.slug]!.finishes.length ? { f: PRODUCT_DETAILS[p.slug]!.finishes } : {}),
   }));
   return new Response(JSON.stringify(index), { headers: { "content-type": "application/json; charset=utf-8" } });
 };

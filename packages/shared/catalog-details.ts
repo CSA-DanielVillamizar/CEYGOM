@@ -13,6 +13,14 @@ export interface ProductImage {
 export interface ProductDetail {
   ficha: { path: string; code: string | null; sizeKb: number } | null;
   references: { code: string; text: string }[];
+  /** Material as stated in the sheet (for example "Láminas de acero frío (cold-rolled) calibres 20 y 18"). */
+  material?: string;
+  /** Finishes the sheet says the product is offered in. */
+  finishes: ("galvanizado" | "pintura-electrostatica")[];
+  /** Color codes (the last two digits of each reference) and their names, from the sheet. */
+  colors: { code: string; name: string }[];
+  /** Dimension columns and, per reference code, one value per column. Only when the sheet table is read with certainty. */
+  specs?: { columns: string[]; rows: Record<string, string[]> };
   images: ProductImage[];
   pending: string[];
 }
@@ -78,6 +86,155 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Bandeja porta cables 40*8 reforzada"
       }
     ],
+    "material": "Perfiles construidos en acero frío (cold-rolled) calibres 20 y 18",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
+    "specs": {
+      "columns": [
+        "Altura total (mm)",
+        "Ancho (mm)",
+        "Longitud (mm)",
+        "Altura (mm)",
+        "Capacidad de carga (kg/m)"
+      ],
+      "rows": {
+        "BP0101": [
+          "55",
+          "50",
+          "2400",
+          "42",
+          "74"
+        ],
+        "BP0201": [
+          "55",
+          "100",
+          "2400",
+          "42",
+          "74"
+        ],
+        "BP0301": [
+          "55",
+          "150",
+          "2400",
+          "42",
+          "74"
+        ],
+        "BP0401": [
+          "55",
+          "200",
+          "2400",
+          "42",
+          "74"
+        ],
+        "BP0501": [
+          "55",
+          "300",
+          "2400",
+          "42",
+          "74"
+        ],
+        "BP0601": [
+          "85",
+          "100",
+          "2400",
+          "72",
+          "74"
+        ],
+        "BP0701": [
+          "85",
+          "200",
+          "2400",
+          "72",
+          "74"
+        ],
+        "BP0801": [
+          "85",
+          "300",
+          "2400",
+          "72",
+          "74"
+        ],
+        "BP0901": [
+          "85",
+          "400",
+          "2400",
+          "72",
+          "74"
+        ],
+        "BP1001": [
+          "85",
+          "100",
+          "2400",
+          "72",
+          "149"
+        ],
+        "BP1101": [
+          "85",
+          "200",
+          "2400",
+          "72",
+          "149"
+        ],
+        "BP1201": [
+          "85",
+          "300",
+          "2400",
+          "72",
+          "149"
+        ],
+        "BP1301": [
+          "85",
+          "400",
+          "2400",
+          "72",
+          "149"
+        ]
+      }
+    },
     "images": [
       {
         "file": "bandeja-ranurada40cm",
@@ -150,6 +307,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Cruz 40*8 reforzada"
       }
     ],
+    "material": "Acero frío (cold-rolled) calibres 20 y 18",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "ral"
+      }
+    ],
     "images": [
       {
         "file": "bandeja-ranurada40cm",
@@ -158,6 +362,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -169,6 +374,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       "sizeKb": 63
     },
     "references": [],
+    "material": "Acero frío (cold-rolled) calibres 20 y 18",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "ral"
+      }
+    ],
     "images": [
       {
         "file": "bandeja-ranurada40cm",
@@ -177,6 +429,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (consultar la ficha)",
       "Tabla de referencias (la ficha no se puede leer como texto; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
@@ -242,6 +495,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Curva horizontal 90º 40*8 reforzada"
       }
     ],
+    "material": "Acero frío (cold-rolled) calibres 20 y 18",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "ral"
+      }
+    ],
     "images": [
       {
         "file": "bandeja-ranurada40cm",
@@ -250,6 +550,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -314,6 +615,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Curva vertical exterior 40*8 reforzada"
       }
     ],
+    "material": "Acero frío (cold-rolled) calibres 20 y 18",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "ral"
+      }
+    ],
     "images": [
       {
         "file": "bandeja-ranurada40cm",
@@ -322,6 +670,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -386,6 +735,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Curva vertical interior 40*8 reforzada"
       }
     ],
+    "material": "Acero frío (cold-rolled) calibres 20 y 18",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "ral"
+      }
+    ],
     "images": [
       {
         "file": "bandeja-ranurada40cm",
@@ -394,6 +790,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -405,6 +802,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       "sizeKb": 65
     },
     "references": [],
+    "material": "Acero frío (cold-rolled) calibres 20 y 18",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "ral"
+      }
+    ],
     "images": [
       {
         "file": "bandeja-ranurada40cm",
@@ -413,6 +857,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (consultar la ficha)",
       "Tabla de referencias (la ficha no se puede leer como texto; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
@@ -425,6 +870,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       "sizeKb": 65
     },
     "references": [],
+    "material": "Acero frío (cold-rolled) calibres 20 y 18",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "ral"
+      }
+    ],
     "images": [
       {
         "file": "bandeja-ranurada40cm",
@@ -433,6 +925,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (consultar la ficha)",
       "Tabla de referencias (la ficha no se puede leer como texto; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
@@ -498,6 +991,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Te 40*8 reforzada"
       }
     ],
+    "material": "Acero frío (cold-rolled) calibres 20 y 18",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "ral"
+      }
+    ],
     "images": [
       {
         "file": "bandeja-ranurada40cm",
@@ -506,6 +1046,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -614,6 +1155,207 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Canaleta 24*8 tipo bic"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 22 y 20",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
+    "specs": {
+      "columns": [
+        "Ancho (A) (mm)",
+        "Alto (H) (mm)",
+        "Longitud (L) (mm)",
+        "Calibre"
+      ],
+      "rows": {
+        "CN0101": [
+          "40",
+          "20",
+          "2400",
+          "22"
+        ],
+        "CN0201": [
+          "40",
+          "40",
+          "2400",
+          "22"
+        ],
+        "CN0301": [
+          "60",
+          "40",
+          "2400",
+          "22"
+        ],
+        "CN0401": [
+          "80",
+          "40",
+          "2400",
+          "22"
+        ],
+        "CN0501": [
+          "90",
+          "40",
+          "2400",
+          "22"
+        ],
+        "CN0601": [
+          "100",
+          "40",
+          "2400",
+          "22"
+        ],
+        "CN0701": [
+          "110",
+          "40",
+          "2400",
+          "22"
+        ],
+        "CN0801": [
+          "100",
+          "50",
+          "2400",
+          "22"
+        ],
+        "CN0901": [
+          "110",
+          "50",
+          "2400",
+          "22"
+        ],
+        "CN1001": [
+          "110",
+          "40",
+          "2400",
+          "22"
+        ],
+        "CN1101": [
+          "120",
+          "40",
+          "2400",
+          "22"
+        ],
+        "CN1201": [
+          "110",
+          "50",
+          "2400",
+          "22"
+        ],
+        "CN1301": [
+          "120",
+          "50",
+          "2400",
+          "22"
+        ],
+        "CN1401": [
+          "120",
+          "40",
+          "2400",
+          "22"
+        ],
+        "CN1501": [
+          "130",
+          "40",
+          "2400",
+          "22"
+        ],
+        "CN1601": [
+          "120",
+          "50",
+          "2400",
+          "22"
+        ],
+        "CN1701": [
+          "130",
+          "50",
+          "2400",
+          "22"
+        ],
+        "CN1801": [
+          "100",
+          "80",
+          "2400",
+          "20"
+        ],
+        "CN1901": [
+          "100",
+          "100",
+          "2400",
+          "20"
+        ],
+        "CN2001": [
+          "200",
+          "80",
+          "2400",
+          "20"
+        ],
+        "CN2101": [
+          "200",
+          "100",
+          "2400",
+          "20"
+        ],
+        "CN2201": [
+          "300",
+          "80",
+          "2400",
+          "20"
+        ],
+        "CN2301": [
+          "300",
+          "100",
+          "2400",
+          "20"
+        ],
+        "CN2401": [
+          "240",
+          "80",
+          "2400",
+          "20"
+        ]
+      }
+    },
     "images": [
       {
         "file": "canaleta-metalica",
@@ -694,6 +1436,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Curva horizontal exterior 12*5 presión"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 22 y 20",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "canaleta-metalica2",
@@ -702,6 +1491,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -770,6 +1560,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Curva horizontal interior 12*5 presión"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 22 y 20",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "canaleta-metalica2",
@@ -778,6 +1615,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -789,6 +1627,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       "sizeKb": 50
     },
     "references": [],
+    "material": "Láminas de acero frío (cold-rolled) calibres 22 y 20",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "canaleta-metalica2",
@@ -797,6 +1682,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (consultar la ficha)",
       "Tabla de referencias (la ficha no se puede leer como texto; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
@@ -866,6 +1752,132 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Curva vertical 12*5 presión"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 22 y 20",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
+    "specs": {
+      "columns": [
+        "Ancho (A) (mm)",
+        "Alto (H) (mm)",
+        "Calibre"
+      ],
+      "rows": {
+        "AN0101": [
+          "80",
+          "40",
+          "22"
+        ],
+        "AN0201": [
+          "80",
+          "40",
+          "22"
+        ],
+        "AN0301": [
+          "100",
+          "40",
+          "22"
+        ],
+        "AN0401": [
+          "100",
+          "40",
+          "22"
+        ],
+        "AN0501": [
+          "100",
+          "50",
+          "22"
+        ],
+        "AN0601": [
+          "100",
+          "50",
+          "22"
+        ],
+        "AN0701": [
+          "110",
+          "40",
+          "22"
+        ],
+        "AN0801": [
+          "110",
+          "40",
+          "22"
+        ],
+        "AN0901": [
+          "110",
+          "50",
+          "22"
+        ],
+        "AN1001": [
+          "110",
+          "50",
+          "22"
+        ],
+        "AN1101": [
+          "120",
+          "40",
+          "22"
+        ],
+        "AN1201": [
+          "120",
+          "40",
+          "22"
+        ],
+        "AN1301": [
+          "120",
+          "50",
+          "22"
+        ],
+        "AN1401": [
+          "120",
+          "50",
+          "22"
+        ]
+      }
+    },
     "images": [
       {
         "file": "canaleta-metalica2",
@@ -914,6 +1926,97 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Curva horizontal 24*8 tipo bic"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 22 y 20",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
+    "specs": {
+      "columns": [
+        "Ancho (A) (mm)",
+        "Alto (H) (mm)",
+        "Calibre"
+      ],
+      "rows": {
+        "AN1501": [
+          "100",
+          "80",
+          "20"
+        ],
+        "AN1601": [
+          "100",
+          "100",
+          "20"
+        ],
+        "AN1701": [
+          "200",
+          "80",
+          "20"
+        ],
+        "AN1801": [
+          "200",
+          "100",
+          "20"
+        ],
+        "AN1901": [
+          "300",
+          "80",
+          "20"
+        ],
+        "AN2001": [
+          "300",
+          "100",
+          "20"
+        ],
+        "AN2101": [
+          "240",
+          "80",
+          "20"
+        ]
+      }
+    },
     "images": [
       {
         "file": "canaleta-metalica2",
@@ -962,6 +2065,97 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Curva vertical exterior 24*8 tipo bic"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 22 y 20",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
+    "specs": {
+      "columns": [
+        "Ancho (A) (mm)",
+        "Alto (H) (mm)",
+        "Calibre"
+      ],
+      "rows": {
+        "AN5701": [
+          "100",
+          "80",
+          "20"
+        ],
+        "AN5801": [
+          "100",
+          "100",
+          "20"
+        ],
+        "AN5901": [
+          "200",
+          "80",
+          "20"
+        ],
+        "AN6001": [
+          "200",
+          "100",
+          "20"
+        ],
+        "AN6101": [
+          "300",
+          "80",
+          "20"
+        ],
+        "AN6201": [
+          "300",
+          "100",
+          "20"
+        ],
+        "AN6301": [
+          "240",
+          "80",
+          "20"
+        ]
+      }
+    },
     "images": [
       {
         "file": "canaleta-metalica2",
@@ -1010,6 +2204,97 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Curva vertical interior 24*8 tipo bic"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 22 y 20",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
+    "specs": {
+      "columns": [
+        "Ancho (A) (mm)",
+        "Alto (H) (mm)",
+        "Calibre"
+      ],
+      "rows": {
+        "AN3601": [
+          "100",
+          "80",
+          "20"
+        ],
+        "AN3701": [
+          "100",
+          "100",
+          "20"
+        ],
+        "AN3801": [
+          "200",
+          "80",
+          "20"
+        ],
+        "AN3901": [
+          "200",
+          "100",
+          "20"
+        ],
+        "AN4001": [
+          "300",
+          "80",
+          "20"
+        ],
+        "AN4101": [
+          "300",
+          "100",
+          "20"
+        ],
+        "AN4201": [
+          "240",
+          "80",
+          "20"
+        ]
+      }
+    },
     "images": [
       {
         "file": "canaleta-metalica2",
@@ -1126,6 +2411,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Troquel realzado doble datos 12 cm presión"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 22 (equivale a 0.75 mm)",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "canaleta-metalica2",
@@ -1134,6 +2466,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -1242,6 +2575,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Troquel doble datos 12 cm presión"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 22 (equivale a 0.75 mm)",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "canaleta-metalica2",
@@ -1250,6 +2630,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -1326,6 +2707,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Troquel sencillo datos 12 cm presión"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 22 (equivale a 0.75 mm)",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "canaleta-metalica2",
@@ -1334,6 +2762,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -1410,6 +2839,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Troquel realzado sencillo datos 12 cm presión"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 22 (equivale a 0.75 mm)",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "canaleta-metalica2",
@@ -1418,6 +2894,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -1462,6 +2939,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Troquel realzadas triple 12 cm presión"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 22 (equivale a 0.75 mm)",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "canaleta-metalica2",
@@ -1470,6 +2994,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -1514,6 +3039,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Troquel triple 12 cm presión"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 22 (equivale a 0.75 mm)",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "canaleta-metalica2",
@@ -1522,6 +3094,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -1590,6 +3163,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "TE 12*5 presión"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 22 y 20",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "canaleta-metalica2",
@@ -1598,6 +3218,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -1638,6 +3259,97 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "TE 24*8 tipo bic"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 22 y 20",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
+    "specs": {
+      "columns": [
+        "Ancho (A) (mm)",
+        "Alto (H) (mm)",
+        "Calibre"
+      ],
+      "rows": {
+        "AN7701": [
+          "100",
+          "80",
+          "20"
+        ],
+        "AN7801": [
+          "100",
+          "100",
+          "20"
+        ],
+        "AN7901": [
+          "200",
+          "80",
+          "20"
+        ],
+        "AN8001": [
+          "200",
+          "100",
+          "20"
+        ],
+        "AN8101": [
+          "300",
+          "80",
+          "20"
+        ],
+        "AN8201": [
+          "300",
+          "100",
+          "20"
+        ],
+        "AN8301": [
+          "240",
+          "80",
+          "20"
+        ]
+      }
+    },
     "images": [
       {
         "file": "canaleta-metalica2",
@@ -1682,6 +3394,52 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Bandeja de 40 cm 4 parales 19”"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 18 (equivale a 1.21 mm)",
+    "finishes": [
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "bandeja19pulg",
@@ -1705,6 +3463,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (consultar la ficha)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
   },
@@ -1728,6 +3487,52 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Multitoma 5 salidas dobles 19”"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 18 (equivale a 1.21 mm)",
+    "finishes": [
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "multitoma-normal",
@@ -1736,6 +3541,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (consultar la ficha)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
   },
@@ -1751,6 +3557,52 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Multitoma 5 salidas dobles 19”"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 18 (equivale a 1.21 mm)",
+    "finishes": [
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "multitoma-normal",
@@ -1759,6 +3611,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (consultar la ficha)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -1775,6 +3628,8 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Multitoma 5 salidas dobles 19”"
       }
     ],
+    "finishes": [],
+    "colors": [],
     "images": [
       {
         "file": "multitoma-normal",
@@ -1783,6 +3638,8 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (consultar la ficha)",
+      "Material y acabado (la ficha no se puede leer como texto)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -1790,6 +3647,8 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
   "multitoma-grado-hospitalario": {
     "ficha": null,
     "references": [],
+    "finishes": [],
+    "colors": [],
     "images": [
       {
         "file": "multitoma-grado-hospitalario",
@@ -1814,6 +3673,52 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Organizador trasero tipo varilla 19”"
       }
     ],
+    "material": "Varillas de acero calibres 5/16 (equivale a 6 mm)",
+    "finishes": [
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "organizador-cable-tipo-varilla",
@@ -1822,6 +3727,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (consultar la ficha)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
   },
@@ -1857,6 +3763,52 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Rack cerrado abatible 70 cm"
       }
     ],
+    "material": "Acero frío (cold-rolled) calibres 20 (0.90mm) y 18 (1.21mm)",
+    "finishes": [
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "ral"
+      }
+    ],
     "images": [
       {
         "file": "sdc10280",
@@ -1865,6 +3817,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Confirmar que la foto corresponde al producto",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -1901,6 +3854,52 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Rack cerrado de 1 cuerpo 70 cm"
       }
     ],
+    "material": "Acero frío (cold-rolled) calibres 20 (0.90mm) y 18 (1.21mm)",
+    "finishes": [
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "ral"
+      }
+    ],
     "images": [
       {
         "file": "rack-pared-economico",
@@ -1909,6 +3908,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Confirmar que la foto corresponde al producto",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -1937,6 +3937,52 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Rack de piso 210cm"
       }
     ],
+    "material": "Acero frío (cold-rolled) calibre 18 (1.21mm)",
+    "finishes": [
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "ral"
+      }
+    ],
     "images": [
       {
         "file": "rack-piso-cerrado",
@@ -1960,12 +4006,15 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
   },
   "rack-abierto-de-pared": {
     "ficha": null,
     "references": [],
+    "finishes": [],
+    "colors": [],
     "images": [
       {
         "file": "sdc10271",
@@ -2003,6 +4052,52 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Patch Panels 32pts 19”"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 18 (equivale a 1.21 mm)",
+    "finishes": [
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "patch-panel-24-puntos",
@@ -2016,12 +4111,15 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (consultar la ficha)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
   },
   "bandeja-fibra-optica": {
     "ficha": null,
     "references": [],
+    "finishes": [],
+    "colors": [],
     "images": [
       {
         "file": "bandeja-fibra",
@@ -2051,6 +4149,66 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Celda para seccionador"
       }
     ],
+    "material": "Acero frío (cold-rolled) calibre 18 (1.21mm)",
+    "finishes": [
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
+    "specs": {
+      "columns": [
+        "Alto (mm)",
+        "Ancho (mm)",
+        "Fondo (mm)"
+      ],
+      "rows": {
+        "TE2501": [
+          "220",
+          "120",
+          "110"
+        ]
+      }
+    },
     "images": [
       {
         "file": "gabinete-equipos-medida",
@@ -2075,6 +4233,52 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Celda para transformadores Según especificaciones del transformador"
       }
     ],
+    "material": "Acero frío (cold-rolled) calibre 18 (1.21mm)",
+    "finishes": [
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "gabinete-equipos-medida",
@@ -2083,6 +4287,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (consultar la ficha)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -2099,6 +4304,52 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Equipo de medida protección, las dimensiones son establecidas"
       }
     ],
+    "material": "Acero frío (cold-rolled) calibre 18 (1.21mm)",
+    "finishes": [
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "gabinete-equipos-medida",
@@ -2107,6 +4358,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (consultar la ficha)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
   },
@@ -2186,6 +4438,52 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Celdas especiales"
       }
     ],
+    "material": "Acero frío (cold-rolled) calibre 18 (1.21mm)",
+    "finishes": [
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "ral"
+      }
+    ],
     "images": [
       {
         "file": "gabinete-8-medidores",
@@ -2199,6 +4497,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (consultar la ficha)",
       "Confirmar que la foto corresponde al producto",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -2247,6 +4546,101 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Especiales Según las especificaciones del cliente."
       }
     ],
+    "material": "Acero frío (cold-rolled) calibre 18 (1.21mm)",
+    "finishes": [
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
+    "specs": {
+      "columns": [
+        "Alto (mm)",
+        "Ancho (mm)",
+        "Fondo (mm)"
+      ],
+      "rows": {
+        "TE0101": [
+          "500",
+          "700",
+          "250"
+        ],
+        "TE0201": [
+          "600",
+          "700",
+          "250"
+        ],
+        "TE0301": [
+          "700",
+          "700",
+          "250"
+        ],
+        "TE0401": [
+          "800",
+          "800",
+          "250"
+        ],
+        "TE0501": [
+          "900",
+          "800",
+          "250"
+        ],
+        "TE0601": [
+          "1000",
+          "800",
+          "250"
+        ],
+        "TE0701": [
+          "1100",
+          "800",
+          "250"
+        ],
+        "TE0801": [
+          "1200",
+          "800",
+          "250"
+        ]
+      }
+    },
     "images": [
       {
         "file": "gabinete-equipos-medida",
@@ -2262,6 +4656,8 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
   "gabinete-de-gas": {
     "ficha": null,
     "references": [],
+    "finishes": [],
+    "colors": [],
     "images": [
       {
         "file": "gabinete-de-gas",
@@ -2277,6 +4673,8 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
   "gabinete-de-incendio": {
     "ficha": null,
     "references": [],
+    "finishes": [],
+    "colors": [],
     "images": [
       {
         "file": "gabinete-de-incendio",
@@ -2325,6 +4723,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Soporte aéreo 30*8"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 20 y 18",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "bandeja-ranurada30cm",
@@ -2333,6 +4778,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -2361,6 +4807,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Soporte peldaño 40 cm"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 20 y 18",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "bandeja-ranurada30cm",
@@ -2369,6 +4862,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -2409,6 +4903,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Soporte plancha de 30*8"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 20 y 18",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "bandeja-ranurada30cm",
@@ -2417,6 +4958,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -2445,6 +4987,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Soporte repisa 40 cm"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 20 y 18",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "bandeja-ranurada30cm",
@@ -2453,6 +5042,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]
@@ -2481,6 +5071,53 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         "text": "Soporte universal de 40 cm"
       }
     ],
+    "material": "Láminas de acero frío (cold-rolled) calibres 20 y 18",
+    "finishes": [
+      "galvanizado",
+      "pintura-electrostatica"
+    ],
+    "colors": [
+      {
+        "code": "01",
+        "name": "Blanco"
+      },
+      {
+        "code": "02",
+        "name": "Negro"
+      },
+      {
+        "code": "03",
+        "name": "Almendra"
+      },
+      {
+        "code": "04",
+        "name": "Gris"
+      },
+      {
+        "code": "05",
+        "name": "Aluminio"
+      },
+      {
+        "code": "06",
+        "name": "Grafito"
+      },
+      {
+        "code": "07",
+        "name": "Azul"
+      },
+      {
+        "code": "08",
+        "name": "Rojo"
+      },
+      {
+        "code": "09",
+        "name": "Amarillo"
+      },
+      {
+        "code": "10",
+        "name": "Ral"
+      }
+    ],
     "images": [
       {
         "file": "bandeja-ranurada30cm",
@@ -2489,6 +5126,7 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
       }
     ],
     "pending": [
+      "Medidas por referencia (la tabla de la ficha no se puede leer con certeza; consultar el PDF)",
       "Foto real del producto (la actual es ilustrativa)",
       "Descripción comercial y especificaciones aprobadas por la empresa"
     ]

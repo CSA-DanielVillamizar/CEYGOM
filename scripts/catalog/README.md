@@ -6,6 +6,7 @@ El catálogo se genera desde un manifiesto editable, con las fichas técnicas y 
 |---|---|
 | `manifest.json` | Fuente editable: productos, categoría, ficha de origen, fotos (`illustrative` si la foto no es del producto exacto, `confirm` si hay que confirmarla con la empresa) |
 | `download-source.mjs` | Descarga fichas y fotos de `productos.html` a una carpeta nueva y vacía, validando tipo y tamaño |
+| `sheet-specs.mjs` | Lee de cada ficha el material, los acabados, la tabla de colores y las columnas de medidas (`sheet-specs.test.mjs` lo prueba). Solo publica medidas cuando la tabla cubre al menos el 80 % de las referencias; si no, queda como pendiente y manda el PDF |
 | `import-catalog.mjs` | Copia las fichas a `public/fichas/`, optimiza las fotos a WebP en `src/assets/productos/`, lee las referencias de cada ficha y genera `packages/shared/catalog-index.ts`, `catalog-details.ts` y `docs/catalogo/pendientes.md` |
 
 ## Cuando la empresa entregue cambios

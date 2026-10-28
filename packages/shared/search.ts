@@ -13,7 +13,14 @@ export interface SearchEntry {
   l: string;
   /** References [code, description]. */
   r: [string, string][];
+  /** Finishes the data sheet says the product comes in (see FINISH_LABELS). */
+  f?: string[];
 }
+
+export const FINISH_LABELS: Record<string, string> = {
+  galvanizado: "Galvanizado",
+  "pintura-electrostatica": "Pintura electrostática en polvo",
+};
 
 export interface ReferenceHit {
   code: string;
@@ -43,9 +50,9 @@ const terms = (query: string): string[] => fold(query).split(/[^a-z0-9"*°]+/).f
  * Every term must appear in the product (name, category or any of its references) for it to match. References
  * are listed separately when a term looks like part of a code or of a description. Exact reference codes rank first.
  */
-export function search(index: readonly SearchEntry[], query: string, category = ""): SearchResult {
+export function search(index: readonly SearchEntry[], query: string, category = "", finish = ""): SearchResult {
   const words = terms(query);
-  const pool = category ? index.filter((e) => e.c === category) : [...index];
+  const pool = index.filter((e) => (!category || e.c === category) && (!finish || e.f?.includes(finish)));
   if (words.length === 0) return { products: pool, references: [] };
 
   const scored: { entry: SearchEntry; score: number }[] = [];

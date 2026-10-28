@@ -23,6 +23,10 @@ El catálogo actual de la empresa son 44 fichas técnicas en PDF (versiones de 2
 - La foto solo se ofrece a buscadores y redes (`og:image`, JSON-LD) cuando es del producto exacto.
 - El peso se controla en el CI con `npm run budget` (sitio, número de archivos, archivo más grande y JavaScript del cotizador).
 
+## Actualización (2026-10-28): datos técnicos de las fichas
+
+El importador también lee de cada ficha el material, los acabados, la tabla de colores y, cuando la tabla se alinea con certeza, las medidas por referencia (`scripts/catalog/sheet-specs.mjs`). Las medidas solo se publican si cubren al menos el 80 % de las referencias del producto; el resto queda en `docs/catalogo/pendientes.md` y manda el PDF. Nada se completa por estimación.
+
 ## Consecuencias
 
 - Positivas: 49 URLs indexables, contenido revisable por la empresa, 7 MB en total (frente al límite de 250 MB), el cotizador sigue en 90 KB de JavaScript y la regeneración es reproducible.
