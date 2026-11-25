@@ -39,7 +39,7 @@ const description =
 
 // The photo is only offered for sharing and structured data when it really shows this product.
 const real = d.images.find((i) => !i.illustrative);
-const shareImage = real ? new URL((await getImage({ src: productImage(real.file), width: 1200, format: "webp" })).src, siteUrl).toString() : undefined;
+const shareImage = real ? new URL((await getImage({ src: productImage(real.file), width: 1200, format: "jpg", quality: 85 })).src, siteUrl).toString() : undefined;
 
 const related = PRODUCTS.filter((p) => p.category === product.category && p.slug !== product.slug && PRODUCT_DETAILS[p.slug]).slice(0, 4);
 
