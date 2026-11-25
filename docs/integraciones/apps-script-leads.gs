@@ -247,7 +247,7 @@ function acknowledge_(lead, rutSaved) {
     var font = 'font-family:Arial,Helvetica,sans-serif;color:#16191D;';
     var htmlBody =
       '<div style="' + font + 'max-width:560px;font-size:15px;line-height:1.5">' +
-      (site ? '<img src="' + esc_(site) + '/brand/ceygom-horizontal.png" width="150" alt="CEYGOM Electro Metálicas" style="display:block;border:0">' : '<strong>CEYGOM Electro Metálicas</strong>') +
+      (site ? '<img src="' + esc_(site) + '/brand/logo-horizontal.png" width="150" alt="CEYGOM Electro Metálicas" style="display:block;border:0">' : '<strong>CEYGOM Electro Metálicas</strong>') +
       '<div style="border-top:2px solid #C8202A;margin:14px 0"></div>' +
       '<p>Hola ' + esc_(c.fullName) + ',</p>' +
       '<p>Recibimos su solicitud de cotización. Su referencia es <strong style="font-family:Consolas,Courier New,monospace;color:#C8202A">' + esc_(lead.reference) + '</strong>: guárdela para cualquier consulta.</p>' +

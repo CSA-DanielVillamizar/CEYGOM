@@ -3,10 +3,10 @@
 Surgieron al aplicar la identidad v1. Donde no había indicación se tomó la opción más sobria, anotada aquí.
 
 1. **PDF de "Mi cotización": número de referencia arriba a la derecha.** El manual (07.2) lo pide, pero la lista aún no tiene número: la referencia (COT-AAAA-XXXXXX) nace al enviar la solicitud. Se puso el rótulo "LISTA DE REQUERIMIENTOS" y la fecha, en Plex Mono roja. ¿Se prefiere mostrar el número solo en el correo y en la pantalla de éxito?
-2. **Fotos sobre gris RAL plano.** Las fotos de producto actuales traen un fondo de remolinos grises. Sin recortarlas (no tenemos los originales) solo se logra un gris plano con `multiply`, y los remolinos siguen asomando. ¿Hay originales sin fondo o con fondo blanco?
-3. **Imagen para compartir.** Se compuso con el logo A, la frase "Lo ve en 3D antes de que lo fabriquemos." y dos fotos, con el titular en Arial. ¿Hay una pieza diseñada en Archivo?
-4. **Tarjetas de línea con chaflán.** El borde de 1 px no sigue la diagonal (el recorte lo corta). Se aceptó así por sobriedad; la alternativa es un borde de 2 px dibujado con SVG.
-5. **Peso de Archivo con eje de ancho.** El archivo variable cuesta 90 KB; las tres familias suman 192 KB. Si el rendimiento en 3G preocupa, se puede usar Archivo en un ancho fijo (35 KB) y quitar Plex Mono 500.
+2. **Fotos.** *Resuelto de forma provisional:* las fotos van sobre tarjeta blanca plana; los remolinos grises siguen dentro de la foto. ¿Hay originales sin fondo o con fondo blanco?
+3. **Imagen para compartir.** Se compuso con el logo A, la frase y dos fotos, con el titular en Arial. El archivo `og/og-ceygom-a.png` de `entrega-equipo-web.zip` no llegó al equipo de desarrollo: ¿se puede reenviar?
+4. **Tarjetas de línea con chaflán.** *Resuelto:* borde de dos capas que sigue la diagonal. El archivo `respuestas-preguntas-rebrand.md` con el CSS exacto tampoco llegó; se implementó la técnica equivalente. ¿Coincide con lo esperado?
+5. **Archivo.** *Resuelto:* dos instancias estáticas al ancho 118 (700 y 800), 15 KB cada una, generadas del mismo Archivo (OFL) porque `archivo-118-700.woff2` y `archivo-118-800.woff2` de la entrega no llegaron. Las fuentes suman 120 KB. Si se prefieren los archivos del equipo de marca, se reemplazan con los mismos nombres en `src/assets/fonts/`.
 6. **Teléfono (604).** Se cambió en el sitio, los correos, los datos estructurados y el enlace `tel:`. El correo de confirmación ya publicado en producción sigue con el texto anterior hasta volver a implementar el script.
 7. **Política de datos con trato de usted.** El texto legal pasó de "tú" a "usted"; el contenido no cambió, pero conviene que quien revise la política lo vea con el cambio.
 8. **Logo B (EMC modernizado).** Si el cliente lo elige, ¿se mantiene el descriptor "Electro Metálicas" y el favicon del kit B (`favicon-emc.svg`)?
