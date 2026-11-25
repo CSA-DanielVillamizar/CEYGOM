@@ -29,10 +29,10 @@ const lead =
   refs.length > 0
     ? `${refs.length} referencia${refs.length === 1 ? "" : "s"} (${refs[0]!.code}${refs.length > 1 ? ` a ${refs.at(-1)!.code}` : ""})${d.ficha ? " y ficha técnica en PDF" : ""}.`
     : d.ficha
-      ? "Consulta las referencias, medidas y acabados en la ficha técnica en PDF."
-      : "Ficha técnica en preparación. Solicita la información de este producto con un asesor.";
+      ? "Consulte las referencias, medidas y acabados en la ficha técnica en PDF."
+      : "Ficha técnica en preparación. Solicite la información de este producto con un asesor.";
 // Search engines cut the description around 160 characters: drop the closing sentence, then trim.
-const fullDescription = `${product.name} (${category}) de ${brand}: ${lead} Cotízalo en línea.`;
+const fullDescription = `${product.name} (${category}) de ${brand}: ${lead} Cotícelo en línea.`;
 const shortDescription = `${product.name} (${category}) de ${brand}: ${lead}`;
 const description =
   fullDescription.length <= 160 ? fullDescription : shortDescription.length <= 160 ? shortDescription : `${shortDescription.slice(0, 157).trimEnd()}...`;
@@ -86,8 +86,9 @@ const illustrative = d.images.every((i) => i.illustrative);
       <div>
         <ul class={`grid gap-3 ${d.images.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
           {d.images.map((image) => (
-            <li class="overflow-hidden rounded-lg border border-steel-200 bg-steel-50">
+            <li class="foto-tarjeta relative overflow-hidden rounded-sm border border-steel-200">
               <Image src={productImage(image.file)} alt={image.illustrative ? `${product.name} (imagen ilustrativa)` : product.name} width={d.images.length > 1 ? 360 : 520} class="mx-auto h-auto w-full object-contain" loading="eager" />
+              {image.illustrative && <span class="absolute left-2 top-2 font-mono text-[11px] text-steel-600">Imagen ilustrativa</span>}
             </li>
           ))}
         </ul>
@@ -96,26 +97,26 @@ const illustrative = d.images.every((i) => i.illustrative);
 
       <div>
         <div class="flex flex-wrap gap-3">
-          <button type="button" data-cart-add data-slug={product.slug} data-name={product.name} data-cat={product.category} class="rounded bg-brand-600 px-6 py-3 font-semibold text-white hover:bg-brand-700">Agregar a mi cotización</button>
-          <a href={`/cotizador/?producto=${product.slug}`} class="rounded border border-steel-200 bg-white px-6 py-3 font-semibold hover:border-brand-600">Cotizar solo este producto</a>
+          <button type="button" data-cart-add data-slug={product.slug} data-name={product.name} data-cat={product.category} class="chaflan bg-brand-600 px-6 py-3 font-semibold text-white hover:bg-brand-700">Agregar a mi cotización</button>
+          <a href={`/cotizador/?producto=${product.slug}`} class="rounded-sm border border-steel-200 bg-white px-6 py-3 font-semibold hover:border-brand-600">Cotizar solo este producto</a>
           {whatsappNumber && (
-            <a href={buildWhatsappProductUrl(whatsappNumber, product.name)} target="_blank" rel="noopener noreferrer" class="rounded border border-green-600 bg-white px-6 py-3 font-semibold text-green-700 hover:bg-green-50">
+            <a href={buildWhatsappProductUrl(whatsappNumber, product.name)} target="_blank" rel="noopener noreferrer" class="rounded-sm border border-green-600 bg-white px-6 py-3 font-semibold text-green-700 hover:bg-green-50">
               Consultar disponibilidad por WhatsApp
             </a>
           )}
           {d.ficha && (
-            <a href={d.ficha.path} target="_blank" rel="noopener noreferrer" type="application/pdf" class="rounded border border-steel-200 bg-white px-6 py-3 font-semibold hover:border-brand-600">
+            <a href={d.ficha.path} target="_blank" rel="noopener noreferrer" type="application/pdf" class="rounded-sm border border-steel-200 bg-white px-6 py-3 font-semibold hover:border-brand-600">
               Ficha técnica (PDF, {d.ficha.sizeKb} KB)
             </a>
           )}
         </div>
         {d.ficha ? (
-          <p class="mt-3 text-xs text-steel-600">Documento {d.ficha.code ?? "de la empresa"}. En la ficha encuentras medidas, materiales, acabados y códigos de color.</p>
+          <p class="mt-3 text-xs text-steel-600">Documento {d.ficha.code ?? "de la empresa"}. En la ficha encuentra medidas, materiales, acabados y códigos de color.</p>
         ) : (
-          <p class="mt-3 rounded bg-steel-50 p-3 text-sm text-steel-600">La ficha técnica de este producto está en preparación. Pídela en el cotizador o llamando al <a class="text-brand-700 underline" href="tel:+5744446733">(574) 444 6733</a>.</p>
+          <p class="mt-3 rounded-sm bg-steel-50 p-3 text-sm text-steel-600">La ficha técnica de este producto está en preparación. Pídala en el cotizador o llamando al <a class="text-brand-700 underline" href="tel:+576044446733">(604) 444 6733</a>.</p>
         )}
         {hasFacts && (
-          <dl class="mt-6 rounded-lg border border-steel-200 bg-white p-4 text-sm">
+          <dl class="mt-6 rounded-sm border border-steel-200 bg-white p-4 text-sm">
             <h2 class="text-base font-bold">Especificaciones según la ficha</h2>
             {d.material && <div class="mt-2"><dt class="font-semibold">Material</dt><dd class="text-steel-600">{d.material}</dd></div>}
             {d.finishes.length > 0 && <div class="mt-2"><dt class="font-semibold">Acabado</dt><dd class="text-steel-600">{d.finishes.map((f) => FINISH_LABELS[f]).join(" o ")}</dd></div>}
@@ -125,21 +126,21 @@ const illustrative = d.images.every((i) => i.illustrative);
                 <dd class="text-steel-600">
                   <span class="block text-xs">Los dos últimos dígitos de la referencia indican el color.</span>
                   <ul class="mt-1 flex flex-wrap gap-1">
-                    {d.colors.map((c) => <li class="rounded border border-steel-200 px-2 py-0.5 text-xs"><span class="font-mono">{c.code}</span> {c.name}</li>)}
+                    {d.colors.map((c) => <li class="rounded-sm border border-steel-200 px-2 py-0.5 text-xs"><span class="font-mono">{c.code}</span> {c.name}</li>)}
                   </ul>
                 </dd>
               </div>
             )}
           </dl>
         )}
-        <p class="mt-6 text-sm text-steel-600">No publicamos precios en línea: un asesor te responde con una cotización formal.</p>
+        <p class="mt-6 text-sm text-steel-600">No publicamos precios en línea: un asesor le responde con una cotización formal.</p>
       </div>
     </div>
 
     {refs.length > 0 && (
       <section class="mt-10" aria-labelledby="referencias">
         <h2 id="referencias" class="text-xl font-bold">Referencias</h2>
-        <div class="mt-3 overflow-x-auto rounded-lg border border-steel-200 bg-white">
+        <div class="mt-3 overflow-x-auto rounded-sm border border-steel-200 bg-white">
           <table class={`w-full text-left text-sm ${specs ? "min-w-[44rem]" : "min-w-[34rem]"}`}>
             <caption class="sr-only">Referencias de {product.name} según su ficha técnica</caption>
             <thead class="bg-steel-50 text-steel-600">
@@ -149,15 +150,15 @@ const illustrative = d.images.every((i) => i.illustrative);
               {refs.map((r) => (
                 <tr class="border-t border-steel-200" data-cart-row>
                   <td class="sticky left-0 border-r border-steel-200 bg-white px-4 py-2 font-mono font-semibold tabular-nums">
-                    <span class="flex items-center gap-2">{r.code}<button type="button" data-copy={r.code} class="rounded border border-steel-200 px-2 py-1 font-sans text-xs font-normal text-steel-600 hover:border-brand-600" aria-label={`Copiar la referencia ${r.code}`}>Copiar</button></span>
+                    <span class="flex items-center gap-2">{r.code}<button type="button" data-copy={r.code} class="rounded-sm border border-steel-200 px-2 py-1 font-sans text-xs font-normal text-steel-600 hover:border-brand-600" aria-label={`Copiar la referencia ${r.code}`}>Copiar</button></span>
                   </td>
                   <td class="px-4 py-2">{r.text}</td>
                   {specs?.columns.map((_, i) => <td class="px-4 py-2 text-right font-mono tabular-nums">{specs.rows[r.code]?.[i] ?? "—"}</td>)}
                   <td class="px-4 py-2">
                     <span class="flex items-center gap-2">
-                      <input type="number" min="1" value="1" data-cart-qty aria-label={`Cantidad de ${r.code}`} class="h-11 w-16 rounded border border-steel-200 px-2 py-1" />
-                      <button type="button" data-cart-add data-slug={product.slug} data-ref={r.code} data-name={product.name} data-cat={product.category} class="h-11 rounded border border-steel-200 bg-white px-3 text-sm font-semibold hover:border-brand-600">Agregar</button>
-                      {whatsappNumber && <a href={buildWhatsappProductUrl(whatsappNumber, product.name, r.code)} target="_blank" rel="noopener noreferrer" class="inline-flex h-11 items-center rounded border border-green-600 px-3 text-sm font-semibold text-green-700 hover:bg-green-50" aria-label={`Consultar disponibilidad de ${r.code} por WhatsApp`}>WhatsApp</a>}
+                      <input type="number" min="1" value="1" data-cart-qty aria-label={`Cantidad de ${r.code}`} class="h-11 w-16 rounded-sm border border-steel-200 px-2 py-1" />
+                      <button type="button" data-cart-add data-slug={product.slug} data-ref={r.code} data-name={product.name} data-cat={product.category} class="h-11 rounded-sm border border-steel-200 bg-white px-3 text-sm font-semibold hover:border-brand-600">Agregar</button>
+                      {whatsappNumber && <a href={buildWhatsappProductUrl(whatsappNumber, product.name, r.code)} target="_blank" rel="noopener noreferrer" class="inline-flex h-11 items-center rounded-sm border border-green-600 px-3 text-sm font-semibold text-green-700 hover:bg-green-50" aria-label={`Consultar disponibilidad de ${r.code} por WhatsApp`}>WhatsApp</a>}
                     </span>
                   </td>
                 </tr>

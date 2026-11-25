@@ -8,14 +8,14 @@ const mapsUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURICo
 
 <Layout
   title="Contacto y ubicación"
-  description="Llámanos al (574) 444 6733 o visítanos en la Unidad Industrial de Belén, Medellín. También puedes cotizar en línea."
+  description="Llámenos al (604) 444 6733 o visítenos en la Unidad Industrial de Belén, Medellín. También puede cotizar en línea."
 >
   <div class="mx-auto max-w-4xl px-4 py-10">
     <h1 class="text-3xl font-bold">Contacto</h1>
     <dl class="mt-6 grid gap-6 sm:grid-cols-2">
       <div>
-        <dt class="font-semibold">Teléfono (PBX)</dt>
-        <dd><a class="text-brand-700 underline" href="tel:+5744446733">(574) 444 6733</a></dd>
+        <dt class="font-semibold">Teléfono</dt>
+        <dd><a class="text-brand-700 underline" href="tel:+576044446733">(604) 444 6733</a></dd>
       </div>
       <div>
         <dt class="font-semibold">Dirección</dt>
@@ -26,9 +26,9 @@ const mapsUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURICo
     </dl>
 
     <div class="mt-10 flex flex-wrap gap-3">
-      <a href="/cotizador/" class="rounded bg-brand-600 px-6 py-3 font-semibold text-white hover:bg-brand-700">Cotizar en línea</a>
+      <a href="/cotizador/" class="chaflan bg-brand-600 px-6 py-3 font-semibold text-white hover:bg-brand-700">Cotizar en línea</a>
       {number && (
-        <a href={buildWhatsappChatUrl(number)} target="_blank" rel="noopener noreferrer" class="rounded bg-green-600 px-6 py-3 font-semibold text-white hover:bg-green-700">Escribir por WhatsApp</a>
+        <a href={buildWhatsappChatUrl(number)} target="_blank" rel="noopener noreferrer" class="rounded-sm bg-green-600 px-6 py-3 font-semibold text-white hover:bg-green-700">Escribir por WhatsApp</a>
       )}
     </div>
   </div>

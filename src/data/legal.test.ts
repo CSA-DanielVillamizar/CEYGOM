@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { nitCheckDigit } from "../../packages/shared/fiscal";
-import { LEGAL } from "./legal";
+import { LEGAL, nitDisplay } from "./legal";
 
 describe("company legal data", () => {
   it("has a NIT whose verification digit is correct", () => {
@@ -17,5 +17,17 @@ describe("company legal data", () => {
   it("does not publish anything that was not provided", () => {
     // The email for queries and claims is still pending: the policy page omits it instead of guessing.
     expect(LEGAL.privacyEmail).toBeUndefined();
+  });
+});
+
+describe("brand manual formatting", () => {
+  it("prints the NIT with dots, as in the manual, and keeps the stored value untouched", () => {
+    expect(nitDisplay(LEGAL.nit!)).toBe("900.456.873-5");
+    expect(LEGAL.nit).toBe("900456873-5");
+  });
+
+  it("uses the current Medellín area code (604) in the label and the tel: link", () => {
+    expect(LEGAL.phoneLabel).toBe("(604) 444 6733");
+    expect(LEGAL.phoneHref).toBe("tel:+576044446733");
   });
 });

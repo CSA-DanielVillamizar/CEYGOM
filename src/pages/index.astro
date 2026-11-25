@@ -1,12 +1,12 @@
 ---
-import { Image, getImage } from "astro:assets";
+import { Image } from "astro:assets";
 import Layout from "../layouts/Layout.astro";
 import { CATEGORIES, PRODUCTS } from "@shared/catalog";
 import { PRODUCT_DETAILS } from "@shared/catalog-details";
 import { CATEGORY_IMAGES } from "../data/categoryImages";
 import { LEGAL } from "../data/legal";
 import { productImage } from "../lib/productImages";
-import logo from "../assets/brand/logo-emc.webp";
+import { LOGO } from "../data/brand";
 
 // Every figure shown on this page is computed from the catalog data, never typed by hand.
 const withPage = PRODUCTS.filter((p) => PRODUCT_DETAILS[p.slug]);
@@ -24,8 +24,8 @@ const perCategory = Object.fromEntries(
 const plural = (n: number, one: string, many: string) => `${n.toLocaleString("es-CO")} ${n === 1 ? one : many}`;
 
 const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? "https://electrometalicasceygom.com";
-const description = "Fabricamos gabinetes eléctricos, racks de comunicaciones, bandejas portacables, canaletas y estructuras a medida. Solicita tu cotización en línea.";
-const logoUrl = new URL((await getImage({ src: logo, width: 224 })).src, siteUrl).toString();
+const description = "Fabricamos gabinetes eléctricos, racks de comunicaciones, bandejas portacables, canaletas y estructuras a medida. Solicite su cotización en línea.";
+const logoUrl = new URL(LOGO.pngPath, siteUrl).toString();
 
 // Local business data for search engines: only facts already published on the site.
 const localBusiness = {
@@ -39,7 +39,7 @@ const localBusiness = {
   description,
   logo: logoUrl,
   image: logoUrl,
-  telephone: "+57 4 444 6733",
+  telephone: "+57 604 444 6733",
   address: {
     "@type": "PostalAddress",
     streetAddress: "Calle 28 nro 57-13, Unidad Industrial de Belén",
@@ -50,40 +50,38 @@ const localBusiness = {
   hasMap: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Calle 28 #57-13, Unidad Industrial de Belén, Medellín")}`,
 };
 
-const hero = ["rack-piso-cerrado", "gabinete-equipos-medida", "bandeja-ranurada40cm"] as const;
+// Four photos of the same size on a flat grey stage (2x2).
+const hero = ["rack-piso-cerrado", "gabinete-equipos-medida", "canaleta-metalica2", "gabinete-de-gas"] as const;
 ---
 
 <Layout title="Gabinetes, racks y bandejas portacables en Medellín | Electro Metálicas Ceygom" description={description} jsonLd={[localBusiness]}>
   <section class="bg-steel-900 text-white">
     <div class="mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 sm:py-16 lg:grid-cols-[1.1fr_0.9fr]">
       <div>
-        <h1 class="text-3xl font-bold leading-tight sm:text-5xl">Gabinetes, racks y estructuras metálicas para redes eléctricas y de comunicación</h1>
+        <h1 class="text-3xl leading-tight sm:text-5xl">Gabinetes, racks y estructuras metálicas para redes eléctricas y de comunicación</h1>
         <p class="mt-4 max-w-xl text-lg text-white/80">
-          Fabricamos y distribuimos productos estándar y a medida, con departamento de ingeniería para proyectos exclusivos y personalizados.
+          Fabricamos en Medellín productos estándar y a medida. Nuestro equipo de ingeniería diseña en 3D y usted aprueba antes de fabricar.
         </p>
+        <p class="font-display mt-5 max-w-xl border-l-4 border-brand-400 pl-4 text-xl text-white sm:text-2xl">Lo ve en 3D antes de que lo fabriquemos.</p>
 
         <form action="/productos/" method="get" role="search" class="mt-6 flex max-w-xl gap-2">
           <label for="hero-q" class="sr-only">Buscar un producto o una referencia</label>
-          <input id="hero-q" name="q" type="search" autocomplete="off" placeholder="Producto o referencia: BP0101" class="min-w-0 flex-1 rounded border border-white/20 bg-white px-4 py-3 text-base text-steel-900 placeholder:text-steel-600" />
-          <button type="submit" class="rounded bg-white px-5 py-3 font-semibold text-steel-900 hover:bg-steel-200">Buscar</button>
+          <input id="hero-q" name="q" type="search" autocomplete="off" placeholder="Producto o código" class="h-11 min-w-0 flex-1 rounded-sm border border-white/20 bg-white px-4 text-base text-steel-900 placeholder:text-steel-600" />
+          <button type="submit" class="h-11 rounded-sm bg-white px-5 font-semibold text-steel-900 hover:bg-steel-200">Buscar</button>
         </form>
 
         <div class="mt-6 flex flex-wrap gap-3">
-          <a href="/cotizador/" class="rounded bg-brand-600 px-6 py-3 font-semibold hover:bg-brand-700">Solicitar cotización</a>
-          <a href="/productos/" class="rounded border border-white/40 px-6 py-3 font-semibold hover:bg-white/10">Ver productos</a>
+          <a href="/cotizador/" class="chaflan inline-flex h-[52px] items-center bg-brand-600 px-6 font-semibold hover:bg-brand-700">Solicitar cotización</a>
+          <a href="/productos/" class="inline-flex h-[52px] items-center rounded-sm border border-white/40 px-6 font-semibold hover:bg-white/10">Ver productos</a>
         </div>
       </div>
 
       <div class="grid grid-cols-2 gap-3" aria-hidden="true">
-        <div class="row-span-2 overflow-hidden rounded-lg bg-white">
-          <Image src={productImage(hero[0])} alt="" width={420} class="h-full w-full object-contain" loading="eager" />
-        </div>
-        <div class="overflow-hidden rounded-lg bg-white">
-          <Image src={productImage(hero[1])} alt="" width={300} class="h-full w-full object-contain" loading="eager" />
-        </div>
-        <div class="overflow-hidden rounded-lg bg-white">
-          <Image src={productImage(hero[2])} alt="" width={300} class="h-full w-full object-contain" loading="eager" />
-        </div>
+        {hero.map((file) => (
+          <div class="foto-tarjeta aspect-square overflow-hidden rounded-sm">
+            <Image src={productImage(file)} alt="" width={360} class="h-full w-full object-contain" loading="eager" />
+          </div>
+        ))}
       </div>
     </div>
   </section>
@@ -91,56 +89,74 @@ const hero = ["rack-piso-cerrado", "gabinete-equipos-medida", "bandeja-ranurada4
   <section class="border-b border-steel-200 bg-white">
     <dl class="mx-auto grid max-w-6xl grid-cols-3 gap-4 px-4 py-6 text-center">
       <div>
-        <dt class="text-xs text-steel-600 sm:text-sm">Referencias</dt>
-        <dd class="text-2xl font-bold text-brand-700 sm:text-3xl">{totals.references.toLocaleString("es-CO")}</dd>
+        <dt class="font-mono text-[11px] uppercase tracking-wider text-steel-600 sm:text-xs">Referencias</dt>
+        <dd class="font-display text-2xl text-brand-600 sm:text-4xl">{totals.references.toLocaleString("es-CO")}</dd>
       </div>
       <div>
-        <dt class="text-xs text-steel-600 sm:text-sm">Productos</dt>
-        <dd class="text-2xl font-bold text-brand-700 sm:text-3xl">{totals.products}</dd>
+        <dt class="font-mono text-[11px] uppercase tracking-wider text-steel-600 sm:text-xs">Productos</dt>
+        <dd class="font-display text-2xl text-brand-600 sm:text-4xl">{totals.products}</dd>
       </div>
       <div>
-        <dt class="text-xs text-steel-600 sm:text-sm">Fichas técnicas</dt>
-        <dd class="text-2xl font-bold text-brand-700 sm:text-3xl">{totals.sheets}</dd>
+        <dt class="font-mono text-[11px] uppercase tracking-wider text-steel-600 sm:text-xs">Fichas técnicas</dt>
+        <dd class="font-display text-2xl text-brand-600 sm:text-4xl">{totals.sheets}</dd>
       </div>
     </dl>
   </section>
 
   <section class="mx-auto max-w-6xl px-4 py-12">
-    <h2 class="text-2xl font-bold">Líneas de producto</h2>
+    <h2 class="text-2xl">Líneas de producto</h2>
     <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {CATEGORIES.map((c) => {
         const image = CATEGORY_IMAGES[c.id];
         const n = perCategory[c.id]!;
         return (
           <li>
-            <a href={`/productos/#${c.id}`} class="flex h-full flex-col overflow-hidden rounded-lg border border-steel-200 bg-white hover:border-brand-600">
-              {image && <Image src={productImage(image.file)} alt="" width={420} class="h-40 w-full bg-steel-50 object-contain" loading="lazy" />}
-              <span class="p-5">
-                <span class="block font-bold">{c.label}</span>
-                <span class="mt-1 block text-sm text-steel-600">
-                  {c.id === "a-medida" ? "Según tus planos o necesidades" : `${plural(n.products, "producto", "productos")} · ${plural(n.references, "referencia", "referencias")}`}
+            <a href={`/productos/#${c.id}`} class="chaflan-borde block h-full">
+            <span class="flex h-full flex-col overflow-hidden">
+              {image && (
+                <span class="foto-tarjeta relative block">
+                  <Image src={productImage(image.file)} alt="" width={420} class="h-40 w-full object-contain" loading="lazy" />
+                  {image.illustrative && <span class="absolute left-2 top-2 font-mono text-[11px] text-steel-600">Imagen ilustrativa</span>}
                 </span>
-                {image?.illustrative && <span class="mt-1 block text-[11px] text-steel-600">Imagen ilustrativa</span>}
+              )}
+              <span class="p-5">
+                <span class="font-display block text-base font-bold">{c.label}</span>
+                <span class="mt-1 block text-sm text-steel-600">
+                  {c.id === "a-medida" ? "Según sus planos o necesidades" : `${plural(n.products, "producto", "productos")} · ${plural(n.references, "referencia", "referencias")}`}
+                </span>
               </span>
-            </a>
+            </span>
+          </a>
           </li>
         );
       })}
     </ul>
   </section>
 
+  <section class="perforado text-white">
+    <div class="mx-auto grid max-w-6xl items-center gap-6 px-4 py-12 md:grid-cols-[1fr_auto]">
+      <div>
+        <h2 class="text-2xl sm:text-3xl">Fabricación a medida</h2>
+        <p class="mt-3 max-w-2xl text-white/80">
+          Cajas, gabinetes y estructuras según sus planos o necesidades. Envíenos su plano: nuestro equipo de ingeniería lo modela en 3D, usted lo aprueba y recién entonces fabricamos.
+        </p>
+      </div>
+      <a href="/cotizador/?producto=fabricacion-a-medida" class="chaflan inline-flex h-[52px] items-center justify-self-start bg-brand-600 px-6 font-semibold hover:bg-brand-700 md:justify-self-end">Enviar mi plano</a>
+    </div>
+  </section>
+
   <section class="bg-white">
     <div class="mx-auto grid max-w-6xl gap-8 px-4 py-12 md:grid-cols-3">
       <div>
-        <h2 class="font-bold">Ingeniería y modelado 3D</h2>
+        <h2 class="text-base">Ingeniería y modelado 3D</h2>
         <p class="mt-2 text-sm text-steel-600">Visualizamos cada pieza, terminado y ensamblaje antes de producir, para reducir costos y tiempos.</p>
       </div>
       <div>
-        <h2 class="font-bold">Fabricación a medida</h2>
+        <h2 class="text-base">Fabricación estándar y a medida</h2>
         <p class="mt-2 text-sm text-steel-600">Cajas y gabinetes modificables según las necesidades específicas de cada cliente.</p>
       </div>
       <div>
-        <h2 class="font-bold">Fichas técnicas</h2>
+        <h2 class="text-base">Fichas técnicas</h2>
         <p class="mt-2 text-sm text-steel-600">Documentación técnica de bandejas, canaletas, racks, celdas y soportes.</p>
       </div>
     </div>

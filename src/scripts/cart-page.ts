@@ -90,7 +90,7 @@ function render() {
       ? Object.assign(document.createElement("a"), { href: `/productos/${line.cat}/${line.slug}/`, className: "font-semibold hover:text-brand-700", textContent: label })
       : Object.assign(document.createElement("span"), { className: "font-semibold", textContent: label });
 
-    const qty = Object.assign(document.createElement("input"), { type: "number", min: "1", value: String(line.qty), className: "w-20 rounded border border-steel-200 px-2 py-1" });
+    const qty = Object.assign(document.createElement("input"), { type: "number", min: "1", value: String(line.qty), className: "w-16 rounded-sm border border-steel-200 px-2 py-1" });
     qty.setAttribute("aria-label", `Cantidad de ${label}${line.ref ? ` ${line.ref}` : ""}`);
     qty.addEventListener("change", () => {
       const next = setQty(loadCart(store), key, Number(qty.value));
@@ -104,7 +104,7 @@ function render() {
     remove.setAttribute("aria-label", `Quitar ${label}${line.ref ? ` ${line.ref}` : ""} de la lista`);
     remove.addEventListener("click", () => {
       persist(removeLine(loadCart(store), key));
-      if (live) live.textContent = `${label} quitado de tu lista.`;
+      if (live) live.textContent = `${label} quitado de su lista.`;
       render();
     });
 
@@ -113,7 +113,7 @@ function render() {
     const cells: (Node | string)[][] = [[name], [line.ref ? Object.assign(document.createElement("span"), { className: "font-mono", textContent: line.ref }) : "General"], [qty], [remove]];
     for (const [i, nodes] of cells.entries()) {
       const td = document.createElement("td");
-      td.className = i === 3 ? "px-4 py-2 print:hidden" : "px-4 py-2";
+      td.className = i === 3 ? "px-2 py-2 sm:px-4 print:hidden" : "px-2 py-2 sm:px-4";
       td.append(...nodes);
       tr.append(td);
     }
@@ -125,7 +125,7 @@ function render() {
 let armed = 0;
 clear?.addEventListener("click", () => {
   if (!armed) {
-    clear.textContent = "¿Seguro? Pulsa de nuevo para vaciar";
+    clear.textContent = "¿Seguro? Pulse de nuevo para vaciar";
     armed = window.setTimeout(() => {
       armed = 0;
       clear.textContent = "Vaciar lista";
@@ -137,7 +137,7 @@ clear?.addEventListener("click", () => {
   clear.textContent = "Vaciar lista";
   clearStoredCart(store);
   window.dispatchEvent(new Event("ceygom:cart"));
-  if (live) live.textContent = "Tu lista quedó vacía.";
+  if (live) live.textContent = "Su lista quedó vacía.";
   render();
 });
 

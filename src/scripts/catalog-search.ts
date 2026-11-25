@@ -42,7 +42,7 @@ function loadIndex(): Promise<SearchEntry[]> {
 const plural = (n: number, one: string, many: string) => `${n.toLocaleString("es-CO")} ${n === 1 ? one : many}`;
 
 function addButton(attrs: Attrs, label: string): HTMLButtonElement {
-  return el("button", { type: "button", "data-cart-add": "", class: "rounded border border-steel-200 bg-white px-3 py-1.5 text-sm font-semibold hover:border-brand-600", ...attrs }, label);
+  return el("button", { type: "button", "data-cart-add": "", class: "rounded-sm border border-steel-200 bg-white px-3 py-1.5 text-sm font-semibold hover:border-brand-600", ...attrs }, label);
 }
 
 function render(query: string, category: string, finish: string) {
@@ -61,8 +61,8 @@ function render(query: string, category: string, finish: string) {
 
   if (products.length === 0) {
     results.append(
-      el("p", { class: "rounded-lg border border-steel-200 bg-white p-6 text-steel-600" },
-        "No encontramos productos ni referencias con esa búsqueda. Prueba con el código (por ejemplo BP0101), con una palabra del nombre o quita los filtros de categoría y acabado. Si no lo encuentras, ",
+      el("p", { class: "rounded-sm border border-steel-200 bg-white p-6 text-steel-600" },
+        "No encontramos productos ni referencias con esa búsqueda. Pruebe con el código (por ejemplo BP0101), con una palabra del nombre o quite los filtros de categoría y acabado. Si no lo encuentra, ",
         el("a", { href: "/cotizador/?producto=fabricacion-a-medida", class: "font-semibold text-brand-700 underline" }, "lo fabricamos a medida"),
         "."),
     );
@@ -73,7 +73,7 @@ function render(query: string, category: string, finish: string) {
   const list = el("ul", { class: "mt-3 grid gap-3 sm:grid-cols-2" });
   for (const p of products) {
     list.append(
-      el("li", { class: "flex items-center justify-between gap-3 rounded-lg border border-steel-200 bg-white p-4" },
+      el("li", { class: "flex items-center justify-between gap-3 rounded-sm border border-steel-200 bg-white p-4" },
         el("span", {},
           el("a", { href: `/productos/${p.c}/${p.s}/`, class: "font-semibold hover:text-brand-700" }, p.n),
           el("span", { class: "block text-xs text-steel-600" }, `${p.l}${p.r.length ? ` · ${plural(p.r.length, "referencia", "referencias")}` : ""}`)),
@@ -86,7 +86,7 @@ function render(query: string, category: string, finish: string) {
     results.append(el("h2", { class: "mt-8 text-xl font-bold" }, "Referencias"));
     const tbody = el("tbody");
     for (const r of references) {
-      const qty = el("input", { type: "number", min: 1, value: 1, "data-cart-qty": "", "aria-label": `Cantidad de ${r.code}`, class: "w-16 rounded border border-steel-200 px-2 py-1" });
+      const qty = el("input", { type: "number", min: 1, value: 1, "data-cart-qty": "", "aria-label": `Cantidad de ${r.code}`, class: "w-16 rounded-sm border border-steel-200 px-2 py-1" });
       tbody.append(
         el("tr", { class: "border-t border-steel-200", "data-cart-row": "" },
           el("td", { class: "px-4 py-2 font-mono" }, r.code),
@@ -95,7 +95,7 @@ function render(query: string, category: string, finish: string) {
       );
     }
     results.append(
-      el("div", { class: "mt-3 overflow-x-auto rounded-lg border border-steel-200 bg-white" },
+      el("div", { class: "mt-3 overflow-x-auto rounded-sm border border-steel-200 bg-white" },
         el("table", { class: "w-full text-left text-sm" },
           el("caption", { class: "sr-only" }, "Referencias encontradas"),
           el("thead", { class: "bg-steel-50 text-steel-600" }, el("tr", {}, el("th", { scope: "col", class: "px-4 py-2 font-semibold" }, "Código"), el("th", { scope: "col", class: "px-4 py-2 font-semibold" }, "Descripción"), el("th", { scope: "col", class: "px-4 py-2 font-semibold" }, "Cotizar"))),
@@ -120,7 +120,7 @@ async function run() {
   try {
     await loadIndex();
   } catch {
-    if (status) status.textContent = "No pudimos cargar el buscador. Recarga la página o explora las categorías.";
+    if (status) status.textContent = "No pudimos cargar el buscador. Recargue la página o explore las categorías.";
     return;
   }
   render(input.value, select.value, finishSelect?.value ?? "");

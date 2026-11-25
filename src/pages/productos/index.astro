@@ -12,29 +12,29 @@ const totalRefs = PRODUCTS.reduce((n, p) => n + (PRODUCT_DETAILS[p.slug]?.refere
 
 <Layout
   title="Productos"
-  description="Bandejas portacables, canaletas, racks y comunicaciones, línea eléctrica, soportes y fabricación a medida. Busca por referencia, consulta la ficha técnica y cotiza en línea."
+  description="Bandejas portacables, canaletas, racks y comunicaciones, línea eléctrica, soportes y fabricación a medida. Busque por referencia, consulte la ficha técnica y cotice en línea."
 >
   <div class="mx-auto max-w-6xl px-4 py-10">
     <h1 class="text-3xl font-bold">Productos</h1>
     <p class="mt-2 max-w-2xl text-steel-600">
-      Busca entre {totalRefs.toLocaleString("es-CO")} referencias, consulta la ficha técnica de cada producto y arma tu cotización. Si no encuentras lo que buscas, lo fabricamos a medida.
+      Busque entre {totalRefs.toLocaleString("es-CO")} referencias, consulte la ficha técnica de cada producto y arme su cotización. Si no encuentra lo que busca, lo fabricamos a medida.
     </p>
 
     <form id="catalog-search" role="search" class="mt-6 grid gap-3 sm:grid-cols-[1fr_16rem]">
       <div>
         <label for="catalog-q" class="block text-sm font-semibold">Buscar por referencia, nombre o categoría</label>
-        <input id="catalog-q" name="q" type="search" autocomplete="off" placeholder="Ej.: BP0101, rack de piso, canaleta" class="mt-1 block w-full rounded border border-steel-200 bg-white px-4 py-3 text-base" />
+        <input id="catalog-q" name="q" type="search" autocomplete="off" placeholder="Ej.: BP0101, rack de piso, canaleta" class="mt-1 block w-full rounded-sm border border-steel-200 bg-white px-4 py-3 text-base" />
       </div>
       <div>
         <label for="catalog-cat" class="block text-sm font-semibold">Categoría</label>
-        <select id="catalog-cat" name="cat" class="mt-1 block w-full rounded border border-steel-200 bg-white px-3 py-3 text-base">
+        <select id="catalog-cat" name="cat" class="mt-1 block w-full rounded-sm border border-steel-200 bg-white px-3 py-3 text-base">
           <option value="">Todas las categorías</option>
           {categories.map((c) => <option value={c.id}>{c.label}</option>)}
         </select>
       </div>
       <div>
         <label for="catalog-finish" class="block text-sm font-semibold">Acabado</label>
-        <select id="catalog-finish" name="acabado" class="mt-1 block w-full rounded border border-steel-200 bg-white px-3 py-3 text-base">
+        <select id="catalog-finish" name="acabado" class="mt-1 block w-full rounded-sm border border-steel-200 bg-white px-3 py-3 text-base">
           <option value="">Todos los acabados</option>
           {Object.entries(FINISH_LABELS).map(([id, label]) => <option value={id}>{label}</option>)}
         </select>
@@ -57,12 +57,12 @@ const totalRefs = PRODUCTS.reduce((n, p) => n + (PRODUCT_DETAILS[p.slug]?.refere
               const d = PRODUCT_DETAILS[p.slug];
               const image = d?.images[0];
               return (
-                <li class="flex flex-col overflow-hidden rounded-lg border border-steel-200 bg-white">
-                  <a href={`/productos/${p.category}/${p.slug}/`} class="block bg-steel-50">
+                <li class="flex flex-col overflow-hidden rounded-sm border border-steel-200 bg-white">
+                  <a href={`/productos/${p.category}/${p.slug}/`} class="foto-tarjeta relative block">
                     {image && (
                       <Image src={productImage(image.file)} alt={image.illustrative ? `${p.name} (imagen ilustrativa)` : p.name} width={320} class="mx-auto h-44 w-full object-contain" loading="lazy" />
                     )}
-                    {image?.illustrative && <span class="block pb-1 text-center text-[11px] text-steel-600">Imagen ilustrativa</span>}
+                    {image?.illustrative && <span class="absolute left-2 top-2 font-mono text-[11px] text-steel-600">Imagen ilustrativa</span>}
                   </a>
                   <div class="flex flex-1 flex-col justify-between p-4">
                     <div>
@@ -73,7 +73,7 @@ const totalRefs = PRODUCTS.reduce((n, p) => n + (PRODUCT_DETAILS[p.slug]?.refere
                       </p>
                     </div>
                     <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-                      <button type="button" data-cart-add data-slug={p.slug} data-name={p.name} data-cat={p.category} class="rounded border border-steel-200 px-3 py-1.5 text-sm font-semibold hover:border-brand-600">Agregar a mi cotización</button>
+                      <button type="button" data-cart-add data-slug={p.slug} data-name={p.name} data-cat={p.category} class="rounded-sm border border-steel-200 px-3 py-1.5 text-sm font-semibold hover:border-brand-600">Agregar a mi cotización</button>
                       <a href={`/cotizador/?producto=${p.slug}`} class="text-sm font-semibold text-brand-700 hover:underline">Cotizar solo este →</a>
                     </div>
                   </div>
@@ -84,10 +84,10 @@ const totalRefs = PRODUCTS.reduce((n, p) => n + (PRODUCT_DETAILS[p.slug]?.refere
         </section>
       ))}
 
-      <section id="a-medida" class="mt-12 scroll-mt-6 rounded-lg border border-steel-200 bg-white p-6">
+      <section id="a-medida" class="mt-12 scroll-mt-6 rounded-sm border border-steel-200 bg-white p-6">
         <h2 class="text-2xl font-bold">Fabricación a medida</h2>
-        <p class="mt-2 max-w-2xl text-steel-600">Gabinetes, racks y estructuras metálicas según tus planos o necesidades. Cuéntanos qué necesitas y un asesor te responde con una cotización formal.</p>
-        <a href="/cotizador/?producto=fabricacion-a-medida" class="mt-4 inline-block rounded bg-brand-600 px-6 py-3 font-semibold text-white hover:bg-brand-700">Solicitar cotización a medida</a>
+        <p class="mt-2 max-w-2xl text-steel-600">Gabinetes, racks y estructuras metálicas según sus planos o necesidades. Cuéntenos qué necesita y un asesor le responde con una cotización formal.</p>
+        <a href="/cotizador/?producto=fabricacion-a-medida" class="mt-4 inline-block chaflan bg-brand-600 px-6 py-3 font-semibold text-white hover:bg-brand-700">Solicitar cotización a medida</a>
       </section>
     </div>
   </div>

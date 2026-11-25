@@ -6,12 +6,14 @@
 //   pages (navigations)           network first, 4 s timeout, then the cached copy, then /sin-conexion/
 //   /_astro/*                     cache first (file names carry a content hash)
 //   data sheets, indexes, images  stale while revalidate
-// Bump VERSION to drop every cache on the next deploy.
-const VERSION = "v1";
+// Bump VERSION to drop every cache on the next deploy (v2: new brand, so nobody keeps the old logo or typeface).
+const VERSION = "v2";
 const PAGES = `ceygom-pages-${VERSION}`;
 const ASSETS = `ceygom-assets-${VERSION}`;
 const OFFLINE_URL = "/sin-conexion/";
 const PRECACHE = [OFFLINE_URL, "/", "/productos/", "/cotizacion/"];
+// Filled at build time by scripts/inject-sw-precache.mjs with the hashed fonts, styles and logos under /_astro/.
+const PRECACHE_ASSETS = [];
 const NETWORK_TIMEOUT_MS = 4000;
 const MAX_PAGES = 120;
 
@@ -78,10 +80,7 @@ async function staleWhileRevalidate(request) {
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches
-      .open(PAGES)
-      .then((cache) => cache.addAll(PRECACHE))
-      .then(() => self.skipWaiting()),
+    Promise.all([caches.open(PAGES).then((cache) => cache.addAll(PRECACHE)), caches.open(ASSETS).then((cache) => cache.addAll(PRECACHE_ASSETS))]).then(() => self.skipWaiting()),
   );
 });
 

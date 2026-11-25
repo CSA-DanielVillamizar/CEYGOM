@@ -1,0 +1,14 @@
+---
+import { LOGO } from "../data/brand";
+
+interface Props {
+  /** "negativo" on dark backgrounds, "positivo" on light ones. */
+  variant?: "negativo" | "positivo";
+  class?: string;
+  loading?: "eager" | "lazy";
+}
+const { variant = "negativo", class: className = "h-9 w-auto", loading } = Astro.props;
+const file = LOGO[variant];
+---
+
+<img src={file.src} width={file.width} height={file.height} alt={LOGO.alt} class={className} loading={loading} />

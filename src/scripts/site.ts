@@ -37,7 +37,7 @@ renderCount();
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
   window.addEventListener("load", () => void navigator.serviceWorker.register("/sw.js").catch(() => undefined));
 }
-window.addEventListener("offline", () => announce("Sin conexión: puedes ver lo que ya abriste y tu lista se conserva. Para enviar una solicitud necesitas internet."));
+window.addEventListener("offline", () => announce("Sin conexión: puede ver lo que ya abrió y su lista se conserva. Para enviar una solicitud necesita internet."));
 
 window.addEventListener("storage", (e) => e.key === CART_KEY && renderCount());
 window.addEventListener("ceygom:cart", renderCount);
@@ -52,12 +52,12 @@ document.addEventListener("click", (event) => {
 
   const { cart, status } = addLine(loadCart(store), { slug, ref, name, cat, qty: qtyInput ? qtyInput.value : 1 });
   if (status === "invalid") return;
-  if (status === "full") return announce(`Tu lista ya tiene el máximo de ${CART_MAX_LINES} productos. Envía la solicitud o quita alguno.`);
-  if (!saveCart(store, cart)) return announce("Tu navegador no permite guardar la lista. Usa el botón Cotizar de la página del producto.");
+  if (status === "full") return announce(`Su lista ya tiene el máximo de ${CART_MAX_LINES} productos. Envíe la solicitud o quite alguno.`);
+  if (!saveCart(store, cart)) return announce("Su navegador no permite guardar la lista. Use el botón Cotizar de la página del producto.");
 
   renderCount();
   window.dispatchEvent(new Event("ceygom:cart"));
-  announce(`${label} agregado a tu cotización.`);
+  announce(`${label} agregado a su cotización.`);
 
   // Brief confirmation on the button itself.
   const original = button.textContent;

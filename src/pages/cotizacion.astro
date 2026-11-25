@@ -1,38 +1,42 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { LEGAL } from "../data/legal";
+import { LEGAL, nitDisplay } from "../data/legal";
+import Logo from "../components/Logo.astro";
 ---
 
 <Layout
   title="Mi cotización"
-  description="Reúne los productos y referencias que necesitas y envía una sola solicitud de cotización."
+  description="Reúna los productos y referencias que necesita y envíe una sola solicitud de cotización."
   noindex
 >
   <div class="mx-auto max-w-4xl px-4 py-10">
-    <div class="hidden print:mb-6 print:block print:border-b print:border-steel-200 print:pb-3">
-      <p class="font-bold">{LEGAL.legalName ?? LEGAL.tradeName}{LEGAL.nit ? ` · NIT ${LEGAL.nit}` : ""}</p>
-      <p class="text-sm">{LEGAL.address} · PBX {LEGAL.phoneLabel}</p>
-      <p class="text-sm">Lista de requerimientos generada el <span id="print-date"></span>. No es una cotización ni incluye precios.</p>
+    <!-- Letterhead of the printed list (saved as PDF): logo left, document label and date right, in mono red. -->
+    <div class="hidden print:mb-6 print:block">
+      <div class="flex items-start justify-between gap-4 border-b border-steel-200 pb-3">
+        <Logo variant="positivo" class="h-12 w-auto" />
+        <p class="text-right font-mono text-sm text-brand-600">LISTA DE REQUERIMIENTOS<br /><span id="print-date"></span></p>
+      </div>
+      <p class="mt-3 text-sm">Lista de requerimientos para solicitar cotización. No es una cotización ni incluye precios.</p>
     </div>
     <h1 class="text-3xl font-bold">Mi cotización</h1>
     <p class="mt-2 max-w-2xl text-steel-600">
-      Reúne los productos y referencias que necesitas y envía una sola solicitud. La lista se guarda en este navegador, no contiene datos personales y puedes editarla cuando quieras.
+      Reúna los productos y referencias que necesita y envíe una sola solicitud. La lista se guarda en este navegador, no contiene datos personales y puede editarla cuando quiera.
     </p>
 
-    <p id="cart-empty" hidden class="mt-8 rounded-lg border border-steel-200 bg-white p-6 text-steel-600">
-      Tu lista está vacía. <a href="/productos/" class="font-semibold text-brand-700 underline">Explora los productos</a> y usa "Agregar a mi cotización", o <a href="/cotizador/" class="font-semibold text-brand-700 underline">cotiza directamente</a>.
+    <p id="cart-empty" hidden class="mt-8 rounded-sm border border-steel-200 bg-white p-6 text-steel-600">
+      Su lista está vacía. <a href="/productos/" class="font-semibold text-brand-700 underline">Explore los productos</a> y use "Agregar a mi cotización", o <a href="/cotizador/" class="font-semibold text-brand-700 underline">cotiza directamente</a>.
     </p>
 
     <div id="cart-content" hidden class="mt-8">
-      <div class="overflow-x-auto rounded-lg border border-steel-200 bg-white">
+      <div class="overflow-x-auto rounded-sm border border-steel-200 bg-white">
         <table class="w-full text-left text-sm">
-          <caption class="sr-only">Productos y referencias de tu cotización</caption>
+          <caption class="sr-only">Productos y referencias de su cotización</caption>
           <thead class="bg-steel-50 text-steel-600">
             <tr>
-              <th scope="col" class="px-4 py-2 font-semibold">Producto</th>
-              <th scope="col" class="px-4 py-2 font-semibold">Referencia</th>
-              <th scope="col" class="px-4 py-2 font-semibold">Cantidad</th>
-              <th scope="col" class="px-4 py-2 font-semibold print:hidden"><span class="sr-only">Acciones</span></th>
+              <th scope="col" class="px-2 py-2 font-semibold sm:px-4">Producto</th>
+              <th scope="col" class="px-2 py-2 font-semibold sm:px-4">Referencia</th>
+              <th scope="col" class="px-2 py-2 font-semibold sm:px-4">Cantidad</th>
+              <th scope="col" class="px-2 py-2 font-semibold sm:px-4 print:hidden"><span class="sr-only">Acciones</span></th>
             </tr>
           </thead>
           <tbody id="cart-rows"></tbody>
@@ -40,17 +44,22 @@ import { LEGAL } from "../data/legal";
       </div>
 
       <p id="cart-summary" class="mt-3 text-sm text-steel-600"></p>
-      <p class="mt-1 text-xs text-steel-600 print:hidden">El botón abre el diálogo de impresión: elige "Guardar como PDF" para tener la lista con el membrete de la empresa y compartirla con tu área de compras.</p>
+      <p class="mt-1 text-xs text-steel-600 print:hidden">El botón abre el diálogo de impresión: elija "Guardar como PDF" para tener la lista con el membrete de la empresa y compartirla con su área de compras.</p>
 
       <div class="mt-6 flex flex-wrap items-center gap-3 print:hidden">
-        <a href="/cotizador/?lista=1" class="rounded bg-brand-600 px-6 py-3 font-semibold text-white hover:bg-brand-700">Continuar con la solicitud</a>
-        <a href="/productos/" class="rounded border border-steel-200 bg-white px-6 py-3 font-semibold hover:border-brand-600">Agregar más productos</a>
-        <button id="cart-print" type="button" class="rounded border border-steel-200 bg-white px-6 py-3 font-semibold hover:border-brand-600">Descargar lista en PDF (con anexo técnico)</button>
+        <a href="/cotizador/?lista=1" class="chaflan bg-brand-600 px-6 py-3 font-semibold text-white hover:bg-brand-700">Continuar con la solicitud</a>
+        <a href="/productos/" class="rounded-sm border border-steel-200 bg-white px-6 py-3 font-semibold hover:border-brand-600">Agregar más productos</a>
+        <button id="cart-print" type="button" class="rounded-sm border border-steel-200 bg-white px-6 py-3 font-semibold hover:border-brand-600">Descargar lista en PDF (con anexo técnico)</button>
         <button id="cart-clear" type="button" class="ml-auto text-sm font-semibold text-brand-700 underline">Vaciar lista</button>
       </div>
     </div>
 
     <section id="cart-annex" aria-labelledby="annex-title" class="hidden print:mt-8 print:block"></section>
+
+    <footer class="hidden border-t-[3px] border-brand-600 pt-2 text-xs print:mt-8 print:block">
+      <p><strong>{LEGAL.legalName ?? LEGAL.tradeName}</strong>{LEGAL.nit ? <> · NIT <span class="font-mono">{nitDisplay(LEGAL.nit)}</span></> : ""} · Tel. <span class="font-mono">{LEGAL.phoneLabel}</span></p>
+      <p>{LEGAL.address}</p>
+    </footer>
 
     <p id="cart-live" role="status" aria-live="polite" class="sr-only"></p>
   </div>

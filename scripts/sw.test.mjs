@@ -18,7 +18,7 @@ class FakeResponse {
   }
 }
 
-function sw({ online = true, hangs = false } = {}) {
+function sw({ online = true, hangs = false, assets = [] } = {}) {
   const stores = new Map();
   const abs = (u) => (typeof u === "string" ? new URL(u, "https://sitio.test").href : u.url);
   const open = (name) => {
@@ -50,7 +50,8 @@ function sw({ online = true, hangs = false } = {}) {
   };
   context.self.fetch = context.fetch;
   vm.createContext(context);
-  vm.runInContext(source, context);
+  // The build fills `PRECACHE_ASSETS` (scripts/inject-sw-precache.mjs); here the test does the same.
+  vm.runInContext(source.replace("const PRECACHE_ASSETS = [];", `const PRECACHE_ASSETS = ${JSON.stringify(assets)};`), context);
   const req = (url, init = {}) => ({ url: `https://sitio.test${url}`, method: "GET", mode: "cors", headers: { get: () => null }, ...init });
   const handle = (request) => {
     let promise;
@@ -84,7 +85,7 @@ describe("pages", () => {
   it("precaches the offline page and the main entry points on install", async () => {
     const s = sw();
     await s.listeners.install({ waitUntil: (p) => p });
-    const cached = [...s.stores.get("ceygom-pages-v1").keys()];
+    const cached = [...s.stores.get("ceygom-pages-v2").keys()];
     expect(cached).toEqual(expect.arrayContaining(["https://sitio.test/sin-conexion/", "https://sitio.test/", "https://sitio.test/productos/", "https://sitio.test/cotizacion/"]));
   });
 
@@ -92,7 +93,7 @@ describe("pages", () => {
     const s = sw();
     const request = s.req("/productos/bandejas-portacables/", { mode: "navigate" });
     expect((await s.handle(request)).body).toBe("fresh");
-    expect(s.stores.get("ceygom-pages-v1").has(request.url)).toBe(true);
+    expect(s.stores.get("ceygom-pages-v2").has(request.url)).toBe(true);
   });
 
   it("falls back to the cached copy offline, then to the offline page", async () => {
@@ -119,7 +120,22 @@ describe("pages", () => {
       s.net.response = () => new FakeResponse("x", init);
       await s.handle(s.req(`/p${JSON.stringify(init).length}/`, { mode: "navigate" }));
     }
-    expect(s.stores.get("ceygom-pages-v1").size).toBe(0);
+    expect(s.stores.get("ceygom-pages-v2").size).toBe(0);
+  });
+});
+
+describe("brand files", () => {
+  it("precaches the hashed fonts, styles and logos on install, so the new brand works offline from the first visit", async () => {
+    const assets = ["/_astro/archivo-118-800.AAA.woff2", "/_astro/index.BBB.css", "/_astro/logo-horizontal-negativo.CCC.svg"];
+    const s = sw({ assets });
+    await s.listeners.install({ waitUntil: (p) => p });
+    expect([...s.stores.get("ceygom-assets-v2").keys()]).toEqual(assets.map((a) => `https://sitio.test${a}`));
+    s.context.fetch = () => Promise.reject(new TypeError("offline"));
+    expect((await s.handle(s.req(assets[0]))).body).toBe(`page ${assets[0]}`); // served from the cache, no network
+  });
+
+  it("ships an empty list in the source: the build is what fills it", () => {
+    expect(source).toContain("const PRECACHE_ASSETS = [];");
   });
 });
 
@@ -150,10 +166,11 @@ describe("files", () => {
 describe("activation", () => {
   it("drops caches of older versions and keeps the current ones", async () => {
     const s = sw();
-    await s.context.caches.open("ceygom-pages-v0");
     await s.context.caches.open("ceygom-pages-v1");
+    await s.context.caches.open("ceygom-assets-v1");
+    await s.context.caches.open("ceygom-pages-v2");
     await s.context.caches.open("otra-app");
     await s.listeners.activate({ waitUntil: (p) => p });
-    expect([...s.stores.keys()].sort()).toEqual(["ceygom-pages-v1", "otra-app"]);
+    expect([...s.stores.keys()].sort()).toEqual(["ceygom-pages-v2", "otra-app"]); // v1 (old logo and typeface) is gone
   });
 });

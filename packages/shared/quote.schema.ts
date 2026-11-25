@@ -33,10 +33,10 @@ const optionalText = (max: number) =>
     .optional()
     .transform((v) => (v === "" ? undefined : v));
 
-const optionalMm = z.number().int("Usa números enteros").positive("Debe ser mayor que 0").max(5000, "Máximo 5000 mm").optional();
+const optionalMm = z.number().int("Use números enteros").positive("Debe ser mayor que 0").max(5000, "Máximo 5000 mm").optional();
 
 export const QuoteItemSchema = z.object({
-  category: z.enum(CATEGORY_IDS, { errorMap: () => ({ message: "Elige una categoría" }) }),
+  category: z.enum(CATEGORY_IDS, { errorMap: () => ({ message: "Elija una categoría" }) }),
   productSlug: z.string().trim().regex(/^[a-z0-9-]+$/).max(80).optional(),
   // Specific reference of the product as printed in its data sheet (for example BP0101). Optional.
   reference: z
@@ -47,8 +47,8 @@ export const QuoteItemSchema = z.object({
     .optional()
     .or(z.literal("").transform(() => undefined)),
   quantity: z
-    .number({ invalid_type_error: "Ingresa una cantidad" })
-    .int("Usa números enteros")
+    .number({ invalid_type_error: "Ingrese una cantidad" })
+    .int("Use números enteros")
     .min(1, "La cantidad mínima es 1")
     .max(100000, "Cantidad demasiado alta"),
   widthMm: optionalMm,
@@ -60,7 +60,7 @@ export const QuoteItemSchema = z.object({
 export type QuoteItem = z.infer<typeof QuoteItemSchema>;
 
 export const QuoteProjectSchema = z.object({
-  city: z.string().trim().min(2, "Ingresa la ciudad").max(80),
+  city: z.string().trim().min(2, "Ingrese la ciudad").max(80),
   neededBy: z
     .string()
     .trim()
@@ -75,17 +75,17 @@ export type QuoteProject = z.infer<typeof QuoteProjectSchema>;
 const digitsOnly = (v: string) => v.replace(/\D/g, "");
 
 const QuoteContactBase = z.object({
-  personType: z.enum(PERSON_TYPES, { errorMap: () => ({ message: "Elige el tipo de persona" }) }),
+  personType: z.enum(PERSON_TYPES, { errorMap: () => ({ message: "Elija el tipo de persona" }) }),
   // Natural person: the person. Legal entity: the contact person at the company.
-  fullName: z.string().trim().min(2, "Ingresa el nombre").max(120),
+  fullName: z.string().trim().min(2, "Ingrese el nombre").max(120),
   // Legal name or trade name; required for legal entities, dropped for natural persons.
   businessName: optionalText(160),
   // NIT (legal entity) or cédula (natural person) as it appears in the RUT. Digits only: dots, hyphens
   // and spaces are dropped. The NIT verification digit goes in `taxIdCheckDigit`.
   taxId: z
-    .string({ required_error: "Ingresa el NIT o la cédula" })
+    .string({ required_error: "Ingrese el NIT o la cédula" })
     .trim()
-    .min(1, "Ingresa el NIT o la cédula")
+    .min(1, "Ingrese el NIT o la cédula")
     .transform(digitsOnly)
     .pipe(z.string().min(6, "NIT o cédula inválido").max(15, "NIT o cédula inválido")),
   taxIdCheckDigit: z
@@ -96,33 +96,33 @@ const QuoteContactBase = z.object({
     .or(z.literal("").transform(() => undefined)),
   // Principal economic activity (CIIU Rev. 4 A.C.), four digits, as printed in the RUT.
   ciiuCode: z
-    .string({ required_error: "Ingresa el código CIIU" })
+    .string({ required_error: "Ingrese el código CIIU" })
     .trim()
     .regex(/^\d{4}$/, "El código CIIU tiene 4 dígitos"),
   fiscalResponsibilities: z
-    .array(z.enum(FISCAL_RESPONSIBILITIES), { required_error: "Elige al menos una responsabilidad fiscal" })
-    .min(1, "Elige al menos una responsabilidad fiscal"),
+    .array(z.enum(FISCAL_RESPONSIBILITIES), { required_error: "Elija al menos una responsabilidad fiscal" })
+    .min(1, "Elija al menos una responsabilidad fiscal"),
   email: z.string().trim().toLowerCase().email("Correo inválido").max(160),
   // Keep digits only; WhatsApp and the CRM both want a normalized number.
   phone: z.string().trim().transform(digitsOnly).pipe(z.string().min(7, "Celular inválido").max(15, "Celular inválido")),
   acceptsDataPolicy: z.literal(true, {
-    errorMap: () => ({ message: "Debes aceptar la política de tratamiento de datos" }),
+    errorMap: () => ({ message: "Debe aceptar la política de tratamiento de datos" }),
   }),
 });
 
 export const QuoteContactSchema = QuoteContactBase.superRefine((c, ctx) => {
   if (c.personType === "juridica") {
     if (!c.businessName) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["businessName"], message: "Ingresa la razón social o el nombre comercial" });
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["businessName"], message: "Ingrese la razón social o el nombre comercial" });
     }
     if (!c.taxIdCheckDigit) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["taxIdCheckDigit"], message: "Ingresa el dígito de verificación" });
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["taxIdCheckDigit"], message: "Ingrese el dígito de verificación" });
     } else if (c.taxIdCheckDigit !== nitCheckDigit(c.taxId)) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["taxIdCheckDigit"], message: "El dígito de verificación no corresponde al NIT" });
     }
   }
   if (c.fiscalResponsibilities.includes("responsable-iva") && c.fiscalResponsibilities.includes("no-responsable-iva")) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["fiscalResponsibilities"], message: "No puedes ser responsable y no responsable de IVA a la vez" });
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["fiscalResponsibilities"], message: "No puede ser responsable y no responsable de IVA a la vez" });
   }
 }).transform((c) =>
   c.personType === "natural" ? { ...c, businessName: undefined, taxIdCheckDigit: undefined } : c,
@@ -139,7 +139,7 @@ export const RutFileSchema = z
       .max(120, "El nombre del archivo es muy largo")
       // eslint-disable-next-line no-control-regex
       .regex(/^[^\u0000-\u001f\\/]+$/, "El nombre del archivo no es válido"),
-    mimeType: z.enum(RUT_MIME_TYPES, { errorMap: () => ({ message: "Formato no permitido: usa PDF, JPG o PNG" }) }),
+    mimeType: z.enum(RUT_MIME_TYPES, { errorMap: () => ({ message: "Formato no permitido: use PDF, JPG o PNG" }) }),
     sizeBytes: z.number().int().min(1, "El archivo está vacío").max(RUT_MAX_BYTES, "El archivo supera los 5 MB"),
     contentBase64: z
       .string()
@@ -157,7 +157,7 @@ export const RutFileSchema = z
 export type RutFile = z.infer<typeof RutFileSchema>;
 
 export const QuoteRequestSchema = z.object({
-  items: z.array(QuoteItemSchema).min(1, "Agrega al menos un producto").max(MAX_ITEMS),
+  items: z.array(QuoteItemSchema).min(1, "Agregue al menos un producto").max(MAX_ITEMS),
   project: QuoteProjectSchema,
   contact: QuoteContactSchema,
   // Optional RUT attachment (PDF, JPG or PNG, up to 5 MB). It is forwarded to the leads webhook only.

@@ -174,10 +174,10 @@ describe("acknowledgement to the customer", () => {
     w.call(lead("COT-2026-AAAAAA", undefined, { items }));
     expect(w.emails.map((m) => m.to)).toEqual([team, "ana@ejemplo.com"]); // the team is always first
     const ack = ackOf(w)[0]!;
-    expect(ack.subject).toBe("Recibimos tu solicitud de cotización COT-2026-AAAAAA");
+    expect(ack.subject).toBe("Recibimos su solicitud de cotización COT-2026-AAAAAA");
     expect(ack.replyTo).toBe(team);
     expect(ack.name).toBe("Electro Metálicas Ceygom");
-    for (const s of ["Hola Ana Pérez", "COT-2026-AAAAAA", "- 10 x Bandeja porta cables (BP0101)", "- 1 x Rack de piso", "Ciudad: Medellín", "no es una cotización ni un compromiso de precio", "(574) 444 6733", "https://sitio.example/privacidad/", "NIT 900456873-5"]) {
+    for (const s of ["Hola Ana Pérez", "COT-2026-AAAAAA", "- 10 x Bandeja porta cables (BP0101)", "- 1 x Rack de piso", "Ciudad: Medellín", "no es una cotización ni un compromiso de precio", "(604) 444 6733", "https://sitio.example/privacidad/", "NIT 900.456.873-5"]) {
       expect(ack.body).toContain(s);
     }
   });
@@ -187,14 +187,14 @@ describe("acknowledgement to the customer", () => {
     w.call(lead("COT-2026-AAAAAA", pdf));
     const ack = ackOf(w)[0]!;
     for (const s of ["900123456", "2599", "responsable-iva", "drive", "sheet/url", "573001112233"]) expect(ack.body).not.toContain(s);
-    expect(ack.body).toContain("Recibimos tu RUT.");
+    expect(ack.body).toContain("Recibimos su RUT.");
   });
 
   it("tells the customer to send the RUT by WhatsApp when it could not be stored", () => {
     const w = world({ ...base, NOTIFY_EMAIL: team, MAX_RUT_PER_DAY: "1" });
     w.call(lead("COT-2026-AAAAAA", pdf));
     w.call(lead("COT-2026-BBBBBB", pdf, { email: "otra@ejemplo.com" }));
-    expect(ackOf(w)[1]!.body).toContain("No pudimos guardar tu RUT");
+    expect(ackOf(w)[1]!.body).toContain("No pudimos guardar su RUT");
   });
 
   it("omits the policy link when SITE_URL is not set, and works without NOTIFY_EMAIL (no reply-to)", () => {
@@ -256,5 +256,53 @@ describe("acknowledgement to the customer", () => {
     w.call(lead("COT-2026-AAAAAA"));
     w.call(lead("COT-2026-AAAAAA"));
     expect(w.emails).toHaveLength(2); // one alert and one acknowledgement, not four
+  });
+});
+
+describe("acknowledgement: usted, brand style and HTML safety", () => {
+  const ackOf = (w: ReturnType<typeof world>) => w.emails.filter((m) => m.to !== team);
+  const html = (m: Mail) => (m as Mail & { htmlBody?: string }).htmlBody ?? "";
+
+  it("addresses the customer as usted in text and HTML, with the new phone and NIT", () => {
+    const w = world({ ...base, NOTIFY_EMAIL: team, SITE_URL: "https://sitio.example/" });
+    w.call(lead("COT-2026-AAAAAA"));
+    const ack = ackOf(w)[0]!;
+    for (const text of [ack.body, html(ack)]) {
+      expect(text).toContain("Recibimos su solicitud");
+      expect(text).toContain("Su referencia es");
+      expect(text).toContain("(604) 444 6733");
+      expect(text).toContain("900.456.873-5");
+      expect(text).not.toMatch(/\b(tu|tus|tú|necesitas|llámanos|guárdala)\b/i);
+      expect(text).not.toContain("574");
+    }
+  });
+
+  it("builds the HTML with the logo from SITE_URL, a red rule and Arial, and no logo when the site is unknown", () => {
+    const w = world({ ...base, NOTIFY_EMAIL: team, SITE_URL: "https://sitio.example/" });
+    w.call(lead("COT-2026-AAAAAA"));
+    const h = html(ackOf(w)[0]!);
+    expect(h).toContain('<img src="https://sitio.example/brand/logo-horizontal.png" width="150"');
+    expect(h).toContain("border-top:2px solid #C8202A");
+    expect(h).toContain("Arial");
+    expect(h).toContain("https://sitio.example/privacidad/");
+    for (const s of ["900123456", "2599", "responsable-iva", "drive/", "sheet/url", "573001112233"]) expect(h).not.toContain(s);
+
+    const bare = world({ ...base, NOTIFY_EMAIL: team });
+    bare.call(lead("COT-2026-BBBBBB"));
+    expect(html(ackOf(bare)[0]!)).not.toContain("<img");
+  });
+
+  it("escapes what the customer typed before it goes into the HTML", () => {
+    const w = world({ ...base, NOTIFY_EMAIL: team });
+    const evil = lead("COT-2026-AAAAAA", undefined, { items: [{ category: "canaletas", quantity: 1, productSlug: 'x"><script>alert(1)</script>' }] });
+    (evil.request.contact as { fullName: string }).fullName = `<img src=x onerror=alert(1)> & "Ana"`;
+    (evil.request.project as { city: string }).city = "<b>Medellín</b>";
+    w.call(evil);
+    const h = html(ackOf(w)[0]!);
+    expect(h).not.toContain("<script");
+    expect(h).not.toContain("<img src=x");
+    expect(h).not.toContain("<b>Medellín");
+    expect(h).toContain("&lt;img src=x onerror=alert(1)&gt; &amp; &quot;Ana&quot;");
+    expect(h).toContain("&lt;b&gt;Medellín&lt;/b&gt;");
   });
 });

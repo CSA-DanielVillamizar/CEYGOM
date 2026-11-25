@@ -6,9 +6,12 @@ export const LEGAL = {
   legalName: "Electro Metálicas Ceygom S.A.S." as string | undefined,
   nit: "900456873-5" as string | undefined,
   address: "Calle 28 nro 57-13, Unidad Industrial de Belén, Medellín, Colombia",
-  phoneLabel: "(574) 444 6733",
-  phoneHref: "tel:+5744446733",
+  phoneLabel: "(604) 444 6733",
+  phoneHref: "tel:+576044446733",
   // TODO(negocio): correo designado para consultas y reclamos de datos personales.
   privacyEmail: undefined as string | undefined,
   lastUpdate: "octubre de 2026",
 };
+
+/** NIT as printed in the brand manual: 900.456.873-5 (the stored value keeps the plain form used to check the digit). */
+export const nitDisplay = (nit: string): string => nit.replace(/^(\d{3})(\d{3})(\d{3})-(\d)$/, "$1.$2.$3-$4");
