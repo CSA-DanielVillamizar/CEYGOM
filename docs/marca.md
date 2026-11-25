@@ -31,7 +31,7 @@ Se reemplazan, con los mismos nombres, `logo-horizontal-negativo.svg`, `logo-hor
 ## Documentos que genera el sitio
 
 - **PDF de "Mi cotización":** logo a la izquierda, rótulo y fecha en mono rojo a la derecha, tabla con códigos en mono, anexo técnico y pie con línea roja de 3 px, NIT y teléfono. No lleva número de cotización porque la lista aún no se ha enviado (la referencia nace al enviar).
-- **Correo de confirmación:** texto y HTML (logo de 150 px desde `SITE_URL`, línea roja de 2 px, Arial), con todo lo que escribe el cliente escapado. Requiere volver a implementar el receptor de Apps Script ([guía](integraciones/google-apps-script.md)).
+- **Correo de confirmación:** texto y HTML (logo de 150 px desde `SITE_URL`, línea roja de 2 px, Arial), con todo lo que escribe el cliente escapado. Desplegado en producción con la versión 5 del receptor de Apps Script ([guía](integraciones/google-apps-script.md)); si cambia el dominio, actualizar la propiedad `SITE_URL`.
 
 ## Pendiente
 
