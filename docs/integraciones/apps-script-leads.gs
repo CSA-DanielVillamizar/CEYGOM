@@ -12,7 +12,7 @@
  *                   tope la solicitud se registra igualmente, pero sin archivo.
  *   CUSTOMER_ACK    (opcional) "off" desactiva el correo de confirmación al cliente. Por defecto está activo.
  *   MAX_ACK_PER_DAY (opcional, 50 por defecto) Tope diario de confirmaciones enviadas a clientes.
- *   SITE_URL        (opcional) Dirección del sitio, para enlazar la política de datos en la confirmación.
+ *   SITE_URL        (opcional) Dirección del sitio, para enlazar la política de datos y mostrar el logo en la confirmación.
  * El script debe estar vinculado a la hoja de cálculo (Extensiones > Apps Script desde la hoja).
  *
  * Apps Script no permite fijar el código HTTP de la respuesta, así que todo resultado se informa en el cuerpo
@@ -28,6 +28,11 @@ var ACK_QUOTA_RESERVE = 10;
 // ...y tiene un tope diario total y por dirección, porque el formulario es público y la dirección la escribe el visitante.
 var DEFAULT_MAX_ACK_PER_DAY = 50;
 var MAX_ACK_PER_ADDRESS_PER_DAY = 3;
+// Datos de la empresa que van en la confirmación (manual de marca: teléfono (604), NIT con puntos).
+var COMPANY_LEGAL_NAME = 'Electro Metálicas Ceygom S.A.S.';
+var COMPANY_NIT = '900.456.873-5';
+var COMPANY_PHONE = '(604) 444 6733';
+var COMPANY_ADDRESS = 'Calle 28 nro 57-13, Unidad Industrial de Belén, Medellín';
 var HEADERS = [
   'Referencia', 'Fecha (UTC)', 'Productos', 'Ciudad', 'Fecha requerida', 'Entorno',
   'Notas del proyecto', 'Tipo de persona', 'Razón social', 'Nombre', 'NIT / cédula', 'DV',
@@ -158,7 +163,7 @@ function notify_(lead, rutUrl, rutSaved) {
     var items = (r.items || []).map(function (it) {
       return '- ' + it.quantity + ' x ' + (it.productSlug || it.category) + (it.reference ? ' (' + it.reference + ')' : '') + (it.notes ? ' - ' + it.notes : '');
     }).join('\n');
-    var rutLine = !r.rutFile ? 'No adjuntó RUT.' : rutSaved ? 'RUT guardado en Drive: ' + rutUrl : 'El RUT NO se guardó (límite diario): pídeselo al cliente.';
+    var rutLine = !r.rutFile ? 'No adjuntó RUT.' : rutSaved ? 'RUT guardado en Drive: ' + rutUrl : 'El RUT NO se guardó (límite diario): pídaselo al cliente.';
     var body = [
       'Nueva solicitud de cotización ' + lead.reference,
       '',
@@ -189,6 +194,8 @@ function notify_(lead, rutUrl, rutSaved) {
 
 // Confirmación enviada al correo del propio cliente. Nunca incluye datos fiscales ni el enlace al RUT, y nunca hace
 // fallar el lead. "Responder a" es el correo del equipo (NOTIFY_EMAIL), para que la respuesta llegue a la empresa.
+// Trato de usted. Va en texto y en HTML (manual de marca 07.4: sin imágenes de fondo, logo de 150 px, línea roja de 2 px,
+// datos en Arial porque las fuentes web no se ven en el correo).
 function acknowledge_(lead, rutSaved) {
   try {
     var props = PropertiesService.getScriptProperties();
@@ -205,36 +212,62 @@ function acknowledge_(lead, rutSaved) {
       return;
     }
 
-    var items = (r.items || []).map(function (it) {
+    var lines = (r.items || []).map(function (it) {
       var label = String(it.productSlug || it.category).replace(/-/g, ' ');
       label = label.charAt(0).toUpperCase() + label.slice(1);
-      return '- ' + it.quantity + ' x ' + label + (it.reference ? ' (' + it.reference + ')' : '');
-    }).join('\n');
-    var rutLine = !r.rutFile ? '' : rutSaved ? 'Recibimos tu RUT.\n' : 'No pudimos guardar tu RUT: envíalo por WhatsApp indicando tu referencia.\n';
-    var site = props.getProperty('SITE_URL');
+      return it.quantity + ' x ' + label + (it.reference ? ' (' + it.reference + ')' : '');
+    });
+    var rutNote = !r.rutFile ? '' : rutSaved ? 'Recibimos su RUT.' : 'No pudimos guardar su RUT: envíelo por WhatsApp indicando su referencia.';
+    var site = (props.getProperty('SITE_URL') || '').replace(/\/+$/, '');
+    var policyUrl = site ? site + '/privacidad/' : '';
+    var intro = 'Recibimos su solicitud de cotización. Su referencia es ' + lead.reference + ': guárdela para cualquier consulta.';
+    var closing = 'Un asesor revisará su solicitud y le responderá con una cotización formal. Este mensaje solo confirma la recepción: no es una cotización ni un compromiso de precio.';
+    var contact = 'Si necesita algo, responda este correo o llámenos al ' + COMPANY_PHONE + '. ' + COMPANY_ADDRESS + '.';
+    var privacy = 'Usamos sus datos únicamente para atender su solicitud, según nuestra política de tratamiento de datos personales';
+    var legal = COMPANY_LEGAL_NAME + ' - NIT ' + COMPANY_NIT;
+
     var body = [
       'Hola ' + c.fullName + ',',
       '',
-      'Recibimos tu solicitud de cotización. Tu referencia es ' + lead.reference + ': guárdala para cualquier consulta.',
+      intro,
       '',
-      'Esto fue lo que pediste:',
-      items,
+      'Esto fue lo que pidió:',
+      lines.map(function (l) { return '- ' + l; }).join('\n'),
       'Ciudad: ' + r.project.city,
-      rutLine,
-      'Un asesor revisará tu solicitud y te responderá con una cotización formal. Este mensaje solo confirma la recepción: no es una cotización ni un compromiso de precio.',
+      rutNote ? rutNote + '\n' : '',
+      closing,
       '',
-      'Si necesitas algo, responde este correo o llámanos al (574) 444 6733. Calle 28 nro 57-13, Unidad Industrial de Belén, Medellín.',
+      contact,
       '',
-      'Usamos tus datos únicamente para atender tu solicitud, según nuestra política de tratamiento de datos personales' + (site ? ': ' + site.replace(/\/+$/, '') + '/privacidad/' : '.'),
+      privacy + (policyUrl ? ': ' + policyUrl : '.'),
       '',
-      'Electro Metálicas Ceygom S.A.S. - NIT 900456873-5'
+      legal
     ].join('\n');
+
+    var font = 'font-family:Arial,Helvetica,sans-serif;color:#16191D;';
+    var htmlBody =
+      '<div style="' + font + 'max-width:560px;font-size:15px;line-height:1.5">' +
+      (site ? '<img src="' + esc_(site) + '/brand/ceygom-horizontal.png" width="150" alt="CEYGOM Electro Metálicas" style="display:block;border:0">' : '<strong>CEYGOM Electro Metálicas</strong>') +
+      '<div style="border-top:2px solid #C8202A;margin:14px 0"></div>' +
+      '<p>Hola ' + esc_(c.fullName) + ',</p>' +
+      '<p>Recibimos su solicitud de cotización. Su referencia es <strong style="font-family:Consolas,Courier New,monospace;color:#C8202A">' + esc_(lead.reference) + '</strong>: guárdela para cualquier consulta.</p>' +
+      '<p style="margin-bottom:4px">Esto fue lo que pidió:</p>' +
+      '<ul style="margin-top:0;padding-left:20px">' + lines.map(function (l) { return '<li>' + esc_(l) + '</li>'; }).join('') + '</ul>' +
+      '<p>Ciudad: ' + esc_(r.project.city) + '</p>' +
+      (rutNote ? '<p>' + esc_(rutNote) + '</p>' : '') +
+      '<p>' + esc_(closing) + '</p>' +
+      '<p>' + esc_(contact) + '</p>' +
+      '<p style="font-size:13px;color:#5B636D">' + esc_(privacy) + (policyUrl ? ': <a href="' + esc_(policyUrl) + '" style="color:#C8202A">' + esc_(policyUrl) + '</a>' : '.') + '</p>' +
+      '<div style="border-top:2px solid #C8202A;margin:14px 0 8px"></div>' +
+      '<p style="font-size:12px;color:#5B636D;margin:0">' + esc_(legal) + '</p>' +
+      '</div>';
 
     var options = {
       to: c.email,
       name: 'Electro Metálicas Ceygom',
-      subject: 'Recibimos tu solicitud de cotización ' + lead.reference,
-      body: body
+      subject: 'Recibimos su solicitud de cotización ' + lead.reference,
+      body: body,
+      htmlBody: htmlBody
     };
     var replyTo = props.getProperty('NOTIFY_EMAIL');
     if (replyTo) options.replyTo = replyTo;
@@ -243,6 +276,11 @@ function acknowledge_(lead, rutSaved) {
     // Solo la referencia y el mensaje del error: nunca datos del cliente.
     console.error('Lead ' + lead.reference + ': acknowledgement failed: ' + (err && err.message));
   }
+}
+
+// Todo texto que escribió el cliente se escapa antes de ir dentro del HTML del correo.
+function esc_(value) {
+  return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 // Reserva una confirmación para esta dirección dentro de los topes diarios. Los contadores viven en una propiedad del script.
