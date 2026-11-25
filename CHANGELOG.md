@@ -6,6 +6,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). E
 
 ### Añadido
 
+- Entrega del equipo de marca: imagen para compartir diseñada (con logo A, puesta con `scripts/brand/set-share-image.mjs`; la B y la neutra quedan en `docs/marca/og/`), fuentes de Archivo al 118 de 10 KB cada una, borde de las tarjetas con el corte de 14 px y sin Plex Mono ni Plex Sans 500. Respuestas del equipo de marca en `docs/respuestas-rebrand.md`.
 - Identidad de marca CEYGOM v1 (ADR-0017): logo nuevo en encabezado, pie, favicon, imagen para compartir, PDF y correo; colores, tipografías alojadas en el sitio (Archivo, IBM Plex Sans y Mono), botones con chaflán, fotos sobre gris RAL 7035, inicio con la promesa "Lo ve en 3D antes de que lo fabriquemos.", menú de celular en una línea con barra inferior (Cotizar, WhatsApp, Llamar), trato de usted en todo el sitio, teléfono (604) 444 6733 y NIT 900.456.873-5. El correo de confirmación sale también en HTML con el estilo de marca. Se retira el logo EMC. No se publica ninguna certificación. El logo se declara en un solo lugar (`src/data/brand.ts`), las fuentes de Archivo son dos instancias estáticas al ancho 118, las tarjetas de línea llevan borde de dos capas, las fotos van sobre tarjeta blanca y el service worker sube a v2 y precarga fuentes, estilos y logos.
 
 - Sitio estático con Astro y Tailwind: inicio, productos, cotizador, empresa, contacto y 404.
