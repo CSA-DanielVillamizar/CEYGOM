@@ -58,7 +58,7 @@ const totalRefs = PRODUCTS.reduce((n, p) => n + (PRODUCT_DETAILS[p.slug]?.refere
               const image = d?.images[0];
               return (
                 <li class="flex flex-col overflow-hidden rounded-sm border border-steel-200 bg-white">
-                  <a href={`/productos/${p.category}/${p.slug}/`} class="foto-ral relative block">
+                  <a href={`/productos/${p.category}/${p.slug}/`} class="foto-tarjeta relative block">
                     {image && (
                       <Image src={productImage(image.file)} alt={image.illustrative ? `${p.name} (imagen ilustrativa)` : p.name} width={320} class="mx-auto h-44 w-full object-contain" loading="lazy" />
                     )}

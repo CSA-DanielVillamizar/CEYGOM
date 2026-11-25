@@ -16,15 +16,12 @@ const out = path.join(root, "src/assets/brand");
 // Apple touch icon from the favicon (monogram on grafito).
 await sharp(path.join(root, "public/favicon.svg"), { density: 384 }).resize(180, 180).png().toFile(path.join(root, "public/apple-touch-icon.png"));
 
-// Share image: grafito panel, negative logo, promise, and two product photos on flat RAL 7035 grey.
-const logo = await sharp(path.join(out, "ceygom-horizontal-negativo.svg"), { density: 192 }).resize({ width: 480 }).png().toBuffer();
+// Share image: grafito panel, negative logo, promise, and two product photos on flat white cards.
+const logo = await sharp(path.join(out, "logo-horizontal-negativo.svg"), { density: 192 }).resize({ width: 480 }).png().toBuffer();
 const photos = ["rack-piso-cerrado", "gabinete-equipos-medida"].map((n) => path.join(root, "src/assets/productos", `${n}.webp`));
 const tile = { w: 230, h: 330, gap: 24 };
 const tiles = await Promise.all(
-  photos.map(async (file) => {
-    const photo = await sharp(file).flatten({ background: "#ffffff" }).resize({ width: tile.w, height: tile.h, fit: "contain", background: "#ffffff" }).toBuffer();
-    return sharp({ create: { width: tile.w, height: tile.h, channels: 3, background: "#D7D9D6" } }).composite([{ input: photo, blend: "multiply" }]).png().toBuffer();
-  }),
+  photos.map((file) => sharp(file).flatten({ background: "#ffffff" }).resize({ width: tile.w, height: tile.h, fit: "contain", background: "#ffffff" }).png().toBuffer()),
 );
 const left = 1200 - 70 - (tile.w * 2 + tile.gap);
 const top = Math.round((630 - tile.h) / 2);

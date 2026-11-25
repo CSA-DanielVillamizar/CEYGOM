@@ -281,7 +281,7 @@ describe("acknowledgement: usted, brand style and HTML safety", () => {
     const w = world({ ...base, NOTIFY_EMAIL: team, SITE_URL: "https://sitio.example/" });
     w.call(lead("COT-2026-AAAAAA"));
     const h = html(ackOf(w)[0]!);
-    expect(h).toContain('<img src="https://sitio.example/brand/ceygom-horizontal.png" width="150"');
+    expect(h).toContain('<img src="https://sitio.example/brand/logo-horizontal.png" width="150"');
     expect(h).toContain("border-top:2px solid #C8202A");
     expect(h).toContain("Arial");
     expect(h).toContain("https://sitio.example/privacidad/");

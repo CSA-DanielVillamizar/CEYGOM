@@ -1,14 +1,21 @@
 @import "tailwindcss";
 
 /* Fonts are served from the site itself (no Google Fonts), so they keep working offline. Latin subset only:
-   it covers Spanish. Display: Archivo (variable, width axis). Text: IBM Plex Sans. Data: IBM Plex Mono. */
+   it covers Spanish. Display: Archivo at width 118 (already baked into these two static instances, 700 and 800).
+   Text: IBM Plex Sans. Data: IBM Plex Mono. */
 @font-face {
   font-family: "Archivo";
   font-style: normal;
   font-display: swap;
-  font-weight: 100 900;
-  font-stretch: 62% 125%;
-  src: url("@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2") format("woff2-variations");
+  font-weight: 700;
+  src: url("../assets/fonts/archivo-118-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 800;
+  src: url("../assets/fonts/archivo-118-800.woff2") format("woff2");
 }
 @font-face {
   font-family: "IBM Plex Sans";
@@ -37,13 +44,6 @@
   font-display: swap;
   font-weight: 400;
   src: url("@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2") format("woff2");
-}
-@font-face {
-  font-family: "IBM Plex Mono";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 500;
-  src: url("@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-500-normal.woff2") format("woff2");
 }
 
 /* Brand identity v1 (CEYGOM-Manual-de-Marca, sections 03 and 04). The color names keep the existing utility
@@ -78,15 +78,18 @@ body {
   color: var(--color-steel-900);
 }
 
-/* Headlines and big figures: Archivo expanded. */
+/* Headlines and big figures: Archivo (the 118 width is part of the font files). */
 h1,
 h2,
 h3,
 .font-display {
   font-family: var(--font-display);
-  font-stretch: 118%;
   font-weight: 700;
   letter-spacing: -0.01em;
+}
+h1,
+.font-display {
+  font-weight: 800;
 }
 
 /* Part identifiers: monospaced, with tabular figures. */
@@ -110,12 +113,27 @@ h3,
   outline-offset: -5px;
 }
 
-/* Product photos sit on a flat RAL 7035 grey: the white of the photo takes the grey (multiply). */
-.foto-ral {
-  background-color: var(--color-steel-200);
+/* Product photos sit on a flat white card (the swirl background of the old photos stays inside the photo until the
+   company provides real ones). */
+.foto-tarjeta {
+  background-color: #fff;
 }
-.foto-ral img {
-  mix-blend-mode: multiply;
+
+/* Cards with the chamfer AND a border that follows the diagonal: two layers. The outer one is the border colour
+   with the chamfer; the inner one, inset by the 1 px padding, has the same cut moved 1 px inwards (9.4 = 10 - 1.41 + 1). */
+.chaflan-borde {
+  background-color: var(--color-steel-200);
+  padding: 1px;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  transition: background-color 0.15s;
+}
+.chaflan-borde:hover,
+.chaflan-borde:focus-within {
+  background-color: var(--color-brand-600);
+}
+.chaflan-borde > * {
+  background-color: #fff;
+  clip-path: polygon(0 0, calc(100% - 9.4px) 0, 100% 9.4px, 100% 100%, 0 100%);
 }
 
 /* Perforated pattern for dark sections (manual 05.2). */

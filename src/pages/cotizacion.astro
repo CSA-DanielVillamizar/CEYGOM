@@ -1,7 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { LEGAL, nitDisplay } from "../data/legal";
-import logo from "../assets/brand/ceygom-horizontal.svg";
+import Logo from "../components/Logo.astro";
 ---
 
 <Layout
@@ -13,7 +13,7 @@ import logo from "../assets/brand/ceygom-horizontal.svg";
     <!-- Letterhead of the printed list (saved as PDF): logo left, document label and date right, in mono red. -->
     <div class="hidden print:mb-6 print:block">
       <div class="flex items-start justify-between gap-4 border-b border-steel-200 pb-3">
-        <img src={logo.src} width={logo.width} height={logo.height} alt="CEYGOM Electro Metálicas" class="h-12 w-auto" />
+        <Logo variant="positivo" class="h-12 w-auto" />
         <p class="text-right font-mono text-sm text-brand-600">LISTA DE REQUERIMIENTOS<br /><span id="print-date"></span></p>
       </div>
       <p class="mt-3 text-sm">Lista de requerimientos para solicitar cotización. No es una cotización ni incluye precios.</p>
