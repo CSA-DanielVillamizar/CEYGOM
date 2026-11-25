@@ -12,17 +12,17 @@ La identidad sale del kit `CEYGOM-rebrand` (Manual de Marca v1, `visual-identity
 | Dónde se declara el logo | `src/data/brand.ts` y `src/components/Logo.astro` | Único lugar: encabezado, pie, PDF, datos estructurados, imagen para compartir y correo leen estos archivos |
 | Favicon | `public/favicon.svg` | Kit de marca |
 | Ícono de iPhone y iPad | `public/apple-touch-icon.png` | Generado del favicon |
-| Imagen para compartir (1200×630) | `src/assets/brand/og-default.jpg` | Generada con `node scripts/brand/make-brand-assets.mjs` |
+| Imagen para compartir (1200×630) | `src/assets/brand/og-default.jpg` | Pieza diseñada por el equipo de marca en Archivo (`docs/marca/og/`: `a`, `b` y `neutra`), puesta con `node scripts/brand/set-share-image.mjs a` |
 | Colores, tipografías, forma | `src/styles/global.css` | Manual, secciones 03 a 05 |
 
 ## Si el cliente elige el logo B (EMC)
 
-Se reemplazan, con los mismos nombres, `logo-horizontal-negativo.svg`, `logo-horizontal.svg` y `isotipo.svg` en `src/assets/brand/`, `logo-horizontal.png` en `public/brand/` y `public/favicon.svg` por los de `opcion-b-emc` del kit, y se corre `node scripts/brand/make-brand-assets.mjs` (imagen para compartir e ícono de iPhone). Nada más cambia. Hay que subir `VERSION` en `public/sw.js` para que quien ya visitó el sitio reciba el logo nuevo.
+Se reemplazan, con los mismos nombres, `logo-horizontal-negativo.svg`, `logo-horizontal.svg` y `isotipo.svg` en `src/assets/brand/`, `logo-horizontal.png` en `public/brand/` y `public/favicon.svg` por los de `opcion-b-emc` del kit: el bloque completo (monograma EMC + separador + "ELECTRO METÁLICAS / CEYGOM", `emc-horizontal*.svg`) y el favicon `favicon-emc.svg`. El monograma solo queda únicamente para troquel, placas y sellos. Después se corre `node scripts/brand/make-brand-assets.mjs` (ícono de iPhone) y `node scripts/brand/set-share-image.mjs b` (imagen para compartir). Nada más cambia. Hay que subir `VERSION` en `public/sw.js` para que quien ya visitó el sitio reciba el logo nuevo.
 
 ## Sistema aplicado
 
 - **Colores:** rojo Ceygom `#C8202A` (acciones, máximo ~10 % de la pantalla), grafito `#16191D`, acero `#2B3138`, lámina `#5B636D`, galvanizado `#9AA1AA`, RAL 7035 `#D7D9D6` y blanco lámina `#F4F5F3`. Rojo claro `#FF4A4F` solo sobre grafito. El ámbar está definido pero no se usa: es solo para advertencias de seguridad. Los nombres de las clases (`brand-*`, `steel-*`) se conservaron: los valores cambian en un solo lugar.
-- **Tipografía:** Archivo al ancho 118 en dos instancias estáticas (700 y 800, ya sin `font-stretch`), IBM Plex Sans 400/500/600 e IBM Plex Mono 400 (códigos, medidas, NIT). Alojadas en el sitio, solo el subconjunto latino (120 KB en total), sin Google Fonts. El build las agrega a la lista que el service worker guarda desde la primera visita (`scripts/inject-sw-precache.mjs`).
+- **Tipografía:** Archivo al ancho 118 en dos instancias estáticas del equipo de marca (700 y 800, 10 KB cada una, ya sin `font-stretch`), IBM Plex Sans 400 y 600 e IBM Plex Mono 400 (códigos, medidas, NIT). Alojadas en el sitio, solo el subconjunto latino (menos de 100 KB en total), sin Google Fonts. El build las agrega a la lista que el service worker guarda desde la primera visita (`scripts/inject-sw-precache.mjs`).
 - **Forma:** chaflán de 45° en el botón primario (`.chaflan`) y en las tarjetas de línea con borde de dos capas que sigue la diagonal (`.chaflan-borde`); radio de 2 px en el resto. El anillo de foco se dibuja dentro del chaflán porque `clip-path` recorta lo de afuera. Altura mínima de botones: 44 px (52 px en el inicio).
 - **Fotos:** sobre tarjeta blanca plana (`.foto-tarjeta`). Mientras no haya fotos reales, el fondo de remolinos de las fotos viejas se ve dentro de la foto.
 - **Celular:** menú en una línea y barra inferior fija con Cotizar, WhatsApp y Llamar; el botón flotante de WhatsApp queda solo en escritorio.
@@ -37,6 +37,8 @@ Se reemplazan, con los mismos nombres, `logo-horizontal-negativo.svg`, `logo-hor
 
 - **Elección del logo A (CEYGOM) o B (EMC modernizado):** el sitio usa el A, que es el del kit; si el cliente elige el B se cambian los tres SVG y el favicon.
 - **Fotos reales** y **logo en alta resolución** de la empresa.
-- **Imagen para compartir:** la actual se genera con el titular en Arial. La entrega del equipo de marca trae `og/og-ceygom-a.png`: copiarla a `src/assets/brand/og-default.jpg` (convertida a JPG) cuando llegue el archivo.
+- **Imagen para compartir:** se usa la pieza con logo A, coherente con el encabezado. El equipo de marca recomendaba la neutra (sin logo) mientras el cliente no elija; se cambia con `node scripts/brand/set-share-image.mjs neutra`.
+- **Fotos:** el equipo de marca recorta las 14 fotos reales con fondo transparente si el cliente tarda en entregarlas; mientras tanto, tarjeta blanca.
+- **PDF tras el envío:** si más adelante se ofrece descargarlo de nuevo después de enviar la solicitud, esa versión debe llevar el número COT-AAAA-XXXXXX arriba a la derecha.
 - **Certificación RETIE 2024:** no se publica hasta tener el número de certificado, el organismo y los productos que cubre.
 - Preguntas abiertas al equipo de marca: ver [preguntas-rebrand.md](preguntas-rebrand.md).
