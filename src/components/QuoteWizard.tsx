@@ -44,7 +44,7 @@ const FISCAL_LABELS: Record<(typeof FISCAL_RESPONSIBILITIES)[number], string> = 
   "gran-contribuyente": "Gran contribuyente",
   autorretenedor: "Autorretenedor",
   "regimen-simple": "Régimen Simple de Tributación",
-  otra: "Otra (la confirmamos con tu RUT)",
+  otra: "Otra (la confirmamos con su RUT)",
 };
 
 type FiscalResponsibility = (typeof FISCAL_RESPONSIBILITIES)[number];
@@ -188,7 +188,7 @@ function readRutFile(file: File): Promise<{ file: RutFile | null; error: string 
   if (file.size > RUT_MAX_BYTES) return Promise.resolve({ file: null, error: "El archivo supera los 5 MB." });
   return new Promise((resolve) => {
     const reader = new FileReader();
-    reader.onerror = () => resolve({ file: null, error: "No pudimos leer el archivo. Intenta con otro." });
+    reader.onerror = () => resolve({ file: null, error: "No pudimos leer el archivo. Intente con otro." });
     reader.onload = () => {
       const result = typeof reader.result === "string" ? reader.result : "";
       const parsed = RutFileSchema.safeParse({
@@ -273,7 +273,7 @@ const clearProgress = () => {
 // ---- UI helpers ----
 
 const STEPS = ["Productos", "Proyecto", "Contacto", "Resumen"] as const;
-const inputCls = "mt-1 block w-full rounded border border-steel-200 bg-white px-3 py-2 text-base aria-[invalid=true]:border-brand-600";
+const inputCls = "mt-1 block w-full rounded-sm border border-steel-200 bg-white px-3 py-2 text-base aria-[invalid=true]:border-brand-600";
 
 function Field({ id, label, error, hint, children }: { id: string; label: string; error?: string | undefined; hint?: string; children: ReactNode }) {
   return (
@@ -375,7 +375,7 @@ export default function QuoteWizard() {
         dispatch({ type: "step", step: Math.min(...issues.map((i) => stepForPath(i.path)), 3) });
         return;
       }
-      setSubmit({ kind: "error", message: "No pudimos registrar tu solicitud en este momento.", fallbackUrl });
+      setSubmit({ kind: "error", message: "No pudimos registrar su solicitud en este momento.", fallbackUrl });
     } catch {
       setSubmit({ kind: "error", message: "Sin conexión con el servidor.", fallbackUrl });
     }
@@ -387,21 +387,21 @@ export default function QuoteWizard() {
   // ---- Success screen ----
   if (submit.kind === "done") {
     return (
-      <div role="status" className="rounded-lg border border-steel-200 bg-white p-6">
+      <div role="status" className="rounded-sm border border-steel-200 bg-white p-6">
         <h2 ref={headingRef} tabIndex={-1} className="text-2xl font-bold">¡Solicitud recibida!</h2>
-        <p className="mt-2">Tu referencia es <strong>{submit.result.reference}</strong>.</p>
+        <p className="mt-2">Su referencia es <strong>{submit.result.reference}</strong>.</p>
         <p className="mt-2 text-steel-600">
-          {submit.result.webhookDelivered ? "Un asesor revisará tu solicitud." : "Para agilizar, escríbenos ahora por WhatsApp."}
+          {submit.result.webhookDelivered ? "Un asesor revisará su solicitud." : "Para agilizar, escríbanos ahora por WhatsApp."}
         </p>
         {submit.result.webhookDelivered && (
           <p className="mt-2 text-steel-600">
-            Te enviaremos una confirmación con esta referencia a <strong>{state.contact.email}</strong>. Si no la ves en unos minutos, revisa la carpeta de correo no deseado y guarda la referencia.
+            Le enviaremos una confirmación con esta referencia a <strong>{state.contact.email}</strong>. Si no la ve en unos minutos, revise la carpeta de correo no deseado y guarde la referencia.
           </p>
         )}
         {!submit.result.webhookDelivered && state.rutFile && (
-          <p className="mt-2 text-steel-600">No pudimos guardar el RUT que adjuntaste. Envíalo por WhatsApp junto con tu referencia para completar la facturación.</p>
+          <p className="mt-2 text-steel-600">No pudimos guardar el RUT que adjuntó. Envíelo por WhatsApp junto con su referencia para completar la facturación.</p>
         )}
-        <a href={submit.result.whatsappUrl} target="_blank" rel="noopener noreferrer" className="mt-4 inline-block rounded bg-green-600 px-5 py-3 font-bold text-white hover:bg-green-700">
+        <a href={submit.result.whatsappUrl} target="_blank" rel="noopener noreferrer" className="mt-4 inline-block rounded-sm bg-green-600 px-5 py-3 font-bold text-white hover:bg-green-700">
           Enviar resumen por WhatsApp
         </a>
       </div>
@@ -434,7 +434,7 @@ export default function QuoteWizard() {
         if (state.step === 3) void onSend();
         else next();
       }}
-      className="rounded-lg border border-steel-200 bg-white p-4 sm:p-6"
+      className="rounded-sm border border-steel-200 bg-white p-4 sm:p-6"
     >
       <ol className="mb-6 flex flex-wrap gap-2 text-sm" aria-label="Pasos del cotizador">
         {STEPS.map((label, i) => (
@@ -445,7 +445,7 @@ export default function QuoteWizard() {
       </ol>
 
       {Object.keys(errors).length > 0 && (
-        <p role="alert" className="mb-4 rounded bg-brand-50 p-3 text-sm text-brand-700">Revisa los campos marcados antes de continuar.</p>
+        <p role="alert" className="mb-4 rounded-sm bg-brand-50 p-3 text-sm text-brand-700">Revise los campos marcados antes de continuar.</p>
       )}
 
       <h2 ref={headingRef} tabIndex={-1} className="mb-4 text-xl font-bold outline-none">{STEPS[state.step]}</h2>
@@ -454,21 +454,21 @@ export default function QuoteWizard() {
       {state.step === 0 && (
         <div className="space-y-6">
           {fromList > 0 && (
-            <p className="rounded bg-steel-50 p-3 text-sm text-steel-600">
-              Cargamos {fromList} {fromList === 1 ? "producto" : "productos"} de tu lista. Revisa las cantidades y completa lo que falte; puedes <a href="/cotizacion/" className="font-semibold text-brand-700 underline">editar tu lista</a> o <a href="/productos/" className="font-semibold text-brand-700 underline">seguir explorando</a>.
+            <p className="rounded-sm bg-steel-50 p-3 text-sm text-steel-600">
+              Cargamos {fromList} {fromList === 1 ? "producto" : "productos"} de su lista. Revise las cantidades y complete lo que falte; puede <a href="/cotizacion/" className="font-semibold text-brand-700 underline">editar su lista</a> o <a href="/productos/" className="font-semibold text-brand-700 underline">seguir explorando</a>.
             </p>
           )}
           {state.items.map((it, idx) => {
             const p = `items.${idx}.`;
             const products = PRODUCTS.filter((x) => x.category === it.category);
             return (
-              <fieldset key={idx} className="space-y-3 rounded border border-steel-200 p-4">
+              <fieldset key={idx} className="space-y-3 rounded-sm border border-steel-200 p-4">
                 <legend className="px-1 text-sm font-semibold">Producto {idx + 1}</legend>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <Field id={f(`cat${idx}`)} label="Categoría" error={e(`${p}category`)}>
                     <select id={f(`cat${idx}`)} className={inputCls} value={it.category} aria-invalid={!!e(`${p}category`)} aria-describedby={describedBy(f(`cat${idx}`), !!e(`${p}category`))}
                       onChange={(ev) => dispatch({ type: "item", index: idx, patch: { category: ev.target.value as CategoryId | "", productSlug: "" } })}>
-                      <option value="">Selecciona…</option>
+                      <option value="">Seleccione…</option>
                       {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
                     </select>
                   </Field>
@@ -513,7 +513,7 @@ export default function QuoteWizard() {
           })}
           {e("items") && <p className="text-sm text-brand-700">{e("items")}</p>}
           {state.items.length < MAX_ITEMS && (
-            <button type="button" className="rounded border border-steel-200 px-4 py-2 text-sm font-semibold hover:bg-steel-50" onClick={() => dispatch({ type: "addItem" })}>+ Agregar otro producto</button>
+            <button type="button" className="rounded-sm border border-steel-200 px-4 py-2 text-sm font-semibold hover:bg-steel-50" onClick={() => dispatch({ type: "addItem" })}>+ Agregar otro producto</button>
           )}
         </div>
       )}
@@ -582,12 +582,12 @@ export default function QuoteWizard() {
                 onChange={(ev) => dispatch({ type: "contact", patch: { taxIdCheckDigit: ev.target.value } })} />
             </Field>
           )}
-          <Field id={f("ciiu")} label="Actividad económica (código CIIU)" error={e("contact.ciiuCode")} hint="4 dígitos; aparece en la sección de actividad económica de tu RUT. Ej.: 2599">
+          <Field id={f("ciiu")} label="Actividad económica (código CIIU)" error={e("contact.ciiuCode")} hint="4 dígitos; aparece en la sección de actividad económica de su RUT. Ej.: 2599">
             <input id={f("ciiu")} inputMode="numeric" maxLength={4} className={inputCls} autoComplete="off" value={c.ciiuCode ?? ""} aria-invalid={!!e("contact.ciiuCode")} aria-describedby={describedBy(f("ciiu"), !!e("contact.ciiuCode"), true)}
               onChange={(ev) => dispatch({ type: "contact", patch: { ciiuCode: ev.target.value } })} />
           </Field>
           <fieldset className="sm:col-span-2">
-            <legend className="text-sm font-semibold">Responsabilidades fiscales (según tu RUT)</legend>
+            <legend className="text-sm font-semibold">Responsabilidades fiscales (según su RUT)</legend>
             <div className="mt-1 grid gap-1 sm:grid-cols-2">
               {FISCAL_RESPONSIBILITIES.map((v, i) => (
                 <label key={v} className="flex items-center gap-2">
@@ -614,7 +614,7 @@ export default function QuoteWizard() {
             {state.rutError ? (
               <p id={f("rut-err")} role="alert" className="mt-1 text-sm text-brand-700">{state.rutError}</p>
             ) : (
-              <p id={f("rut-hint")} className="mt-1 text-xs text-steel-600">PDF, JPG o PNG, hasta 5 MB. Se usa solo para facturar y crear tu registro como cliente.</p>
+              <p id={f("rut-hint")} className="mt-1 text-xs text-steel-600">PDF, JPG o PNG, hasta 5 MB. Se usa solo para facturar y crear su registro como cliente.</p>
             )}
           </div>
           <Field id={f("email")} label="Correo" error={e("contact.email")}>
@@ -663,22 +663,22 @@ export default function QuoteWizard() {
           <p>{state.rutFile ? `RUT adjunto: ${state.rutFile.fileName} (${formatSize(state.rutFile.sizeBytes)})` : "Sin RUT adjunto."}</p>
           <details>
             <summary className="cursor-pointer text-sm font-semibold">Ver resumen en JSON</summary>
-            <pre className="mt-2 max-h-72 overflow-auto rounded bg-steel-50 p-3 text-xs">{preview.success ? JSON.stringify({ ...preview.data, website: undefined, rutFile: preview.data.rutFile ? { ...preview.data.rutFile, contentBase64: "[omitido en esta vista]" } : undefined }, null, 2) : "Hay campos por corregir en pasos anteriores."}</pre>
+            <pre className="mt-2 max-h-72 overflow-auto rounded-sm bg-steel-50 p-3 text-xs">{preview.success ? JSON.stringify({ ...preview.data, website: undefined, rutFile: preview.data.rutFile ? { ...preview.data.rutFile, contentBase64: "[omitido en esta vista]" } : undefined }, null, 2) : "Hay campos por corregir en pasos anteriores."}</pre>
           </details>
           {submit.kind === "error" && (
-            <div role="alert" className="rounded bg-brand-50 p-3 text-sm text-brand-700">
+            <div role="alert" className="rounded-sm bg-brand-50 p-3 text-sm text-brand-700">
               {submit.message}{" "}
-              {submit.fallbackUrl ? <a className="font-semibold underline" href={submit.fallbackUrl} target="_blank" rel="noopener noreferrer">Escribir por WhatsApp</a> : "Intenta de nuevo o llámanos."}
+              {submit.fallbackUrl ? <a className="font-semibold underline" href={submit.fallbackUrl} target="_blank" rel="noopener noreferrer">Escribir por WhatsApp</a> : "Intente de nuevo o llámenos."}
             </div>
           )}
         </div>
       )}
 
       <div className="mt-6 flex justify-between gap-3">
-        <button type="button" onClick={() => go(state.step - 1)} disabled={state.step === 0 || submit.kind === "sending"} className="rounded border border-steel-200 px-4 py-2 font-semibold disabled:invisible">
+        <button type="button" onClick={() => go(state.step - 1)} disabled={state.step === 0 || submit.kind === "sending"} className="rounded-sm border border-steel-200 px-4 py-2 font-semibold disabled:invisible">
           Atrás
         </button>
-        <button type="submit" disabled={submit.kind === "sending" || (state.step === 2 && !state.contact.acceptsDataPolicy)} className="rounded bg-brand-600 px-6 py-2 font-semibold text-white hover:bg-brand-700 disabled:opacity-50">
+        <button type="submit" disabled={submit.kind === "sending" || (state.step === 2 && !state.contact.acceptsDataPolicy)} className="chaflan bg-brand-600 px-6 py-2 font-semibold text-white hover:bg-brand-700 disabled:opacity-50">
           {state.step === 3 ? (submit.kind === "sending" ? "Enviando…" : "Enviar solicitud") : "Siguiente"}
         </button>
       </div>

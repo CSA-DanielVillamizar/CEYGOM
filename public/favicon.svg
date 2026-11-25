@@ -1,4 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Electro Metálicas Ceygom">
-  <rect width="64" height="64" rx="12" fill="#c8102e"/>
-  <text x="32" y="42" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700" fill="#ffffff">EMC</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="10" fill="#16191D"/><g transform="translate(6 6) scale(0.8125)"><path fill-rule="evenodd" fill="#F4F5F3" d="M10 4H60V18H18V46H60V60H10L4 54V10Z M9 23h4v4h-4z M9 30h4v4h-4z M9 37h4v4h-4z"/><rect x="28" y="24" width="16" height="16" fill="#FF4A4F"/></g></svg>

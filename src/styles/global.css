@@ -1,14 +1,72 @@
 @import "tailwindcss";
 
+/* Fonts are served from the site itself (no Google Fonts), so they keep working offline. Latin subset only:
+   it covers Spanish. Display: Archivo (variable, width axis). Text: IBM Plex Sans. Data: IBM Plex Mono. */
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url("@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2") format("woff2-variations");
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url("@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url("@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-600-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url("@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-500-normal.woff2") format("woff2");
+}
+
+/* Brand identity v1 (CEYGOM-Manual-de-Marca, sections 03 and 04). The color names keep the existing utility
+   classes (brand-*, steel-*) so the whole site changes from here. */
 @theme {
+  /* Rojo Ceygom: actions and brand. Max ~10 % of a screen. */
   --color-brand-50: #fef2f2;
-  --color-brand-600: #c8102e;
-  --color-brand-700: #a50d26;
-  --color-steel-50: #f5f6f7;
-  --color-steel-200: #d9dde1;
-  --color-steel-600: #4b5563;
-  --color-steel-900: #1c2127;
-  --font-sans: "Trebuchet MS", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --color-brand-400: #ff4a4f; /* rojo claro: only on grafito backgrounds */
+  --color-brand-600: #c8202a;
+  --color-brand-700: #9e1820; /* hover / pressed */
+  /* Neutrals: blanco lámina, RAL 7035, galvanizado, lámina, acero, grafito. */
+  --color-steel-50: #f4f5f3;
+  --color-steel-200: #d7d9d6;
+  --color-steel-400: #9aa1aa;
+  --color-steel-600: #5b636d;
+  --color-steel-800: #2b3138;
+  --color-steel-900: #16191d;
+  /* Ámbar: ONLY for safety warnings, never decorative. */
+  --color-amber-safety: #f2a900;
+
+  --font-sans: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", Consolas, monospace;
+  --font-display: "Archivo", "Arial Narrow", Arial, sans-serif;
 }
 
 html {
@@ -20,7 +78,48 @@ body {
   color: var(--color-steel-900);
 }
 
+/* Headlines and big figures: Archivo expanded. */
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display);
+  font-stretch: 118%;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Part identifiers: monospaced, with tabular figures. */
+.font-mono {
+  font-variant-numeric: tabular-nums;
+}
+
 :focus-visible {
   outline: 3px solid var(--color-brand-600);
   outline-offset: 2px;
+}
+
+/* Signature shape: the top-right corner cut at 45 degrees (primary buttons and line cards). clip-path also clips
+   the outside of the box, so the focus ring is drawn inside it. */
+.chaflan {
+  border-radius: 2px;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+}
+.chaflan:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -5px;
+}
+
+/* Product photos sit on a flat RAL 7035 grey: the white of the photo takes the grey (multiply). */
+.foto-ral {
+  background-color: var(--color-steel-200);
+}
+.foto-ral img {
+  mix-blend-mode: multiply;
+}
+
+/* Perforated pattern for dark sections (manual 05.2). */
+.perforado {
+  background-color: var(--color-steel-900);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Crect x='4' y='4' width='4' height='4' fill='%23ffffff' fill-opacity='.07'/%3E%3C/svg%3E");
 }
